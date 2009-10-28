@@ -1,19 +1,21 @@
+# -encoding utf-8
+
 ChooseComponents {
     Title
-    "Выбор компонент для установки"
+    "Zvolte souДЌГЎsti"
 
     Subtitle
-    "Выберите компоненты, которые вы хотите установить."
+    "Zvolte souДЌГЎsti, kterГ© budou nainstalovГЎny."
 
     Caption
-    "Отметьте компоненты, которые вы хотите установить, и снимите отметку\
-     с тех компонент, которые вы не желаете устанавливать."
+    "Zvolte souДЌГЎsti, kterГ© chcete nainstalovat, a zruЕЎte vybrГЎnГ­ souДЌГЎstГ­,\
+     kterГ© nechcete nainstalovat."
 
     Message
-    "Для установки требуется <%SpaceRequiredText%> на жестком диске"
+    "VyЕѕadovГЎno <%SpaceRequiredText%> mГ­sta"
 
     DescriptionLabel
-    "Описание"
+    "Popis"
 
     NextButton
     "<%Next%> >"
@@ -27,13 +29,13 @@ ChooseComponents {
 
 CopyFiles {
     Title
-    "Установка"
+    "Instalace"
 
     Subtitle
-    "Установка <%AppName%>"
+    "Instalace programu <%AppName%>"
 
     Caption
-    "Идёт установка <%AppName%> на Ваш компьютер. Пожалуйста, подождите."
+    "ProsГ­m ДЌekejte, dokud nebude program <%AppName%> nainstalovГЎn na vГЎЕЎ poДЌГ­taДЌ."
 
     Message
     ""
@@ -56,10 +58,10 @@ CopyFiles {
 
 CustomBlankPane1 {
     Caption
-    "Здесь должна быть подпись."
+    "Titulek bude zde."
 
     Message
-    "Здесь должно быть сообщение."
+    "ZprГЎva bude zde."
 
     NextButton
     "<%Next%> >"
@@ -73,16 +75,16 @@ CustomBlankPane1 {
 
 CustomBlankPane2 {
     Title
-    "Заголовок"
+    "Nadpis"
 
     Subtitle
-    "Подзаголовок"
+    "Podnadpis"
 
     Caption
-    "Подпись"
+    "Titulek"
 
     Message
-    "Сообщение"
+    "ZprГЎva"
 
     NextButton
     "<%Next%> >"
@@ -96,19 +98,19 @@ CustomBlankPane2 {
 
 CustomTextPane1 {
     Title
-    "Заголовок"
+    "Nadpis"
 
     Subtitle
-    "Подзаголовок"
+    "Podnadpis"
 
     Caption
-    "Подпись"
+    "Titulek"
 
     Message
-    "Сообщение"
+    "ZprГЎva"
 
     Text
-    "Здесь впишите текст."
+    "Zde vloЕѕte svЕЇj vlastnГ­ text."
 
     NextButton
     "<%Next%> >"
@@ -122,36 +124,36 @@ CustomTextPane1 {
 
 License {
     Title
-    "Лицензионное Соглашение"
+    "LicenДЌnГ­ ujednГЎnГ­"
 
     Subtitle
-    "Пожалуйста, внимательно прочтите приведённое ниже лицензионное соглашение."
+    "NГЎsledujГ­cГ­ licenДЌnГ­ ujednГЎnГ­ prosГ­m ДЌtД›te peДЌlivД›."
 
     Text
-    "Здесь должно быть лицензионное соглашение."
+    "Zde vloЕѕte svГ© licenДЌnГ­ ujednГЎnГ­."
 
     AcceptRadiobutton
-    "Я принимаю положения лицензионного соглашения."
+    "PЕ™ijГ­mГЎm podmГ­nky licenДЌnГ­ho ujednГЎnГ­."
 
     DeclineRadiobutton
-    "Я не принимаю положения лицензионного соглашения."
+    "NepЕ™ijГ­mГЎm podmГ­nky licenДЌnГ­ho ujednГЎnГ­."
 
     NextButton
-    "<%Next%> >"
+    "<%Yes%>"
 
     BackButton
     "< <%Back%>"
 
     CancelButton
-    "<%Cancel%>"
+    "<%No%>"
 }
 
 Readme {
     Title
-    "Информация"
+    "Informace ДЊtiMД›"
 
     Subtitle
-    "Информация о <%AppName%>"
+    "Informace ДЊtiMД› pro <%AppName%>"
 
     Caption
     ""
@@ -160,7 +162,7 @@ Readme {
     ""
 
     Text
-    ""
+    "Sem vloЕѕte vaЕЎe informace ДЌtimД›."
 
     NextButton
     "<%Next%> >"
@@ -174,21 +176,22 @@ Readme {
 
 SelectDestination {
     Title
-    "Укажите каталог назначения"
+    "Zvolte cГ­lovГ© umГ­stД›nГ­"
 
     Subtitle
-    "Где нужно установить <%AppName%> ?"
+    "Kam mГЎ bГЅt program <%AppName%> nainstalovГЎn?"
 
     Caption
-    "<%AppName%> будет установлена в указанный ниже каталог.\n\nЧтобы произвести установку\
-     в этот каталог, щёлкните по <%Next%>.  Чтобы произвести установку в другой каталог, щёлкните\
-     по <%Browse%>."
+    "Program <%AppName%> bude nainstalovГЎn do nГЎsledujГ­cГ­ sloЕѕky.\n\nK instalaci\
+     do tГ©to sloЕѕky stisknД›te VpЕ™ed. K instalaci do jinГ© sloЕѕky stisknД›te\
+     ProchГЎzet a zvolte jinou sloЕѕku."
 
     Message
     ""
 
     BrowseText
-    "Для продолжения щёлкните по <%Next%>. Для указания другого каталога щёлкните по <%Browse%>."
+    "K pokraДЌovГЎnГ­ stisknД›te VpЕ™ed. Pokud chcete vybrat odliЕЎnou sloЕѕku,\
+     stisknД›te ProchГЎzet."
 
     NextButton
     "<%Next%> >"
@@ -203,29 +206,29 @@ SelectDestination {
     "<%Browse%>"
 
     DestinationLabel
-    "Каталог назначения"
+    "CГ­lovГЎ sloЕѕka"
 }
 
 SelectProgramFolder {
     Title
-    "Укажите программную группу"
+    "Zvolte sloЕѕku programu"
 
     Subtitle
-    "Пожалуйста, выберите программную группу."
+    "ProsГ­m zvolte sloЕѕku programu."
 
     Caption
-    "Ярлыки программы будут добавлены в указанную ниже программную группу. \
-     Вы можете указать другую группу, либо выбрать группу из списка существующих. \
-     Для продолжения щёлкните по <%Next%>."
+    "InstalГЎtor pЕ™idГЎ ikony programu do sloЕѕky programu uvedenГ© nГ­Еѕe.\
+     MЕЇЕѕete vepsat odliЕЎnГЅ nГЎzev sloЕѕky nebo ji vybrat ze seznamu existujГ­cГ­ch sloЕѕek.\
+     K pokraДЌovГЎnГ­ stisknД›te VpЕ™ed."
 
     Message
     ""
 
     ProgramFolderLabel
-    "Программная группа:"
+    "SloЕѕka programu:"
 
     FolderListLabel
-    "Существующие программные группы:"
+    "ExistujГ­cГ­ sloЕѕky:"
 
     NextButton
     "<%Next%> >"
@@ -237,16 +240,16 @@ SelectProgramFolder {
     "<%Cancel%>"
 
     AllUsersCheckbutton
-    "Создать программную группу для всех пользователей"
+    "VytvoЕ™it sloЕѕku programu pro vЕЎechny uЕѕivatele"
 }
 
 SetupComplete {
     Caption
-    "Установка завершена"
+    "PrЕЇvodce InstallJammer dokonДЌen"
 
     Message
-    "Мастер InstallJammer успешно установил <%AppName%>. \
-     Выберите <%Finish%>, чтобы закрыть мастер."
+    "PrЕЇvodce InstallJammer ГєspД›ЕЎnД› nainstaloval program <%AppName%>.\
+     StisknД›te DokonДЌit pro ukonДЌenГ­ prЕЇvodce."
 
     NextButton
     "<%Finish%>"
@@ -260,19 +263,19 @@ SetupComplete {
 
 SetupType {
     Title
-    "Тип установки"
+    "Typ instalace"
 
     Subtitle
-    "Выберите тип установки, который вам больше всего подходит."
+    "Zvolte typ instalace, kterГЅ vГЎm nejlГ©pe vyhovuje."
 
     Caption
-    "Щёлкните по нужному вам типу установки."
+    "KliknД›te na upЕ™ednostЕ€ovanГЅ typ instalace."
 
     Message
     ""
 
     DescriptionLabel
-    "Описание"
+    "Popis"
 
     NextButton
     "<%Next%> >"
@@ -286,24 +289,24 @@ SetupType {
 
 StartCopyingFiles {
     Title
-    "Начало копирования файлов"
+    "Spustit kopГ­rovГЎnГ­ souborЕЇ"
 
     Subtitle
-    "Просмотр информации перед началом копирования файлов"
+    "Zkontrolujte nastavenГ­ pЕ™ed kopГ­rovГЎnГ­m souborЕЇ"
 
     Caption
-    "Программа установки собрала необходимую информацию для начала копирования файлов. \
-     Щёлкните по <%Back%>, чтобы проверить или заново ввести информацию для установки. \
-     Чтобы начать установку, щёлкните по <%Next%>."
+    "InstalГЎtor mГЎ dostatek informacГ­ pro spustД›nГ­ kopГ­rovГЎnГ­ souborЕЇ programu. Pokud\
+     chcete zkontrolovat nebo zmД›nit jakГ©koliv nastavenГ­, stisknД›te ZpД›t. Pokud jste\
+     spokojeni s nastavenГ­m, stisknД›te VpЕ™ed pro spuЕЎtД›nГ­ kopГ­rovГЎnГ­ souborЕЇ."
 
     Message
     ""
 
     Text
-    "Каталог назначения:
+    "InstalaДЌnГ­ sloЕѕka:
             <%InstallDir%>
 
-    Тип установки:
+    Typ instalace:
             <%InstallType%>"
 
     NextButton
@@ -318,10 +321,10 @@ StartCopyingFiles {
 
 Uninstall {
     Title
-    "Деинсталляция"
+    "Odinstalace"
 
     Subtitle
-    "Деинсталляция <%AppName%>"
+    "Odinstalace programu <%AppName%>"
 
     Caption
     "<%GroupBeingUninstalledText%>"
@@ -347,10 +350,10 @@ Uninstall {
 
 UninstallComplete {
     Caption
-    "Деинсталляция завершена"
+    "Odinstalace dokonДЌena"
 
     Message
-    "<%AppName%> удалена из вашей системы."
+    "Program <%AppName%> byl odstranД›n z vaЕЎeho systГ©mu."
 
     NextButton
     "<%Finish%>"
@@ -364,13 +367,13 @@ UninstallComplete {
 
 UninstallDetails {
     Title
-    "Информация о деинсталляции"
+    "Podrobnosti odinstalace"
 
     Subtitle
-    "В процессе удаления произошли ошибки"
+    "BД›hem odstraЕ€ovГЎnГ­ doЕЎlo k chybГЎm"
 
     Caption
-    "В процессе деинсталляции произошли следующие ошибки:"
+    "NГЎsledujГ­cГ­ chyby nastaly bД›hem odstraЕ€ovГЎnГ­:"
 
     Message
     ""
@@ -391,22 +394,22 @@ UninstallDetails {
 
 UserInformation {
     Title
-    "Информация о пользователе"
+    "ZГЎkaznickГ© informace"
 
     Subtitle
-    "Пожалуйста, введите ваши данные."
+    "ProsГ­m zadejte svГ© informace."
 
     Caption
-    "Пожалуйста, введите ваше имя и название компании, в которой вы работаете."
+    "ProsГ­m zadejte svГ© jmГ©no a nГЎzev spoleДЌnosti, pro kterou pracujete."
 
     Message
     ""
 
     UserNameLabel
-    "Имя пользователя:"
+    "JmГ©no zГЎkaznГ­ka:"
 
     CompanyLabel
-    "Компания:"
+    "SpoleДЌnost:"
 
     NextButton
     "<%Next%> >"
@@ -421,12 +424,12 @@ UserInformation {
 
 Welcome {
     Caption
-    "Вас приветствует мастер установки InstallJammer для <%AppName%>"
+    "VГ­tejte v prЕЇvodci InstallJammer pro program <%AppName%>"
 
     Message
-    "Мастер InstallJammer установит <%AppName%> <%Version%> на вашем компьютере. \
-    \n\nПеред началом установки рекомендуется закрыть все другие работающие\
-    программы.\n\nЧтобы продолжить, выберите <%Next%>, или выберите <%Cancel%> для выхода."
+    "Na vГЎЕЎ poДЌГ­taДЌ bude nainstalovГЎn program <%AppName%> verze <%Version%>.\
+    \n\nPЕ™ed pokraДЌovГЎnГ­m je doporuДЌeno uzavЕ™Г­t vЕЎechny ostatnГ­ aplikace.\
+    \n\nStisknД›te VpЕ™ed k pokraДЌovГЎnГ­ nebo ZruЕЎit k ukonДЌenГ­ instalГЎtoru."
 
     NextButton
     "<%Next%> >"
@@ -440,13 +443,13 @@ Welcome {
 
 InstallPassword {
     Title
-    "Пароль установки"
+    "Heslo instalace"
 
     Subtitle
-    "Для продолжения установки необходимо указать пароль."
+    "Tato instalace vyЕѕaduje k pokraДЌovГЎnГ­ heslo."
 
     Caption
-    "Пожалуйста, введите пароль."
+    "ProsГ­m zadejte heslo."
 
     Message
     ""

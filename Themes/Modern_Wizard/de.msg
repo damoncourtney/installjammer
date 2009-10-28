@@ -134,13 +134,13 @@ License {
     "Ich akzeptiere nicht die Lizenzbestimmungen."
 
     NextButton
-    "<%Yes%>"
+    "<%Next%> >"
 
     BackButton
     "< <%Back%>"
 
     CancelButton
-    "<%No%>"
+    "<%Cancel%>"
 }
 
 Readme {

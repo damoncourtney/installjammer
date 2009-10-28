@@ -2039,6 +2039,7 @@ proc Frame.virtualText {} {
     $top.listframe setwidget $l
     set widg(VirtualTextTable) $l
 
+    $l tag configure sel -borderwidth 1 -relief ridge
     $l column configure 0 -title "Text" -width 25
     $l column configure 1 -title "Value" \
         -browsebutton 1 -browseargs [list -style Toolbutton] \

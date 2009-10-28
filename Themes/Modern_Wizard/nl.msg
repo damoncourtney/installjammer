@@ -134,7 +134,7 @@ License {
     "Ik ga NIET akkoord met de licentie overeenkomst."
 
     NextButton
-    "<%Yes%>"
+    "<%Next%> >"
 
     BackButton
     "< <%Back%>"

@@ -138,13 +138,13 @@ License {
     "Að nesutinku su licencija."
 
     NextButton
-    "<%Yes%>"
+    "<%Next%> >"
 
     BackButton
     "< <%Back%>"
 
     CancelButton
-    "<%No%>"
+    "<%Cancel%>"
 }
 
 Readme {

@@ -134,13 +134,13 @@ License {
     "Nem fogadom el a licensz megállapodás feltételeit."
 
     NextButton
-    "<%Yes%>"
+    "<%Next%> >"
 
     BackButton
     "< <%Back%>"
 
     CancelButton
-    "<%No%>"
+    "<%Cancel%>"
 }
 
 Readme {

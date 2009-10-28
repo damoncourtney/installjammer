@@ -55,8 +55,9 @@ proc ChooseDirectory::create { path args } {
     } else {
         entry $frame.e -textvariable [Widget::widgetVar $path folder]
     }
-    grid  $frame.e -row 2 -column 0 -sticky ew -pady 2 -padx 1
-    bind $frame.e <Key> [list ChooseDirectory::_update_ok_button $path]
+    grid $frame.e -row 2 -column 0 -sticky ew -pady 2 -padx 1
+    trace add variable [Widget::widgetVar $path folder] write \
+        [list ChooseDirectory::_update_ok_button $path]
 
     ScrolledWindow $frame.sw
     grid $frame.sw -row 3 -column 0 -sticky news
@@ -222,6 +223,8 @@ proc ChooseDirectory::_selection_change { path tree } {
     set node   [$tree selection get]
     set folder [file nativename [$tree itemcget $node -data]]
 
+    [$path getframe].e selection clear
+
     if {[file writable $folder]} {
         ButtonBox::itemconfigure $path.bbox 0 -state normal
     } else {
@@ -351,17 +354,13 @@ proc ChooseDirectory::_verify_new_directory { path tree node newtext } {
 }
 
 
-proc ChooseDirectory::_update_ok_button { path {really 0} } {
+proc ChooseDirectory::_update_ok_button { path args } {
     if {[Widget::exists $path]} {
-        if {!$really} {
-            after idle [concat [info level 0] 1]
+        Widget::getVariable $path folder
+        if {[string trim $folder] eq ""} {
+            ButtonBox::itemconfigure $path.bbox 1 -state disabled
         } else {
-            Widget::getVariable $path folder
-            if {[string trim $folder] eq ""} {
-                ButtonBox::itemconfigure $path.bbox 1 -state disabled
-            } else {
-                ButtonBox::itemconfigure $path.bbox 1 -state normal
-            }
+            ButtonBox::itemconfigure $path.bbox 1 -state normal
         }
     }
 }

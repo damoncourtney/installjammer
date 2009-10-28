@@ -216,6 +216,9 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts3>&lt;%InstallStarted%&gt;</span></p>
 <p class=rvps1><span class=rvts2>True if the file installation portion of the install was started, whether it completed or not.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
+<p class=rvps1><span class=rvts3>&lt;%InstallStartupDir%&gt;</span></p>
+<p class=rvps1><span class=rvts2>This virtual text contains the directory where the installer was started from.</span></p>
+<p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts3>&lt;%InstallStopped%&gt;</span></p>
 <p class=rvps1><span class=rvts2>True if the user cancelled the file installation before it had a chance to complete.</span></p>
 <p class=rvps1><span class=rvts3><br></span></p>
@@ -322,7 +325,7 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts2>This is the file extension for common script on each platform.&nbsp; This is set to .bat on Windows and .sh on UNIX platforms.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts3>&lt;%SelectedComponents%&gt;</span></p>
-<p class=rvps1><span class=rvts2>A list of components that are currently selected for installation.&nbsp; This should be treated as a Tcl list.</span></p>
+<p class=rvps1><span class=rvts2>A list of components that are currently selected for installation.&nbsp; This should be treated as a Tcl list.&nbsp; Setting this virtual text has the effect of changing the currently-selected components in the installer.&nbsp; This is done, for example, when an installer reads in a response file that contains a list of selected components.&nbsp; When the SelectedComponents virtual text is set, the components within the install are activated and deactivated based on the new values.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts3>&lt;%SelectedFileGroups%&gt;</span></p>
 <p class=rvps1><span class=rvts2>A list of file groups that are currently selected for installation.&nbsp; This should be treated as a Tcl list.</span></p>
@@ -362,11 +365,20 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts3>&lt;%Testing%&gt;</span></p>
 <p class=rvps1><span class=rvts2>If true, InstallJammer will run in test mode which means no files will be installed or uninstalled.&nbsp; This does not stop other actions that create shortcuts, etc...</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
+<p class=rvps1><span class=rvts3>&lt;%Tolower ?string?%&gt;</span></p>
+<p class=rvps1><span class=rvts2>Returns the given string with all characters in lowercase.</span></p>
+<p class=rvps1><span class=rvts2><br></span></p>
+<p class=rvps1><span class=rvts3>&lt;%Toupper ?string?%&gt;</span></p>
+<p class=rvps1><span class=rvts2>Returns the given string with all characters in uppercase.</span></p>
+<p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts3>&lt;%UninstallMode%&gt;</span></p>
 <p class=rvps1><span class=rvts2>The current uninstall mode: Console, Silent or Standard.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts3>&lt;%UninstallPercentComplete%&gt;</span></p>
 <p class=rvps1><span class=rvts2>The current percentage complete of the file uninstallation.&nbsp; This is only valid during uninstall.</span></p>
+<p class=rvps1><span class=rvts2><br></span></p>
+<p class=rvps1><span class=rvts3>&lt;%UninstallStartupDir%&gt;</span></p>
+<p class=rvps1><span class=rvts2>This virtual text contains the directory where the uninstaller was started from.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts3>&lt;%UpgradeApplicationID%&gt;</span></p>
 <p class=rvps1><span class=rvts2>The Upgrade Application ID specified by the developer.</span></p>

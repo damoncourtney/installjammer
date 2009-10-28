@@ -27,6 +27,7 @@ Property Account shorttext "Account"
 Property Command shorttext "Command"
 Property Database short "Database"
 Property Dependencies shorttext "Dependencies"
+Property Description text "Description"
 Property DisplayName shorttext "Display Name"
 Property ErrorControl choice "Error Control" "Normal" \
   {"Critical" "Ignore" "Normal" "Severe"}
@@ -87,4 +88,10 @@ proc ::InstallJammer::actions::CreateWindowsService { obj } {
     }
 
     eval $cmd
+
+    if {$props(Description) ne ""} {
+        set key "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services"
+        append key "\\$props(ServiceName)"
+        registry set $key Description $props(Description)
+    }
 }

@@ -1,121 +1,49 @@
-1.2.13 (July 7th, 2009)
+1.2.14 (September 18th, 2009)
 
 This release contains minor bug fixes and enhancements.
 
 
 Minor Bug Fixes
-Fix a bug in the Ask Yes or No condition that would cause an error in silent mode.
-Fixed a bug where clicking in the virtual text table could sometimes jump to another part of the table if another field was already being edited.
-Made some general bug fixes and behavior tweaks to the virtual text table.
-Fixed a bug where a modal dialog (like the conditions editor) could end up outside of the viewing area when switching from larger to smaller monitors.
-Fixed a bug in the Create Windows Service action where an error would occur when installing a Shared Process service.
-Fixed a bug where the .installjammer directory was being created on startup when it didn't need to be.  This would cause some command-line builds to fail when built by a user who doesn't have a home directory.  The directory is now created only when the builder goes to save its preference settings.
-Fixed a bug in Message Box and Message Panel that would allow them to execute in a console or silent install and then throw an error.  These actions will no longer execute in a console or silent install.
-Fixed a bug where InstallJammer would attempt to load any *.msg file sitting next to the project file when loading the project.
-Fixed a bug where using the keyboard to navigate setup types would not change the description as one was selected.
-Fixed a bug where the SetActiveSetupType API call would not change the active setup type selected on the screen if the Setup Type pane was visible.
-Fixed a bug that would cause shortcuts not to work on Asian versions of Windows.
-Fixed a bug where failing to load a project would corrupt the builder and require it to be restarted to load another project.
-Fixed a bug where the uninstaller would remove ALL environment variables added by an installer on UNIX, even the ones marked not to be removed.
-Fixed a bug where the uninstaller would not properly default to the language chosen during installation for some of the available languages.
-Changed the way the uninstall handles the deletion of the uninstaller itself.  The uninstaller now gets renamed into the temp directory instead of launching a copy of itself.
-Replace the restart of the gnome-panel.  Some versions of the panel still require a restart to pick up menu changes, and until I can determine what versions need it and what don't, we'll err on the side of just doing it.
-Fixed a bug where zip and tar archives weren't picking up any files during a build.  Also cleaned up when and how a refresh of the file groups is done so that it isn't done redundantly.
-Fixed a bug where the uninstall would default to the system language when it should keep the language used during installation.
-Fixed a bug where newer Gnome terminals would ignore more than one command when executing an external action in a console.  Any command executed in a console is now stored in a file and then executed as a script.
-Fixed a bug from beta 1 where command-line arguments in the builder were being ignored when testing on Windows.
-Fixed a bug where several APIs would cause an error if executed in silent mode.  These APIs are now restricted to GUI-only code.
-Fixed a bug where recursive directory links could cause an infinite loop in the builder.
-Fixed a bug where opening an explorer windows on UNIX platforms could fail.
-Fixed a bug where the /installkitvfs directory would show up in choose file and directory dialogs.
-Fixed a bug where the Select Destination pane would not properly substitute the destination label when updating the pane.
-Installing UNIX shortcuts as root will not install them for all users and not for the root user.  This does not count for desktop icons, only for program folders and shortcuts.
-Removed the code to restart the gnome-panel on Gnome desktops.  It seems like the panel will automatically pick up the changes on its own now.
-Fixed a bug where the default system language was not getting picked up properly on some Windows systems.
-Fixed a bug with the choose directory dialog on Vista where it was still looking for My Documents even though Vista just calls it Documents.
-Fixed a bug where trying to launch explorer in a directory on Vista would just open the explorer to the My Computer screen.
-Fixed a bug where tar and zip archives did not auto refresh files when the Refresh File List Before Building preference was turned on.
-Fixed a bug in the Create File Link action where it would fail on UNIX systems if the link target did not already exist.  This will remain a requirement for Windows platforms however.
-Fixed a bug in the Execute External Program action where the Progressive Output Widget could not be found when the action was nested in an action group.
-Cleaned up all of the message catalogs to remove double spaces when displaying text in some panes.  These extra spaces were part of the actual message catalog and not a bug in the installers.
-Fixed a bug where some actions (like WriteTextToFile) that log files would error out when running inside of an uninstaller.
-Fixed a bug where editing some text fields would not cause the project to become modified.
-Fixed a bug where setting Windows file attributes on a non-Windows platform would then cause an error during installation.
-Fixed a bug in the Platform Condition where not all platforms were available.
-Fixed a bug in the Execute External Program action where watching for output to the Status virtual text could cause an infinite loop error.
-Fixed a bug where Uninstall Leftover Files was failing on console installs.
-Fixed a bug where actions after a Move Forward or Move to Pane action would still be executed when they should be skipped.
-Fixed a bug where icons and menus were not being properly removed during uninstall on the Linux platform.
-Fixed a bug that broke solid compression builds on all platforms.
-Fixed a bug where using an install password would fail due to a missing function.
-Fixed a bug when running multiple installers and closing a child installer would delete the temporary directory out from under the parent.
-Fixed a bug in the Locate Java Runtime action where it would attempt to prompt the user with a dialog in a console install.  For now, there is no prompt for the user in a console install, it is simply ignored.
-Fixed a bug where the Modify Widget action could end up clearing a text widget even if no text was specified.
-Fixed a bug where a file group's size was not accurate when following
-Fixed a bug where tar and zip archives with no files would error with a big, ugly error message.  It's a little more graceful now.
-Fixed a bug where upgrade installers were not being included as part of the original install during uninstall because of a mismatch in the registry info.
-Fixed several bugs related to installers running under WINE.  Installers and uninstallers should now run successfully under WINE.
-Fixed a bug in the Reboot or Shutdown System action for UNIX systems where no time was specified.
-Fixed a bug in uninstall on HP-UX.  All platforms now perform the same uninstall that was previously reserved for Windows.  Which is to say that the uninstaller is copied off to a temporary location before executing it so that the original uninstaller can be deleted in place.
-Fixed a bug that would affect launching installers that launch other installers where the child installer would delete the temporary directory out from under the parent, leaving the parent to error out.
-Fixed a bug where creating desktop shortcuts on Linux Gnome desktops would fail if the desktop directory was not called Desktop, as it is on non-English systems.
-Fixed a bug where the uninstall on Windows would leave a hanging process after exiting.  This would cause problems when the uninstaller was called from some other program.
-Fixed a bug in message dialogs where the X button on the window would do nothing.
-Fixed a bug in message dialogs where the initial focus button was not correct.
-Fixed a bug where editing a virtual text string from the editor would not save when the editor closed.
-Fixed a bug where the Launch Web Browser action would not work properly on some versions of Windows.
-Fixed a bug where passing /version to an uninstaller would cause an error.
-Fixed a bug where the UNIX permissions were being flipped in the builder.
+Fixed a bug where the uninstaller on Windows would sometimes fail to delete the uninstall.exe which would cause an empty directory error.
+Fixed a bug where the uninstaller would pop up an error message after finishing if the machine had host scripting disabled.
+Fixed a bug where desktop icons were not being created on the Linux-x86_64 platform.
+Fixed a bug where desktop icons created when installing as root could not be read by a normal user.
+Fixed a bug where desktop icons need to be created with the executable bit set for some platforms and window managers.
+Fixed a bug where clicking the delete button in the virtual text tab would not delete the virtual text currently being edited.
+Fixed a bug where the Default to System Language property was not being saved in the installer, so the value was ignored.
+Fixed the display of Polish language strings in the installer and uninstaller.
+Fixed a bug in the Create File Link action where the order of the link and its target were accidentally reversed on non-Windows platforms.
+Fixed a bug where toggling components in certain cases could cause an error.
+Fixed a bug where attempting to focus on a browse entry widget would focus on nothing when it should focus on the browse button.
+Fixed a bug where if the last pane of a wizard was conditional, the wizard could end up displaying a blank pane at the end instead of exiting when the wizard moved forward.
+Fixed a bug where editing the long description of a command-line option would fail in an error.
+Fixed a bug where writing out script properties in project files could make them end up very difficult to read.  This changes the way object properties are written for anyone manipulating project files by hand.
+Fixed a bug where encrypted installers would not install files correctly on non-Windows platforms.
+Fixed a bug where Add Directory to Path on non-Windows systems could mangle the PATH environment variable after executing.
+Removed more hard-coded English strings from the uninstaller.  They still require translation for other languages, but they're no longer hard-coded into the code.
+Fixed a selection bug in the choose directory dialog.
+Fixed a bug where the selection in the entry of the choose directory dialog would incorrectly highlight the directory.
+Fixed a bug where the builder would not run propertly on x86_64 Linux machines.
+Fixed a bug where specifying a password did not encrypt separate archives when in Build Separate Archives mode.
+Fixed a bug where the Install UNIX Shortcut action did not offer the Command Line Arguments property even though it was supposed by other actions.
+Fix a bug in the Execute External Program action where terminals taken from the TERM environment variable could fail because of the hard-coded -t title option.
+Fixed a bug where building Windows installers on non-Windows platforms could result in symlinks being packaged incorrectly as links and not followed as files.
+Fixed a bug where --version on non-Windows platforms would error out.
+Fixed a bug where the "can create" operator in the File Test condition was reporting incorrectly on non-Windows platforms.
+Fixed a bug that removed the hidden value for the Window State property of the Install Windows Shortcut action.
 
 Minor Enhancements
-Cleaned up the --help output a little bit for a more UNIX-y style.
-Made some changes to the progress output during a console install (thanks to C. W. for the tips).  It should be a lot cleaner now and look a little nicer.
-Added Lithuanian translations (thanks to Jonas Jasas!).
-Moved the debug log in the builder to a --debug-log command-line option that is disabled by default.  We only need the debugging when something is broken in the builder, so we don't need to do it on every startup.
-Added the ability to span multiple discs using build separate archives.
-Added a debug option for uninstallers for new projects.
-Fixed a bug where Vista would inaccurately report that a directory was writable when it wasn't.
-Added new Ignore Files and Ignore Directories project preferences.  These two properties allow a project to specify patterns of files and directories to ignore when searching the filesystem.
-Added a new Follow Directory Links property to file groups.  This matches the Follow File Links property but for directories instead of files.  The default is Yes for backward compatibility.
-Added a new VirtualTextAPI API call.
-Added a new LanguageAPI API call.
-Added a new Require Administrator option to the Windows platform.
-Added a new Use Uncompressed Binaries option to the Windows platform.
-Added a new RequireAdministratorText virtual text to the English message catalog.  This message will appear when the user doesn't have the required administrator privileges.
-Added a new Installkit property to the Install Wrapped Script action.
-Added a new ConfigAPI API call to configure internal settings.
-Fixed a bug where the system language might not get used even when the message catalog is compiled into the installer.
-Added a new Default To System Language install feature to specify that the default language on the installing system should be used if it exists within the installer's message catalog.  Otherwise, the Default Language will be used.
-Added new permissions to the File Permission Condition.
-Added new <%ErrorFiles%> and <%ErrorDirs%> virtual text that are set during uninstallation when it fails to remove files or directories.
-In most properties, widgets can now be specified as <pane>.<widget> to specify exactly which pane and widget is meant.
-Added a new Install UNIX Program Folder action to allow creating program folders with more options like icons.
-Added new "matches" and "does not match" operators to the Platform Condition.
-Added the ability to enable response files for installers.  Response files let a user save their responses from an install and replay them in another install later.
-Added a new Enable Response Files install feature.  This will be true by default in projects using version 1.2.13 and higher.
-Added a new Add Response File Info action to enable adding virtual text to a response file when they are enabled.
-Made the SelectedComponents virtual text writable.  Whenever this virtual text is changed, it will overwrite the current set of selected components.
-Added a new ComponentAPI API call.
-Added a new CommandLineAPI API call.
-Added a new ResponseFileAPI API call.
-Added a new Disable / Revert Wow64 Redirection and action to disable Windows 64 bit filesystem redirection.
-The Locate Java Runtime action now includes a full version number in the <%JavaAvailableVersions%> virtual text.
-Added a new <%JavaVersionMinor%> that is set by the Locate Java Runtime action.
-The Locate Java Runtime action now substitutes virtual text properly in the search path.  Also added some debugging to see where the action is looking for Java on the system.
-The Locate Java Runtime action now handles Java versions properly, so you can use a version like 1.6.0_10 as a minimum or maximum.  Previously, the version after the _ was invalid.
-Added a new Vendor ID to the UNIX shortcut actions to allow for shortcuts to be grouped together under a particular vendor.  This makes it easy for multiple installers to create shortcuts in the same program folders.
-The Focus on Widget action should now work for built-in widgets as well, not just ones added with an Add Widget action.
-Added a new Save Files property to file groups and directories to allow for finer-grained access to the Save Only Toplevel Directories project preference.
-Added a new Application ID property to the Get Previous Install Info action.
-Added a new ReadInstallInfo API.
-Added a new AddInstallInfo API.
-Added a new PreviousInstallIDs virtual text that is set after reading previous install info.
-Added a new --build-log-file command-line option to the install builder.
-Doing a full build (not quick) now automatically jumps to the build screen before the build begins to show the log.
-The Modify Widget action should now properly handle textboxes when modifying the text property.
-Added a new DestroyWidget API call.
-The Destroy Widget action can now take a list of widgets separated by ;.
-InstallDirSuffix can now contain more than a single directory, and the whole string will be joined with the InstallDir anytime it is changed.
-Added a new Selectable property to Components that, if false, will turn a component in the component tree into a header with no check or radio button.
-Added NONE as an option for buttons on a pane.
-Made the text in the language selection dialog part of the English message catalog instead of a hard-coded value.
+Added a Control-click to the virtual text table to select a row for deletion without editing the contents.
+Added a Shift-click to the virtual text table to select multiple rows within the table for deletion.
+Added Czech translations (thanks to Kamil P?\195?\161ral!)
+Changed the title of the default silent actions and the main install action on the Copy Files pane to better represent what is going on when reading the tree.
+Added new <%InstallStartupDir%> and <%UninstallStartupDir%> virtual text variables that contain the directory the (un)installer was launched from.
+Changed the wording of the Yes and No buttons on the license pane.  They were a holdover from the Classic Wizard, and the text doesn't make sense in the context of the new pane.
+Added a new WizardAPI API call.
+Added a new Description property to the Create Windows Service action that will allow the action to specify a description of the service being created.
+Added titles to the default console actions to give a better idea of what's going on when looking at them in the tree.
+Added a new SetInstallPassword API.
+Made it possible to copy-and-paste objects between two different instances of InstallJammer.
+Added a new PropertyFileAPI API call to handle reading .properties files.
+Added new <%Tolower string%> and <%Toupper string%> virtual text.
+Removed the "Install Error" and "Exit Setup" hard-coded English strings and added new virtual text in the English message catalog to replace them.

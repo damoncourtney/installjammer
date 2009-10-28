@@ -65,6 +65,7 @@ proc ::InstallJammer::GetUninstallInfo {} {
 
     set conf(uninstall)        $uninstaller
     set conf(UninstallRemoved) 0
+    set conf(UninstallRenamed) 0
 
     set sort [list]
     foreach file $files {
@@ -211,48 +212,85 @@ proc ::InstallJammer::CleanupTmpDir {} {
 
     set tmpdir [::InstallJammer::TmpDir]
     if {$conf(windows)} {
-        if {[auto_execok wscript] eq ""} {
-            set tmp [::InstallJammer::TmpDir cleanup.tcl]
-            set fp [open $tmp w]
-            puts $fp "set dir [::InstallJammer::TmpDir]"
+        ## On Windows, we sometimes can't rename the uninstaller out
+        ## of the way for it to complete.  This happens when the temp
+        ## directory is on another drive from the installation directory.
+        ## So, we attempted to rename the uninstaller, failed, and now
+        ## we need to do cleanup AFTER the uninstall has exited.
+
+        ## We create a tcl script that we're going to execute with a
+        ## common installkit after the uninstall exits.  First thing
+        ## we do is remove the temporary directory.
+        set tmp [::InstallJammer::TmpDir ij[pid]cleanup.tcl]
+        set fp [open $tmp w]
+        puts $fp "set dir [list [::InstallJammer::TmpDir]]"
+        puts $fp {
+            catch {wm withdraw .}
+            set i 0
+            while {[file exists $dir] && [incr i] < 600} {
+                file delete -force -- $dir
+                after 100
+            }
+        }
+
+        if {$conf(UninstallRemoved) && !$conf(UninstallRenamed)} {
+            ## If we attempted to rename the uninstall but failed,
+            ## we want to add it to our little script for deletion.
+            ## We want to make several safety checks before doing
+            ## this though.
+
+            puts $fp "set uninstall [list $conf(uninstall)]"
             puts $fp {
-                catch {wm withdraw .}
                 set i 0
-                while {[file exists $dir] && [incr i] < 600} {
-                    file delete -force -- $dir
+                while {[file exists $uninstall] && [incr i] < 300} {
+                    catch {file delete -force -- $uninstall}
                     after 100
                 }
             }
-            close $fp
 
-            set installkit [::InstallJammer::GetCommonInstallkit]
-            exec $::env(COMSPEC) /c start $installkit $tmp &
-        } else {
-            set bat ij[pid]cleanup.bat
-            set vbs ij[pid]cleanup.vbs
-
-            set fp [open [file join $info(TempRoot) $vbs] w]
-            puts $fp [string map [list @BAT@ $bat @VBS@ $vbs @TMP@ $tmpdir] {
-                On Error Resume Next
-                WScript.Sleep(10000)
-                Set fsObj = WScript.CreateObject("Scripting.FileSystemObject")
-                fsObj.DeleteFile("@BAT@")
-                fsObj.DeleteFile("@VBS@")
-                fsObj.DeleteFolder("@TMP@")
-                WScript.Quit(0)
-            }]
-            close $fp
-
-            set fp [open [file join $info(TempRoot) $bat] w]
-            puts $fp "@echo off"
-            puts $fp "start /WAIT wscript //B //E:vbscript $vbs > nul"
-            close $fp
-
-            cd $info(TempRoot)
-            exec $bat &
+            ## Check to see that the directory the uninstall is in is
+            ## actually in our list of directories that failed to be
+            ## deleted.  If it's in our error list, it means we tried
+            ## to delete it, but we failed, so now we want to try again
+            ## from our cleanup script.
+            set dir [file normalize [file dirname $conf(uninstall)]]
+            if {[lsearch -exact $info(ErrorDirs) $dir] > -1} {
+                ## Now that we've determined this directory failed to
+                ## be deleted, we want to do a check within the script
+                ## itself to make sure that the directory we're about
+                ## to delete is actually empty now.  It should be empty
+                ## if the uninstall was deleted properly, and we already
+                ## know that it failed to delete before, so we can be
+                ## reasonably safe that this directory needs to go.
+                puts $fp "set dir [list $dir]"
+                puts $fp {
+                    set files [glob -nocomplain -dir $dir *]
+                    eval lappend files \
+                        [glob -nocomplain -dir $dir -type hidden *]
+                    if {![llength $files]} {
+                        set i 0
+                        while {[file exists $dir] && [incr i] < 300} {
+                            catch {file delete -force -- $dir}
+                            after 100
+                        }
+                    }
+                }
+            }
         }
+        puts $fp "exit"
+        close $fp
+
+        ## Create a common installkit and then launch our script with it.
+        ## The script will run for a bit and check at intervals until our
+        ## uninstaller here has exited and left everything available.
+        set installkit [::InstallJammer::GetCommonInstallkit $conf(uninstall)]
+        installkit::Windows::shellExecute -windowstate hidden default \
+            $installkit "\"$tmp\""
     } else {
-        set tmp [file join $info(TempRoot) cleanup.sh]
+        ## Cleanup on UNIX is just removing the temporary directory and
+        ## our cleanup script.  We add a sleep just to give time for the
+        ## dust to settle.
+        set tmp [file join $info(TempRoot) install[pid]cleanup.sh]
         set fp [open $tmp w]
         puts $fp "sleep 3"
         puts $fp "rm -rf $tmpdir $tmp"
@@ -272,8 +310,7 @@ proc ::InstallJammer::exit { {prompt 0} } {
         ::InstallJammer::ExecuteActions "Cancel Actions"
     }
 
-    ::InstallJammer::CommonExit
-
+    ::InstallJammer::CommonExit 0
     if {!$info(Debugging)} { ::InstallJammer::CleanupTmpDir }
 
     if {[string is integer -strict $conf(ExitCode)]} { ::exit $conf(ExitCode) }
@@ -341,6 +378,8 @@ proc ::InstallJammer::InitUninstall {} {
     if {!$conf(windows)} { lappend conf(modes) "Console" }
 
     array set info {
+        ErrorDirs                 ""
+        ErrorFiles                ""
         ErrorsOccurred            0
         RunningUninstaller        1
         FileBeingUninstalled      ""

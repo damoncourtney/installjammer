@@ -34,53 +34,12 @@ proc ::InstallJammer::actions::GetJavaProperty { obj } {
 
     set info($props(VirtualText)) ""
 
-    if {![string length $props(Property)]
-        || ![string length $props(VirtualText)]
+    if {$props(Property) eq "" || $props(VirtualText) eq ""
         || ![file exists $props(PropertyFile)]} { return }
 
-    set fp [open $props(PropertyFile)]
+    ::InstallAPI::PropertyFileAPI -do read -file $props(PropertyFile) -array a
 
-    set append 0
-    while {[gets $fp line] != -1} {
-        set trimmed [string trim $line]
-
-        ## Skip empty lines.
-        if {![string length $trimmed]} { set append 0; continue }
-
-        ## Skip comments.
-        set i [string index $trimmed 0]
-        if {$i eq "#" || $i eq "!"} { continue }
-
-        set noback [string trimright $trimmed \\]
-
-        if {!$append} {
-            if {![regexp -indices {[^\\][:=]} $noback indexes]} {
-                ## We couldn't find a key separator.  The whole line
-                ## is the key, and the value is empty.
-                set array($trimmed) ""
-                continue
-            }
-
-            set idx1 [lindex $indexes 0]
-            set idx2 [expr {[lindex $indexes 1] + 1}]
-            set key  [string trim [string range $noback 0 $idx1]]
-            set array($key) [string trimleft [string range $noback $idx2 end]]
-        } else {
-            append array($key) $noback
-        }
-
-        ## See if the last character of the line is a \.
-        ## If so, we want to append the next line to our
-        ## current line before processing it.
-        #
-        set chk [string length $noback]
-        set len [string length $trimmed]
-        set append [expr {($len - $chk != 0) && ($len - $chk % 2)}]
-    }
-
-    close $fp
-
-    if {[info exists array($props(Property))]} {
-        set info($props(VirtualText)) $array($props(Property))
+    if {[info exists a($props(Property))]} {
+        set info($props(VirtualText)) $a($props(Property))
     }
 }
