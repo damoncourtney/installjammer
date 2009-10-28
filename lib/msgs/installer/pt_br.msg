@@ -101,11 +101,11 @@ UpdateRegistryText
 "Atualizando Registro do Windows..."
 
 UninstallStartupText
-"<%AppName%> será removido completamento do seu computador.  Você tem \
+"<%AppName%> será removido completamento do seu computador.  Você tem\
 certeza que deseja continuar?"
 
 UninstallLeftoverText
-"Alguns componentes não puderam ser removidos. Você deseja deletá-los assim mesmo \
+"Alguns componentes não puderam ser removidos. Você deseja deletá-los assim mesmo\
  (não recomendado)?"
 
 VersionHelpText

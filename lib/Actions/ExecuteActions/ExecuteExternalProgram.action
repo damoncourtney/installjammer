@@ -127,8 +127,8 @@ proc ::InstallJammer::actions::ExecuteExternalProgram { obj } {
 
         set proc   ::ReadOutput${id}
         set watch  $props(WatchProgressiveOutput)
-        set widget [join $props(ProgressiveOutputWidget) ""]
-        set widget [[$obj parent] widget get $widget]
+        set widget $props(ProgressiveOutputWidget)
+        set widget [::InstallAPI::GetWidgetPath -widget $widget]
 
         if {!$info(GuiMode) || ![winfo exists $widget]
             || [winfo class $widget] ne "Text"} {
@@ -149,6 +149,7 @@ proc ::InstallJammer::actions::ExecuteExternalProgram { obj } {
         }
 
         proc ::CloseProgressive { fp statusVar resultVar } {
+            unset -nocomplain ::conf(update)
             fconfigure $fp -blocking 1
             if {[catch { close $fp } error]} {
                 if {[lindex $::errorCode 0] eq "CHILDSTATUS"} {
@@ -164,6 +165,7 @@ proc ::InstallJammer::actions::ExecuteExternalProgram { obj } {
         }
 
         proc $proc { fp statusVar resultVar widget watch } {
+            set ::conf(update) 0
             if {[llength $watch]} {
                 gets $fp data
 
@@ -191,7 +193,7 @@ proc ::InstallJammer::actions::ExecuteExternalProgram { obj } {
                 if {$len && $var ne ""} {
                     ## This is status text output from the program.
                     set ::info($var) [::InstallJammer::SubstText $val]
-                    ::InstallJammer::UpdateWidgets -update 1
+                    ::InstallJammer::UpdateWidgets
                     return
                 }
 
@@ -285,6 +287,10 @@ proc ::InstallJammer::actions::ExecuteExternalProgram { obj } {
                     && [auto_execok gnome-terminal] ne ""} {
                     set t -t
                     set term gnome-terminal
+                } elseif {[info exists ::env(COLORTERM)]} {
+                    set term $::env(COLORTERM)
+                } elseif {[info exists ::env(TERM)]} {
+                    set term $::env(TERM)
                 } else {
                     set term xterm
                 }
@@ -296,22 +302,28 @@ proc ::InstallJammer::actions::ExecuteExternalProgram { obj } {
                                         could not be found."
                 }
 
+                set cmd [join $cmd]
+                set tmpfile [::InstallJammer::TmpFile].sh
+                set fp [open $tmpfile w 00755]
+                puts $fp "#!/bin/sh"
+                puts $fp $cmd
+                close $fp
+
+                if {$props(ExecuteAsRoot) && !$info(UserIsRoot)} {
+                    set sutmpfile [::InstallJammer::TmpFile].sh
+                    set fp [open $sutmpfile w 00755]
+                    puts $fp "#!/bin/sh"
+                    puts $fp "echo [sub "<%PromptForRootText%>"]"
+                    puts $fp "su -c '$tmpfile'"
+                    close $fp
+                    set tmpfile $sutmpfile
+                }
+                set cmd $tmpfile
+
                 if {$konsole} {
                     set cmd [concat [list $term $t $title] -e $cmd]
                 } else {
                     set cmd [list $term $t $title -e $cmd]
-                }
-
-                if {$props(ExecuteAsRoot) && !$info(UserIsRoot)} {
-                    set msg [::InstallJammer::SubstText "<%PromptForRootText%>"]
-                    set cmd [join [::InstallJammer::SubstForPipe $cmdline]]
-                    if {$konsole} {
-                        set cmd [concat [list $term $t $title] \
-                            [list -e echo '$msg' && su -c '$cmd']]
-                    } else {
-                        set cmd [list $term $t $title \
-                            -e "echo '$msg' && su -c '$cmd'"]
-                    }
                 }
             }
 

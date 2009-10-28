@@ -43,13 +43,13 @@ Text Message
 proc ::InstallJammer::conditions::AskYesOrNo { obj } {
     global info
 
+    $obj properties props
+
     if {$info(SilentMode)} {
         debug "Ask Yes or No condition not valid in Silent mode."
         debug "Skipping condition and returning $props(TrueValue)."
         return $props(TrueValue)
     }
-
-    $obj properties props
 
     set id [$obj id]
 

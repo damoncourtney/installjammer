@@ -24,5 +24,6 @@
 Action UninstallLeftoverFiles "Uninstall Leftover Files"
 
 proc ::InstallJammer::actions::UninstallLeftoverFiles { obj } {
+    $obj set ShowConsoleProgress No
     ::InstallJammer::actions::UninstallSelectedFiles $obj 1
 }

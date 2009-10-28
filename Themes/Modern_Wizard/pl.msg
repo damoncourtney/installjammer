@@ -6,7 +6,7 @@ ChooseComponents {
     "Wybierz komponenty do zainstalowania."
 
     Caption
-    "Zaznacz komponenty, które chcesz zainstalować, a odznacz te, \
+    "Zaznacz komponenty, które chcesz zainstalować, a odznacz te,\
      których nie chcesz instalować."
 
     Message
@@ -177,15 +177,15 @@ SelectDestination {
     "Gdzie zainstalować <%AppName%>?"
 
     Caption
-    "Instalator zainstaluje <%AppName%> w wybranym folderze.\n\nAby instalować \
-     w tym folderze, kliknij Dalej.  Aby zainstalować w innym folderze, kliknij \
+    "Instalator zainstaluje <%AppName%> w wybranym folderze.\n\nAby instalować\
+     w tym folderze, kliknij Dalej.  Aby zainstalować w innym folderze, kliknij\
      Przeglądaj i wybierz inny folder."
 
     Message
     ""
 
     BrowseText
-    "Aby kontynuować, kliknij Dalej.  Jeśli chcesz wybrać inny folder, \
+    "Aby kontynuować, kliknij Dalej.  Jeśli chcesz wybrać inny folder,\
      kliknij Przeglądaj."
 
     NextButton
@@ -212,8 +212,8 @@ SelectProgramFolder {
     "Przoszę wybrać folder dla programu."
 
     Caption
-    "Instalator doda ikonki programu w folderze aplikacji wybranym poniżej.  \
-     Możesz wprowadzić nową nazwę folderu lub wybrać z listy już istniejących.  \
+    "Instalator doda ikonki programu w folderze aplikacji wybranym poniżej. \
+     Możesz wprowadzić nową nazwę folderu lub wybrać z listy już istniejących. \
      Kliknij Dalej, aby kontynuować."
 
     Message
@@ -290,9 +290,9 @@ StartCopyingFiles {
     "Pokaż ustawienia przed rozpoczęciem kopiowania plików"
 
     Caption
-    "Instalator posiada już wszystkie informacje potrzebnedo rozpoczęcia \
-     kopiowania plików. Jeśli chcesz zobaczyć ustawienia lub zmienić je, \
-     kliknij Wstecz. Jeśli jesteś pewien ustawień, kliknij Dalej, aby \
+    "Instalator posiada już wszystkie informacje potrzebnedo rozpoczęcia\
+     kopiowania plików. Jeśli chcesz zobaczyć ustawienia lub zmienić je,\
+     kliknij Wstecz. Jeśli jesteś pewien ustawień, kliknij Dalej, aby\
      rozpocząć kopiowanie plików."
 
     Message
@@ -423,7 +423,7 @@ Welcome {
     "Witamy w InstallJammer - instalatorze dla <%AppName%>"
 
     Message
-    "Zainstaluje on <%AppName%> w wersji <%Version%> na twoim komputerze.\
+    "Zainstaluje on <%AppName%> w wersji <%Version%> na twoim komputerze. \
     \n\nZalecane jest zamknięcie wszystkich programów przed instalacją. \
     \n\nKliknij Dalej, aby kontynuować lub Anuluj, aby opuścić instalator."
 

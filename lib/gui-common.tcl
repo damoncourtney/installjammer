@@ -614,9 +614,9 @@ proc Window.installjammer { {base .installjammer} } {
 	    -text "Virtual Text Strings" \
 	    -raisecommand Frame.virtualText
 
-    $main insert end root builder -text "Run Disk Builder" \
+    $main insert end root builder -text "Run Build" \
         -font TkCaptionFont -haspage 0
-    	$main insert end builder diskBuilder -text "Disk Builder" \
+    	$main insert end builder diskBuilder -text "Build Installers" \
             -raisecommand Frame.diskBuilder
 
     $main insert end root test -text "Test the Installation" \
@@ -765,6 +765,19 @@ proc Frame.applicationInformation {} {
                 could change depending on system settings if the user is\
                 allowed to select a language"
 
+        $p insert end features #auto -text "Default to System Language" \
+            -variable info(DefaultToSystemLanguage) -editable 0 \
+            -values "Yes No" -helptext "Use whatever language is the\
+                default on the installing system if the language has been\
+                included in the installer.  If the system language is not\
+                part of the installer, the Default Language will be used"
+
+        $p insert end features #auto -text "Enable Response Files" \
+            -variable info(EnableResponseFiles) -editable 0 \
+            -values "Yes No" -helptext "Enable the response-file and\
+                save-response-file command-line options that allow a user\
+                to save responses in an installer and replay them later"
+
         $p insert end features #auto -text "Extract Solid Archives on Startup" \
             -variable info(ExtractSolidArchivesOnStartup) -editable 0 \
             -values [list Yes No] -helptext "Whether or not InstallJammer\
@@ -832,6 +845,18 @@ proc Frame.applicationInformation {} {
 	    -variable info(DefaultDirectoryLocation) -editable 1 \
             -helptext "The default location to look for files within the\
                 file groups of the project."
+
+	$p insert end preferences #auto -text "Ignore Directories" \
+            -variable info(IgnoreDirectories) \
+            -helptext "A list of regular expressions to match when searching\
+                for new directories.  Each expression should be separated by\
+                a space with patterns containing spaces wrapped in quotes"
+
+	$p insert end preferences #auto -text "Ignore Files" \
+            -variable info(IgnoreFiles) \
+            -helptext "A list of regular expressions to match when searching\
+                for new files.  Each expression should be separated by a space\
+                with patterns containing spaces wrapped in quotes"
 
 	$p insert end preferences #auto \
             -text "Include Install Debugging Options" \
@@ -1042,7 +1067,14 @@ proc Frame.platformInformation {} {
             -value [$platform get ProgramReadme] -helptext "The path to your\
                 README file on the target system"
 
-        if {$platform ne "Windows"} {
+        if {$platform eq "Windows"} {
+            $p insert end $node #auto -text "Require Administrator" \
+                -values "Yes No" -editable 0 -data RequireAdministrator \
+                -editfinishcommand $cmd \
+                -value [$platform get RequireAdministrator] \
+                -helptext "Whether this install requires administrator\
+                    privileges to install"
+        } else {
             $p insert end $node #auto -text "Prompt for Root Password" \
                 -values [list Yes No] -editable 0 -data PromptForRoot \
                 -editfinishcommand $cmd -value [$platform get PromptForRoot] \
@@ -1067,6 +1099,15 @@ proc Frame.platformInformation {} {
         }
 
         if {$platform eq "Windows"} {
+            $p insert end $node #auto -text "Use Uncompressed Binaries" \
+                -values [list Yes No] -editable 0 \
+                -data UseUncompressedBinaries -editfinishcommand $cmd \
+                -value [$platform get UseUncompressedBinaries] \
+                -helptext "If this property is true, the installer will be\
+                    built with uncompressed binaries that make the install\
+                    larger but sometimes avoid being erroneously detected by\
+                    some virus scanning software"
+
             $p insert end $node #auto -text "Windows File Icon" \
                 -browsebutton 1 -browsecommand [list GetIconFile %v] \
                 -browseargs {-style Toolbutton} \
@@ -2201,6 +2242,10 @@ proc Frame.testUninstaller {} {
     pack $top.options -expand 1 -fill both
 
     bind $top.options <<TreeModify>> AdjustTestUninstallOptions
+
+    $top.options insert end root #auto -type checkbutton \
+        -text "Save temporary directory for debugging" \
+        -variable ::conf(TestUninstallDebugging)
 
     if {!$conf(windows)} {
         $top.options insert end root #auto -type checkbutton \

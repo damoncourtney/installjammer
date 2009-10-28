@@ -11,7 +11,7 @@ ChooseComponents {
     "Instalación Personalizada"
 
     Caption
-    "Seleccione los componentes que desea instalar y elimine aquéllos \
+    "Seleccione los componentes que desea instalar y elimine aquéllos\
     que no desea que sean instalados."
 
     ComponentLabel
@@ -133,12 +133,12 @@ License {
     "Acuerdo de Licencia"
 
     Caption
-    "Por favor lea el siguiente Acuerdo de Licencia. Presione Av.Pag \
+    "Por favor lea el siguiente Acuerdo de Licencia. Presione Av.Pag\
     para ver el resto del acuerdo."
 
     Message
-    "¿Acepta los terminos del Acuerdo de Licencia anterior? \
-    Si escoge No, la instalación se cerrara. Para instalar <%AppName%>, \
+    "¿Acepta los terminos del Acuerdo de Licencia anterior?\
+    Si escoge No, la instalación se cerrara. Para instalar <%AppName%>,\
     debe aceptar este acuerdo."
 
     Text
@@ -179,9 +179,9 @@ SelectDestination {
     "Seleccione carpeta destino"
 
     Caption
-    "Se instalará <%AppName%> en la siguiente carpeta.\n\nPara instalar en \
-    esta carpeta, pulse Siguiente.\n\nPara instalar en una carpeta diferente, \
-    pulse Examinar y seleccione otra carpeta.\n\nPuede escoger no instalar \
+    "Se instalará <%AppName%> en la siguiente carpeta.\n\nPara instalar en\
+    esta carpeta, pulse Siguiente.\n\nPara instalar en una carpeta diferente,\
+    pulse Examinar y seleccione otra carpeta.\n\nPuede escoger no instalar\
     <%AppName%> pulsando Cancelar para salir de la instalación."
 
     NextButton
@@ -206,7 +206,7 @@ SelectProgramFolder {
 
     Caption
     "Se instalarán iconos en el Grupo de Programas siguiente. \
-    Puede escribir un nuevo nombre de grupo o seleccionarlo \
+    Puede escribir un nuevo nombre de grupo o seleccionarlo\
     de la lista de grupos existentes. \
     Pulse Siguiente para continuar."
 
@@ -234,7 +234,7 @@ Setup {
     "Instalación"
 
     Caption
-    "El programa de instalación está preparando el Wizard InstallJammer, que \
+    "El programa de instalación está preparando el Wizard InstallJammer, que\
     le guiara a través del proceso de instalación. Por favor espere."
 }
 
@@ -280,9 +280,9 @@ StartCopyingFiles {
     "Comenzar a Copiar Archivos"
 
     Caption
-    "Se ha recopilado la información necesaria para comenzar a copiar los \
-    archivos del programa. Si desea revisar o cambiar la configuración, \
-    pulse Atrás. Si esta conforme con la configuración, pulse Siguiente para \
+    "Se ha recopilado la información necesaria para comenzar a copiar los\
+    archivos del programa. Si desea revisar o cambiar la configuración,\
+    pulse Atrás. Si esta conforme con la configuración, pulse Siguiente para\
     comenzar a copiar los archivos.
     \n\nConfiguración actual:"
 
@@ -380,14 +380,14 @@ Welcome {
     "Pantalla de Bievenida"
 
     Caption
-    "Bienvenido al programa de instalación de <%AppName%>. Este programa instalará \
+    "Bienvenido al programa de instalación de <%AppName%>. Este programa instalará\
      <%AppName%> en su equipo."
 
     Message
     "Se recomienda salir de todos los programas Windows que este ejecutando. \
-    Pulse Siguiente para continuar con el programa de instalación.\n\nADVERTENCIA: \
+    Pulse Siguiente para continuar con el programa de instalación.\n\nADVERTENCIA:\
     Este programa esta protegido con copyright y los acuerdos internacionales.\n\n
-    La reproducción o distribución no autorizada de este programa, o parte del mismo, \
+    La reproducción o distribución no autorizada de este programa, o parte del mismo,\
     puede acarrear penas civiles y criminales, y será perseguida por la ley."
 
     NextButton

@@ -40,6 +40,8 @@ Property AdditionalArguments longtext "Additional Arguments"
 Property InstallForAllUsers editboolean "Install for All Users" \
         "<%ProgramFolderAllUsers%>"
 
+Property VendorID short "Vendor ID" "<%ApplicationID%>"
+
 Property WindowState choice "Window State" "normal" \
     {hidden maximized minimized normal}
 

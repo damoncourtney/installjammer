@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 #FHNonScroll
-{padding: 6px 6px 0px 6px; border-bottom: none; background: #6699FF; vertical-align: top;z-index: 2; visibility: visible; position: absolute; left: 0; top: 0; width: 100%; }
+{padding: 6px 6px 0px 6px; border-bottom: none; background: #D1D1D1; vertical-align: top;z-index: 2; visibility: visible; position: absolute; left: 0; top: 0; width: 100%; }
 #FHScroll
 {left: 0; top: 0px; position: absolute; margin: 0; padding: 10px; z-index: 1; background-repeat: no-repeat; background-position: bottom right; background-attachment: fixed; }
 
@@ -85,14 +85,13 @@ p,ul,ol /* Left */
 <script type="text/javascript" language="JavaScript" src="FHUtilities.js"></script>
 <script type="text/JavaScript" language="JavaScript">
 <!-- If this page is displayed outside of the Website Help Frameset, then reload in the Frame set
-var stContextString;
 if (parent.location.href == self.location.href)
 {location.href = "index.html?"+extractFileNameWithoutKnownExtension(location.href);}
 //--></script>
 <script type="text/javascript" language="JavaScript" src="FHNonscroll.js"></script><script type="text/javascript" language="JavaScript" src="FHUtilities.js"></script></HEAD>
 <body bgcolor="#FFFFFF" scroll="no"><div id="FHNonScroll"><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="100%" align="left">
 <font size=2 color="#000000" face="Arial">
-<div><font size=5 color="#333399" face="Verdana"><b>Files and Directories</b></font></div>
+<div><font size=5 color="#333333" face="Verdana"><b>Files and Directories</b></font></div>
 </font>
 </TD><td width="120" align="right" nowrap><font face="Verdana" size="2"><a href="GroupsAndFiles.html"><img src="Images/BrowseBlueLeft.png" border="0" alt="Previous Topic"></a>&nbsp;&nbsp;<a href="Components.html"><img src="Images/BrowseBlueRight.png" border="0" alt="Next Topic"></a>&nbsp;</font></td></tr></table></div><div id="FHScroll">
 
@@ -100,7 +99,7 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts2>When adding files and directories to a file group, they begin with no specific options, which means that they will inherit the properties of the File Group.&nbsp; As you modify the properties of a directory, it will automatically affect the properties of all files and subdirectories in that directory.&nbsp; Modifying the properties of a file will only change that file.&nbsp; You can also select multiple files and directories and change their properties all at once.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
-<div class=rvps1><table border=0 cellpadding=1 cellspacing=2>
+<div class=rvps1><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=22>
 <p class=rvps1><img border="0" src="Images/note.jpg" alt="Note" width="32" height="32"></p>
@@ -116,7 +115,7 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts3><br></span></p>
 <p class=rvps1><span class=rvts3>Files that are disabled or "greyed-out" mean that InstallJammer cannot find the file on the local system.&nbsp; The file may have been deleted on the system, or the location of the file may have changed.&nbsp; You can find the file again by changing its Location property or by changing the Location of its containing directory.&nbsp; Files that cannot be found will not be included when the install is built.</span></p>
 <p class=rvps1><span class=rvts3><br></span></p>
-<div class=rvps1><table border=0 cellpadding=1 cellspacing=2>
+<div class=rvps1><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=22>
 <p class=rvps1><img border="0" src="Images/note.jpg" alt="Note" width="32" height="32"></p>
@@ -141,7 +140,7 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts4>Destination Directory</span></p>
 <p class=rvps1><span class=rvts2>This specifies the directory on the target system that this directory or file will install into.&nbsp; Modifying the Destination Directory of a directory will automatically affect the destination of every file and directory in that directory since they inherit properties from their parent.</span></p>
 <p class=rvps1><span class=rvts3><br></span></p>
-<div class=rvps1><table border=0 cellpadding=1 cellspacing=2>
+<div class=rvps1><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=22>
 <p class=rvps1><img border="0" src="Images/note.jpg" alt="Note" width="32" height="32"></p>
@@ -186,12 +185,14 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts4>Version</span></p>
 <p class=rvps1><span class=rvts2>This property tells you the Install Version of the selected file or directory when it is installed.&nbsp; This version will be stored for future installations after the install is complete.&nbsp; If the selected object has no Version of its own, it will inherit up the tree until it finds one.&nbsp; If no Version is found in any parent, the global &lt;%InstallVersion%&gt; for the project will be used.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
-<p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts6>Permissions</span></p>
 <p class=rvps1><span class=rvts5>This feature allows you to set the file permissions for the given file or directory.&nbsp; By default, no permissions are set which means that the file or directory will be installed with some default permissions on the target system.</span></p>
 <p class=rvps1><span class=rvts5><br></span></p>
 <p class=rvps1><span class=rvts5>Permissions for a directory are not inherited by the files and directories underneath it.&nbsp; The permissions only apply to that directory.&nbsp; Multiple files or directories can be selected and their permissions set all at the same time.</span></p>
 <p class=rvps1><span class=rvts5><br></span></p>
-<p class=rvps1><span class=rvts5>Both Windows attributes and UNIX permissions are provided and will be applied based on the target system.&nbsp; So, if a file has both Windows attributes and UNIX permissions, the Windows attributes will be applied when the file is installed on a Windows system, and the UNIX permissions will be applied when installed on a UNIX system.</span><span class=rvts1></span></p>
+<p class=rvps1><span class=rvts5>Both Windows attributes and UNIX permissions are provided and will be applied based on the target system.&nbsp; So, if a file has both Windows attributes and UNIX permissions, the Windows attributes will be applied when the file is installed on a Windows system, and the UNIX permissions will be applied when installed on a UNIX system.</span></p>
+<p class=rvps1><span class=rvts6><br></span></p>
+<p class=rvps1><span class=rvts6>Save Files</span></p>
+<p class=rvps1><span class=rvts5>If this property is false, all of the files and subdirectories in this directory will not be saved in the project file.&nbsp; When this directory is built, all of its contents will be dynamically generated from whatever is currently in the directory.&nbsp; This allows for adding directories where all of the contents are only stored at build time.&nbsp; This property works like a finer-grained version of the Save Only Toplevel Directories project preference.</span><span class=rvts1></span></p>
 
 </div></body></html>

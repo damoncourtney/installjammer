@@ -62,13 +62,19 @@ proc ::InstallJammer::actions::InstallUninstaller { obj } {
 
     ::InstallJammer::CreateDir [file dirname $uninstallBin]
 
-    set arrays [list info ::InstallJammer::Properties]
+    set arrays {
+        info
+        ::InstallJammer::Properties
+        ::InstallJammer::languagecodes
+    }
 
     set uninstall [::InstallJammer::TmpDir uninstall.tcl]
 
     set fp [open $uninstall w]
     puts $fp "namespace eval ::InstallAPI {}"
     puts $fp "namespace eval ::InstallJammer {}"
+
+    puts $fp "set conf(version) [list $conf(version)]"
 
     puts $fp "set info(Uninstaller) [list $info(Uninstaller)]"
     

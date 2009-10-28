@@ -24,12 +24,17 @@
 Action PopulateSetupTypes
 
 proc ::InstallJammer::actions::PopulateSetupTypes { obj } {
+    global conf
     global info
 
     set step [$obj parent]
 
     set text    [$step widget get DescriptionText]
     set listbox [$step widget get SetupTypeListBox]
+
+    if {[lsearch -exact $conf(SetupTypeTrees) $listbox] < 0} {
+        lappend conf(SetupTypeTrees) $listbox
+    }
     
     $listbox clear
 
@@ -41,14 +46,11 @@ proc ::InstallJammer::actions::PopulateSetupTypes { obj } {
 
         $listbox insert end $id -text $text -data [$id name]
         if {[$id name] eq $info(InstallType)} {
-            $listbox selection set $id
-            set desc [::InstallJammer::GetText $id Description]
-            ::InstallJammer::SetText $text $desc
-            ::InstallJammer::SetVirtualText $info(Language) $step \
-                [list DescriptionText $desc]
+            ::InstallJammer::SelectSetupType $id
         }
     }
 
-    $listbox bindText  <1> ::InstallJammer::SelectSetupType
-    $listbox bindImage <1> ::InstallJammer::SelectSetupType
+    bind $listbox <<ListboxSelect>> {
+        ::InstallJammer::SelectSetupType [%W selection get]
+    }
 }

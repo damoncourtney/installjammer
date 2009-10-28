@@ -29,11 +29,13 @@ namespace eval ::InstallJammer {}
 set ::debug   0
 set ::verbose 0
 
-set ::conf(osx)      [string equal $::tcl_platform(os) "Darwin"]
-set ::conf(unix)     [string equal $::tcl_platform(platform) "unix"]
-set ::conf(windows)  [string equal $::tcl_platform(platform) "windows"]
-
-set ::conf(threaded) [info exists ::tcl_platform(threaded)]
+set ::conf(osx)       [string equal $::tcl_platform(os) "Darwin"]
+set ::conf(unix)      [string equal $::tcl_platform(platform) "unix"]
+set ::conf(windows)   [string equal $::tcl_platform(platform) "windows"]
+set ::conf(windows98) [expr {$conf(windows) && $tcl_platform(osVersion) < 5.0}]
+set ::conf(vista)     [expr {$conf(windows) && $tcl_platform(osVersion) >= 6.0}]
+set ::conf(wine)      [expr {$conf(windows) && [info exists env(_)]
+                         && [file tail $env(_)] eq "wine"}]
 
 set ::info(Testing)   0
 set ::info(Debugging) 0

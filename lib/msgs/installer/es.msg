@@ -80,7 +80,7 @@ OK
 "OK"
 
 ProgramFilesDescription
-"Archivos de Programa comunes"
+"Archivos de Programa Comunes"
 
 RequireRootText
 "Necesita tener permisos de administrador para ejecutar el instalador."
@@ -101,10 +101,10 @@ UpdateRegistryText
 "Actualizando Registro de Windows..."
 
 UninstallStartupText
-"Se eliminará completamente <%AppName%> de sus sistema. ¿Seguro que desea esto?"
+"Se eliminará completamente <%AppName%> de su sistema. ¿Seguro que desea esto?"
 
 UninstallLeftoverText
-"Algunos componentes no pudieron ser eliminados. ¿Desea borrarlos de todos \
+"Algunos componentes no pudieron ser eliminados. ¿Desea borrarlos de todos\
  modos? (no recomendado)"
 
 ViewReadmeText

@@ -34,10 +34,10 @@ proc ::InstallJammer::actions::LaunchWebBrowser { obj } {
 
     set url [::InstallAPI::EncodeURL -url $props(URL)]
 
+    debug "Launching web browser with URL $url"
+
     if {$conf(windows)} {
-        set file [::InstallJammer::TmpFile].lnk
-        twapi::write_url_shortcut $file $url
-        twapi::invoke_url_shortcut $file
+        installkit::Windows::shellExecute open $url
     } else {
         exec xdg-open $url &
     }

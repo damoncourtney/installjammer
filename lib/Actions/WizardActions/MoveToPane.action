@@ -32,13 +32,5 @@ proc ::InstallJammer::actions::MoveToPane { obj } {
     $obj properties props -subst 1
 
     set id [::InstallJammer::ID $props(Pane)]
-
-    after 0 [list ::InstallJammer::Wizard raise $id]
-
-    ## After moving to the new pane, we want to add it
-    ## to the order in our wizard so that it will appear
-    ## when the user moves backward.
-    $info(Wizard) order [concat [$info(Wizard) order] $id]
-
-    set conf(stopActions) 1
+    set conf(moveToPane) $id
 }

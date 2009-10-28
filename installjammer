@@ -70,6 +70,9 @@ platform() {
         SunOS)
             PLATFORM=Solaris-$MACHINE
             ;;
+        *MINGW*|*CYGWIN*)
+            PLATFORM=Windows
+            ;;
         *)
             PLATFORM=$OS-$MACHINE
             ;;
@@ -80,9 +83,9 @@ if test -z "$PLATFORM"; then
     platform
 fi
 
-INSTALLJAMMER_HOME=`dirname $0`
+INSTALLJAMMER_HOME=`dirname "$0"`
 
-INSTALLKIT=$INSTALLJAMMER_HOME/Binaries/$PLATFORM/installkit
+INSTALLKIT="$INSTALLJAMMER_HOME/Binaries/$PLATFORM/installkit"
 
 if test ! -f "$INSTALLKIT"; then
     echo
@@ -92,4 +95,4 @@ if test ! -f "$INSTALLKIT"; then
     exit 1
 fi
 
-exec ${INSTALLKIT} ${INSTALLJAMMER_HOME}/installjammer.tcl $*
+exec "${INSTALLKIT}" "${INSTALLJAMMER_HOME}/installjammer.tcl" $*

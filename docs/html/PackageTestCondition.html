@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 #FHNonScroll
-{padding: 6px 6px 0px 6px; border-bottom: none; background: #6699FF; vertical-align: top;z-index: 2; visibility: visible; position: absolute; left: 0; top: 0; width: 100%; }
+{padding: 6px 6px 0px 6px; border-bottom: none; background: #D1D1D1; vertical-align: top;z-index: 2; visibility: visible; position: absolute; left: 0; top: 0; width: 100%; }
 #FHScroll
 {left: 0; top: 0px; position: absolute; margin: 0; padding: 10px; z-index: 1; background-repeat: no-repeat; background-position: bottom right; background-attachment: fixed; }
 
@@ -69,20 +69,19 @@ p,ul,ol /* Left */
 <script type="text/javascript" language="JavaScript" src="FHUtilities.js"></script>
 <script type="text/JavaScript" language="JavaScript">
 <!-- If this page is displayed outside of the Website Help Frameset, then reload in the Frame set
-var stContextString;
 if (parent.location.href == self.location.href)
 {location.href = "index.html?"+extractFileNameWithoutKnownExtension(location.href);}
 //--></script>
 <script type="text/javascript" language="JavaScript" src="FHNonscroll.js"></script><script type="text/javascript" language="JavaScript" src="FHUtilities.js"></script></HEAD>
 <body bgcolor="#FFFFFF" scroll="no"><div id="FHNonScroll"><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="100%" align="left">
 <font size=2 color="#000000" face="Arial">
-<div><font size=5 color="#333399" face="Verdana"><b>Package Test Condition</b></font></div>
+<div><font size=5 color="#333333" face="Verdana"><b>Package Test Condition</b></font></div>
 </font>
 </TD><td width="120" align="right" nowrap><font face="Verdana" size="2"><a href="EnvironmentVariableTestCondition.html"><img src="Images/BrowseBlueLeft.png" border="0" alt="Previous Topic"></a>&nbsp;&nbsp;<a href="PortTestCondition.html"><img src="Images/BrowseBlueRight.png" border="0" alt="Next Topic"></a>&nbsp;</font></td></tr></table></div><div id="FHScroll">
 
 <p class=rvps1><span class=rvts2>This condition checks to see if a package is installed in the target system's default package manager.&nbsp; This condition will determine what the default package manager is for the target system and then attempt to determine if the given package is installed by querying the package manager.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
-<div class=rvps1><table border=0 cellpadding=1 cellspacing=2>
+<div class=rvps1><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=22>
 <p class=rvps1><img border="0" src="Images/note.jpg" alt="Note" width="32" height="32"></p>
@@ -94,7 +93,7 @@ if (parent.location.href == self.location.href)
 </table>
 </div>
 <p class=rvps1><span class=rvts6><br></span></p>
-<div class=rvps1><table border=0 cellpadding=1 cellspacing=2>
+<div class=rvps1><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=32>
 <p class=rvps1><img border="0" src="Images/detail.jpg" alt="Technical Detail" width="32" height="32"></p>
@@ -121,11 +120,25 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts3>Advanced Properties</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts3>Operator</span></p>
-<p class=rvps1><span class=rvts2>&nbsp;&nbsp;&nbsp; </span><span class=rvts3>is installed</span></p>
-<p class=rvps1><span class=rvts2>&nbsp;&nbsp;&nbsp; True if the package is installed.</span></p>
-<p class=rvps1><span class=rvts2><br></span></p>
-<p class=rvps1><span class=rvts2>&nbsp;&nbsp;&nbsp; </span><span class=rvts3>is no installed</span></p>
-<p class=rvps1><span class=rvts2>&nbsp;&nbsp;&nbsp; True if the package is not installed.</span></p>
+<div class=rvps1><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=148>
+<p class=rvps1><span class=rvts3>&nbsp;&nbsp;&nbsp; is installed</span></p>
+</td>
+<td width=614>
+<p class=rvps1><span class=rvts2>True if the package is installed.</span></p>
+</td>
+</tr>
+<tr valign=top>
+<td width=148>
+<p class=rvps1><span class=rvts3>&nbsp;&nbsp;&nbsp; is not installed</span></p>
+</td>
+<td width=614>
+<p class=rvps1><span class=rvts2>True if the package is not installed.</span></p>
+</td>
+</tr>
+</table>
+</div>
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts3>Package</span></p>
 <p class=rvps1><span class=rvts2>The name of the package to check.</span><span class=rvts1></span></p>

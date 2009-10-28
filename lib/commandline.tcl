@@ -45,6 +45,10 @@ proc ::InstallJammer::AddDefaultCommandLineOptions {} {
     }
 
     SafeArraySet ::InstallJammer::UninstallCommandLineOptions {
+        debug { Debugging Switch Yes No {}
+            "run uninstaller in debug mode"
+        }
+
         debugconsole { ShowConsole Switch Yes No {}
             "run uninstaller with a debug console open"
         }

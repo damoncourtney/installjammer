@@ -101,11 +101,11 @@ UpdateRegistryText
 "Mise à jour de la base de registre Windows..."
 
 UninstallStartupText
-"Ceci supprimera complètement <%AppName%> de votre ordinateur.  Etes-vous \
+"Ceci supprimera complètement <%AppName%> de votre ordinateur.  Etes-vous\
  certain de vouloir faire cela?"
 
 UninstallLeftoverText
-"Certain composants n'ont pu être supprimés. Souhairez vous quand même les \
+"Certain composants n'ont pu être supprimés. Souhairez vous quand même les\
  effacer (non recommandé)?"
 
 ViewReadmeText

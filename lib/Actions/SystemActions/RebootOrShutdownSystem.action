@@ -49,6 +49,7 @@ proc ::InstallJammer::actions::RebootOrShutdownSystem { obj } {
     } else {
         set cmd /sbin/shutdown
         if {$props(Type) eq "reboot"} { lappend cmd -r }
+        lappend cmd "now"
     }
 
     if {$props(ExecuteAsRoot) && !$conf(windows) && !$info(UserIsRoot)} {

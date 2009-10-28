@@ -32,10 +32,20 @@ Property LinkTarget installedfile "Link Target"
 Help FileName "The name of the target file or directory on the target system"
 
 proc ::InstallJammer::actions::CreateFileLink { obj } {
+    global conf
+
     $obj properties props -subst 1
 
     set link   [::InstallJammer::RelativeFile $props(LinkName)]
     set target [::InstallJammer::RelativeFile $props(LinkTarget)]
 
-    file link -$props(LinkType) $link $target
+    if {$conf(windows)} {
+        file link -$props(LinkType) $link $target
+    } else {
+        if {$props(LinkType) eq "hard"} {
+            exec ln $link $target
+        } else {
+            exec ln -s $link $target
+        }
+    }
 }

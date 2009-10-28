@@ -23,6 +23,16 @@
 
 namespace eval ::InstallAPI {}
 
+proc ::InstallAPI::AddInstallInfo { args } {
+    ::InstallAPI::ParseArgs _args $args {
+        -key   { string 1 }
+        -value { string 1 }
+    }
+
+    global conf
+    lappend conf(APPLOG) $_args(-key) $_args(-value)
+}
+
 proc ::InstallAPI::AddLanguage { args } {
     ::InstallAPI::ParseArgs _args $args {
         -language     { string 1 }
@@ -33,6 +43,122 @@ proc ::InstallAPI::AddLanguage { args } {
     variable ::InstallJammer::languagecodes
     set languages($_args(-language)) $_args(-languagecode)
     set languagecodes($_args(-languagecode)) $_args(-language)
+}
+
+proc ::InstallAPI::CommandLineAPI { args } {
+    ::InstallAPI::ParseArgs _args $args {
+        -do         { choice  1 "" {check exists}}
+        -option     { string  1 }
+    }
+
+    variable ::InstallJammer::CommandLineOptions
+    variable ::InstallJammer::PassedCommandLineOptions
+
+    set opt [string tolower [string trimleft $_args(-option) -/]]
+    if {$_args(-do) eq "exists"} {
+        return [info exists CommandLineOptions($opt)]
+    }
+
+    if {$_args(-do) eq "check"} {
+        return [info exists PassedCommandLineOptions($opt)]
+    }
+}
+
+proc ::InstallAPI::ComponentAPI { args } {
+    ::InstallAPI::ParseArgs _args $args {
+        -components { string  1 }
+        -active     { boolean 0 }
+        -updateinfo { boolean 0 1 }
+    }
+
+    global conf
+
+    set components $_args(-components)
+    if {$components eq "all"} { set components [Components children recursive] }
+
+    foreach component $components {
+        set component [string trim $component]
+        set id [::InstallAPI::FindObjects -alias $component]
+        if {$id eq ""} {
+            set id [::InstallAPI::FindObjects -type component -name $component]
+        }
+        if {$id eq ""} {
+            return -code error "invalid component \"$component\""
+        }
+
+        set id [$id id]
+        lappend componentIds $id
+        if {[info exists _args(-active)]} {
+            if {$_args(-active)} {
+                debug "Activating component $component"
+            } else {
+                debug "Deactivating component $component"
+            }
+            $id active $_args(-active)
+        }
+    }
+
+    variable ::InstallJammer::Components
+
+    foreach tree $conf(ComponentTrees) {
+        if {![winfo exists $tree]} { continue }
+
+        foreach component $componentIds {
+            set group [$component get ComponentGroup]
+
+            set var $tree,$component
+            if {$group ne ""} { set var $tree,$group }
+
+            if {![info exists Components($var)] || $Components($var) eq ""} {
+                set checked [$component get Checked]
+                if {[$component get RequiredComponent]} { set checked 1 }
+
+                if {$group eq ""} {
+                    set Components($var) [string is true $checked]
+                } elseif {$checked} {
+                    set Components($var) $component
+                }
+            } else {
+                if {$group eq ""} {
+                    set Components($var) [string is true [$component active]]
+                } elseif {[$component active]} {
+                    set Components($var) $component
+                }
+            }
+        }
+    }
+
+    if {$_args(-updateinfo)} { ::InstallJammer::UpdateInstallInfo }
+}
+
+proc ::InstallAPI::ConfigAPI { args } {
+    ::InstallAPI::ParseArgs _args $args {
+        -usenativefiledialog      { boolean 0 }
+        -usenativemessagebox      { boolean 0 }
+        -usenativedirectorydialog { boolean 0 }
+    }
+
+    global conf
+
+    if {$conf(unix) && !$conf(osx)} {
+        ## UNIX platforms have no native dialog, so no matter
+        ## what we're told, always use our own dialogs.
+        foreach arg [array names _args -usenative*] {
+            set _args($arg) 0
+        }
+    }
+
+    if {[info exists _args(-usenativefiledialog)]} {
+        set conf(NativeChooseFile) $_args(-usenativefiledialog)
+    }
+
+    if {[info exists _args(-usenativemessagebox)]} {
+        set conf(NativeMessageBox) $_args(-usenativemessagebox)
+    }
+
+    if {[info exists _args(-usenativedirectorydialog)]} {
+        set conf(NativeChooseDirectory) $_args(-usenativedirectorydialog)
+    }
 }
 
 proc ::InstallAPI::CopyObject { args } {
@@ -82,6 +208,19 @@ proc ::InstallAPI::CopyObject { args } {
     }
 
     return $new
+}
+
+proc ::InstallAPI::DestroyWidget { args } {
+    if {![::InstallJammer::InGuiMode]} { return }
+
+    ::InstallAPI::ParseArgs _args $args {
+        -widgets { string 1 }
+    }
+
+    foreach w $_args(-widgets) {
+        set widget [::InstallAPI::GetWidgetPath -frame 1 -widget $w]
+        if {$widget ne ""} { destroy $widget }
+    }
 }
 
 proc ::InstallAPI::EncodeURL { args } {
@@ -287,7 +426,7 @@ proc ::InstallAPI::FindObjects { args } {
         -glob      { boolean 0 }
         -name      { string  0 }
         -parent    { string  0 }
-        -type      {   string  0 }
+        -type      { string  0 }
     }
 
     if {[info exists _args(-alias)]} {
@@ -591,6 +730,8 @@ proc ::InstallAPI::GetSystemPackageManager { args } {
 }
 
 proc ::InstallAPI::GetWidgetChildren { args } {
+    if {![::InstallJammer::InGuiMode]} { return }
+
     ::InstallAPI::ParseArgs _args $args {
         -includeparent { boolean 0 0 }
         -widget        { string 1 }
@@ -622,26 +763,51 @@ proc ::InstallAPI::GetWidgetPath { args } {
     global conf
     global info
 
+    if {![::InstallJammer::InGuiMode]} { return }
+
     ::InstallAPI::ParseArgs _args $args {
-        -widget { string 1 }
-        -window { string 0 }
+        -frame  { boolean 0 0 }
+        -widget { string  1 }
+        -window { string  0 }
     }
 
-    if {[info exists _args(-window)]
-        && [::InstallJammer::ObjExists $_args(-window)]
-        && [$_args(-window) ispane]} {
-        set window $_args(-window)
-    } else {
-        set window $info(CurrentPane)
+    set window noop
+    set widget $_args(-widget)
+
+    if {[info exists info(CurrentPane)]} { set window $info(CurrentPane) }
+
+    ## Look to see if the widget is in the form of PANE.WIDGET
+    lassign [split $_args(-widget) .] pane wid
+    if {$wid ne ""} {
+        set pane [::InstallJammer::ID $pane]
+        if {[::InstallJammer::ObjExists $pane]} {
+            set widget $wid
+            set window $pane
+        }
     }
 
-    set name [join [::InstallJammer::ID [string trim $_args(-widget)]] ""]
+    if {[info exists _args(-window)]} {
+        set obj [::InstallJammer::ID $_args(-window)]
+        if {[::InstallJammer::ObjExists $obj] && [$obj ispane]} {
+            set window $obj
+        }
+    }
+
+    set name [join [::InstallJammer::ID $widget] ""]
 
     if {[lsearch -exact $conf(ButtonWidgets) $name] > -1} {
         set name [string tolower [string map {Button ""} $name]]
         set widg [$info(Wizard) widget get $name]
     } else {
-        set widg  [$window widget get $name]
+        if {[::InstallJammer::IsID $name]
+            && [::InstallJammer::ObjExists $name]} {
+            set widg [$name window]
+        } else {
+            set widg [$window widget get $name]
+        }
+
+        if {![winfo exists $widg]} { return }
+        if {$_args(-frame)} { return $widg }
         set class [winfo class $widg]
         if {$class eq "Frame" || $class eq "TFrame"} {
             foreach w [winfo children $widg] {
@@ -696,6 +862,27 @@ proc ::InstallAPI::Exit { args } {
             $command
         }
     }
+}
+
+proc ::InstallAPI::LanguageAPI { args } {
+    ::InstallAPI::ParseArgs _args $args {
+        -do       { choice 1 "" "setlanguage" }
+        -language { string 0 "" }
+    }
+
+    global info
+
+    if {$_args(-do) eq "setlanguage"} {
+        set code [::InstallJammer::GetLanguageCode $_args(-language)]
+        if {$code eq ""} { return 0 }
+        debug "Setting language to $code"
+        set info(Language) $code
+        ::msgcat::mclocale ""
+        ::msgcat::mclocale en $info(Language)
+        ::InstallJammer::UpdateWidgets -buttons 1
+    }
+
+    return 1
 }
 
 proc ::InstallAPI::LoadMessageCatalog { args } {
@@ -800,6 +987,8 @@ proc ::InstallAPI::ModifyWidget { args } {
     global info
     global hidden
 
+    if {![::InstallJammer::InGuiMode]} { return }
+
     ::InstallAPI::ParseArgs _args $args {
         -state   { choice 0 "" {disabled hidden normal readonly}}
         -widget  { string 1 }
@@ -835,7 +1024,7 @@ proc ::InstallAPI::ModifyWidget { args } {
 }
 
 proc ::InstallAPI::ParseArgs { _arrayName _arglist optionspec } {
-    debug "API Call: [info level -1]"
+    if {[verbose]} { debug "API Call: [info level -1]" }
 
     upvar 1 $_arrayName array
 
@@ -907,6 +1096,7 @@ proc ::InstallAPI::ParseArgs { _arrayName _arglist optionspec } {
             return -code error "invalid option $option"
         }
 
+        if {$option eq "-do"} { set value [join [string tolower $value] ""] }
         set array($option) $value
 
         set type [lindex $options($option) 0]
@@ -1084,6 +1274,125 @@ proc ::InstallAPI::PromptForFile { args } {
     }
 }
 
+proc ::InstallAPI::ReadInstallInfo { args } {
+    global info
+
+    ::InstallAPI::ParseArgs _args $args {
+        -array          { string 1 }
+        -installid      { string 0 "" }
+        -applicationid  { string 1 }
+    }
+
+    upvar 1 $_args(-array) array
+
+    set pattern *.info
+    if {$_args(-installid) ne ""} { set pattern $_args(-installid).info }
+
+    ::InstallJammer::GetInstallInfoDir
+    set dir [file join $info(InstallJammerRegistryDir) $_args(-applicationid)]
+    foreach file [glob -nocomplain -dir $dir $pattern] {
+        set id [file root [file tail $file]]
+
+        set tmp(ID) $id
+        ::InstallJammer::ReadPropertyFile $file tmp
+        if {$_args(-installid) ne ""} {
+            array set array [array get tmp]
+            return $_args(-installid)
+        }
+
+        set mtime [file mtime $file]
+        if {[info exists tmp(Date)]} { set mtime $tmp(Date) }
+
+        lappend sort [list $mtime $id]
+
+        foreach var [array names tmp] {
+            set array($id,$var) $tmp($var)
+        }
+    }
+
+    if {![info exists sort]} { return }
+
+    set installids {}
+    foreach list [lsort -integer -index 0 $sort] {
+        lappend installids [lindex $list 1]
+    }
+    return $installids
+}
+
+proc ::InstallAPI::ResponseFileAPI { args } {
+    ::InstallAPI::ParseArgs _args $args {
+        -do          { choice  1 "" {add read remove write}}
+        -file        { string  0 "" }
+        -virtualtext { string  0 "" }
+    }
+
+    global conf
+    global info
+
+    if {$_args(-do) eq "add"} {
+        foreach var $_args(-virtualtext) {
+            if {[lsearch -exact $conf(SaveResponseVars) [lindex $var 0]] < 0} {
+                lappend conf(SaveResponseVars) $var
+            }
+        }
+    }
+
+    if {$_args(-do) eq "remove"} {
+        foreach var $conf(SaveResponseVars) {
+            if {[lsearch -exact $_args(-virtualtext) [lindex $var 0]] < 0} {
+                lappend vars $var
+            }
+        }
+        set conf(SaveResponseVars) $vars
+    }
+
+    if {$_args(-do) eq "read" && [file exists $_args(-file)]} {
+        ::InstallJammer::ReadPropertyFile $_args(-file) tmp
+
+        foreach list $conf(SaveResponseVars) {
+            lassign $list var type
+            if {![info exists tmp($var)]} { continue }
+
+            set val $tmp($var)
+            if {$type eq "boolean"} {
+                if {![string is boolean -strict $val]} { continue }
+            } elseif {$type eq "list"} {
+                set elems ""
+                foreach elem [split $val ,] {
+                    lappend elems [string trim $elem]
+                }
+                set val $elems
+            }
+
+            set info($var) $val
+        }
+
+        ::InstallJammer::SetupModeVariables
+    }
+
+    if {$_args(-do) eq "write" && $_args(-file) ne ""} {
+        set fp [open $_args(-file) w]
+        foreach list $conf(SaveResponseVars) {
+            lassign $list var type
+
+            set val [sub "<%$var%>"]
+            if {$val eq "<%$var%>"} { continue }
+
+            if {$type eq "boolean"} {
+                if {[string is true -strict $val]} { set val "Yes" }
+                if {[string is false -strict $val]} { set val "No" }
+            } elseif {$type eq "list"} {
+                set val [join $val ,]
+            }
+
+            puts $fp "$var: $val"
+        }
+        close $fp
+    }
+
+    return $conf(SaveResponseVars)
+}
+
 proc ::InstallAPI::RollbackInstall { args } {
     ::InstallJammer::CleanupCancelledInstall
 }
@@ -1111,23 +1420,30 @@ proc ::InstallAPI::SetActiveSetupType { args } {
         }
     }
 
+    debug "Setting active setup type to $name ([$obj id])."
+
     set info(InstallType)   $name
-    set info(InstallTypeID) $obj
+    set info(InstallTypeID) [$obj id]
     unset -nocomplain conf(PopulatedSetupType)
 
-    array unset ::InstallJammer::Components $info(InstallTypeID),*
+    ::InstallJammer::SelectSetupType $info(InstallTypeID)
+
+    foreach var [array names ::InstallJammer::Components] {
+        set ::InstallJammer::Components($var) ""
+    }
+
     set components [$info(InstallTypeID) get Components]
-    foreach component [Components children recursive] {
-        if {[lsearch -exact $components $component] < 0} {
-            $component active 0
+    foreach c [Components children recursive] {
+        if {[lsearch -exact $components $c] < 0} {
+            ::InstallAPI::ComponentAPI -components $c -active 0 -updateinfo 0
         } else {
-            $component active 1
+            ::InstallAPI::ComponentAPI -components $c -active 1 -updateinfo 0
         }
     }
 
     ::InstallJammer::UpdateInstallInfo
 
-    return $obj
+    return $info(InstallTypeID)
 }
 
 proc ::InstallAPI::SetExitCode { args } {
@@ -1173,6 +1489,8 @@ proc ::InstallAPI::SetObjectProperty { args } {
 
 proc ::InstallAPI::SetUpdateWidgets { args } {
     global conf
+
+    if {![::InstallJammer::InGuiMode]} { return }
 
     ::InstallAPI::ParseArgs _args $args {
         -widgets  { string 1 }
@@ -1330,6 +1648,24 @@ proc ::InstallAPI::URLIsValid { args } {
     http::cleanup $tok
 
     return $return
+}
+
+proc ::InstallAPI::VirtualTextAPI { args } {
+    ::InstallAPI::ParseArgs _args $args {
+        -do          { choice 1 "" "settype"}
+        -type        { choice 0 "" "boolean directory"}
+        -virtualtext { string 1 }
+    }
+
+    if {$_args(-do) eq "settype"} {
+        if {![info exists _args(-type)]} {
+            return -code error "must specify -type"
+        }
+
+        foreach var $_args(-virtualtext) {
+            set ::InstallJammer::VTTypes($var) $_args(-type)
+        }
+    }
 }
 
 proc ::InstallAPI::VirtualTextExists { args } {

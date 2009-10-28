@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 #FHNonScroll
-{padding: 6px 6px 0px 6px; border-bottom: none; background: #6699FF; vertical-align: top;z-index: 2; visibility: visible; position: absolute; left: 0; top: 0; width: 100%; }
+{padding: 6px 6px 0px 6px; border-bottom: none; background: #D1D1D1; vertical-align: top;z-index: 2; visibility: visible; position: absolute; left: 0; top: 0; width: 100%; }
 #FHScroll
 {left: 0; top: 0px; position: absolute; margin: 0; padding: 10px; z-index: 1; background-repeat: no-repeat; background-position: bottom right; background-attachment: fixed; }
 
@@ -74,14 +74,13 @@ p,ul,ol /* Left */
 <script type="text/javascript" language="JavaScript" src="FHUtilities.js"></script>
 <script type="text/JavaScript" language="JavaScript">
 <!-- If this page is displayed outside of the Website Help Frameset, then reload in the Frame set
-var stContextString;
 if (parent.location.href == self.location.href)
 {location.href = "index.html?"+extractFileNameWithoutKnownExtension(location.href);}
 //--></script>
 <script type="text/javascript" language="JavaScript" src="FHNonscroll.js"></script><script type="text/javascript" language="JavaScript" src="FHUtilities.js"></script></HEAD>
 <body bgcolor="#FFFFFF" scroll="no"><div id="FHNonScroll"><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="100%" align="left">
 <font size=2 color="#000000" face="Arial">
-<div><font size=5 color="#333399" face="Verdana"><b>Setup Types</b></font></div>
+<div><font size=5 color="#333333" face="Verdana"><b>Setup Types</b></font></div>
 </font>
 </TD><td width="120" align="right" nowrap><font face="Verdana" size="2"><a href="Components.html"><img src="Images/BrowseBlueLeft.png" border="0" alt="Previous Topic"></a>&nbsp;&nbsp;<a href="PanesAndActions.html"><img src="Images/BrowseBlueRight.png" border="0" alt="Next Topic"></a>&nbsp;</font></td></tr></table></div><div id="FHScroll">
 
@@ -89,7 +88,7 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts2>The "Custom" setup type has special meaning to InstallJammer.&nbsp; All other setup types are regarded as normal and have no special features.&nbsp; If the user is offered the ability to choose their setup type, and they choose Custom, they should also be offered the ability to select the individual components they wish to install.&nbsp; Any component added to the Custom setup type will be available to the user to choose during installation.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
-<div class=rvps1><table border=0 cellpadding=1 cellspacing=2>
+<div class=rvps1><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=22>
 <p class=rvps1><img border="0" src="Images/note.jpg" alt="Note" width="32" height="32"></p>
@@ -107,6 +106,9 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts3><br></span></p>
 <p class=rvps1><span class=rvts4>Name</span></p>
 <p class=rvps1><span class=rvts3>The name of this setup type.</span></p>
+<p class=rvps1><span class=rvts3><br></span></p>
+<p class=rvps1><span class=rvts4>Show Setup Type</span></p>
+<p class=rvps1><span class=rvts3>If this property is false, this setup type will not be shown when populating setup types in a pane.&nbsp; This is used to create setup types that you want hidden from the user during installation.</span></p>
 <p class=rvps1><span class=rvts3><br></span></p>
 <p class=rvps1><span class=rvts3><br></span></p>
 <p class=rvps1><span class=rvts4>Text Properties</span></p>

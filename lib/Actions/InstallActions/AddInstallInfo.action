@@ -28,9 +28,6 @@ Property Key short "Key"
 Property Value short "Value"
 
 proc ::InstallJammer::actions::AddInstallInfo { obj } {
-    global conf
-
     $obj properties props -subst 1
-
-    lappend conf(APPLOG) $props(Key) $props(Value)
+    ::InstallAPI::AddInstallInfo -key $props(Key) -value $props(Value)
 }

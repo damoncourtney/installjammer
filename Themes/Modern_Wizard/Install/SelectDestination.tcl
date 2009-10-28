@@ -40,9 +40,13 @@ proc CreateWindow.SelectDestination { wizard id } {
     grid rowconfigure    $base.frame 0 -weight 1
     grid columnconfigure $base.frame 0 -weight 1
 
-    Label $base.frame.destination -anchor nw -textvariable ::info($varName) \
-        -elide 1 -elideside center -ellipsis {[...]}
+    Label $base.frame.destination -anchor nw -elide 1 -elideside center \
+        -ellipsis {[...]}
     grid  $base.frame.destination -row 0 -column 0 -sticky ew -padx 5 -pady 3
+    $id widget set Destination -widget $base.frame.destination
+    if {$varName ne ""} {
+        $id setText all Destination "<%Dir <%$varName%>%>"
+    }
 
     Button $base.frame.browse -command \
         [list ::InstallAPI::PromptForDirectory -virtualtext $varName]

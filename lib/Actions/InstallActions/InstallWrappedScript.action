@@ -30,6 +30,11 @@ Help IncludeTWAPI "If this property is true, InstallJammer will wrap the\
         Tcl Windows API (TWAPI) extension in with the target executable\
         on the Windows platform"
 
+Property Installkit projectfile "Installkit" ""
+Help Installkit "If this property is specified, it points to the location\
+    of an installkit binary to use as the basis for this wrapped script. \
+    The default is to use the current installer that is already running."
+
 Property TclStartupScript projectfile "Tcl Startup Script" "<%InstallDir%>/"
 
 Property WindowsIcon windowsicon "Windows Icon"
@@ -54,6 +59,7 @@ proc ::InstallJammer::actions::InstallWrappedScript { obj } {
     set info(Status) "<%BuildFileText%>"
 
     set opts [list -noinstall -o $binary -w [::installkit::base]]
+    if {$props(Installkit) ne ""} { lappend opts -w $props(Installkit) }
 
     if {$conf(windows)} {
         set x {Company FileVersion ProductName ProductVersion FileDescription}

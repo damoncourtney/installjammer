@@ -43,7 +43,7 @@ proc Window.splash {} {
 
     $c create image 0 0 -anchor nw -image ::icon::splash
 
-    set text "Version $conf(Version)\n(Build $conf(InstallJammerVersion))"
+    set text "Version $conf(Version)\n(Build $conf(BuildVersion))"
     $c create text 490 125 -text $text -fill white -font TkTextFont -anchor ne
     set widg(SplashText) [$c create text 12 278 -anchor nw -fill white \
         -font TkTextFont]

@@ -131,7 +131,7 @@ UninstallCompleteText
 "Deinstalacja zakończona."
 
 UninstallStartupText
-"<%AppName%> zostanie kompletnie usunięty z twojego systemu.  Czy \
+"<%AppName%> zostanie kompletnie usunięty z twojego systemu.  Czy\
  na pewno chcesz tego?"
 
 UninstallLeftoverText

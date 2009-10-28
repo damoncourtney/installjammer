@@ -45,14 +45,14 @@ proc BuildLog { text args } {
     incr conf(buildErrors) $error
     incr conf(totalBuildErrors) $error
 
-    Status $text
+    Status [lindex [split $text \n] 0]
 
     set date "[clock format [clock seconds] -format "%D %r"]"
 
     set string "$date - $text"
     if {$conf(logBuild) && $_args(-logtofile)} {
 	if {![info exists conf(logfp)]} {
-	    set conf(logfp) [open [InstallDir build.log] a+]
+	    set conf(logfp) [open [::InstallJammer::GetBuildLogFile] a+]
             fconfigure $conf(logfp) -translation lf
 	}
 	puts  $conf(logfp) $string
@@ -118,9 +118,7 @@ proc ::InstallJammer::BuildOutput { line {errorInfo ""} } {
         }
 
         ":DONE" {
-            if {[info exists ::tcl_platform(threaded)]} {
-                ::InstallJammer::FinishBuild
-            }
+            if {[threaded]} { ::InstallJammer::FinishBuild }
         }
 
         default {
@@ -653,6 +651,8 @@ proc ::InstallJammer::BuildPackageData { platform } {
 proc ::InstallJammer::BuildFileManifest {filelist} {
     global conf
 
+    variable ::InstallJammer::solid
+
     BuildLog "Building file manifest..."
 
     set fp [open $conf(packManifest) w]
@@ -938,6 +938,11 @@ proc Build { {platforms {}} } {
         BuildLog "Configuring build for final release..."
     }
 
+    if {!$conf(rebuildOnly) && [info exists widg(Product)]} {
+        $widg(Product) raise diskBuilder
+        update
+    }
+
     if {$conf(fullBuildRequired) && $conf(rebuildOnly)} {
         set msg "The installer format has changed and a full rebuild is\
                 required.  Do you want to continue with the full build?"
@@ -963,6 +968,7 @@ proc Build { {platforms {}} } {
     set conf(buildList)    [list]
     set conf(buildStart)   [clock seconds]
     set conf(buildStopped) 0
+    set conf(refreshFiles) $info(AutoRefreshFiles)
 
     set all  [AllPlatforms]
     set real 0
@@ -1060,7 +1066,7 @@ proc BuildForPlatform { platform } {
 
     if {[::InstallJammer::ArchiveExists $platform]} {
         ::InstallJammer::Build$platform
-        ::InstallJammer::FinishBuild
+        ::InstallJammer::FinishBuild $conf(buildErrors)
         return
     }
 
@@ -1100,12 +1106,22 @@ proc BuildForPlatform { platform } {
     set rebuildOnly 0
     if {$conf(rebuildOnly)} {
 	if {![file exists $conf(executable)]} {
-	    BuildLog "Install does not exist.  Building all files..."
+	    BuildLog "Install does not exist.  Doing a full build..."
 	    set rebuildOnly 0
 	} else {
 	    BuildLog "Rebuilding without repackaging files..."
 	    set rebuildOnly 1
 	}
+    }
+
+    if {$platform eq "Windows"} {
+        set admin [$platform get RequireAdministrator]
+        set last  [$platform get LastRequireAdministrator]
+        if {$admin ne $last} {
+            BuildLog "Require Administrator changed.  Doing a full build..."
+            set rebuildOnly 0
+        }
+        $platform set LastRequireAdministrator $admin
     }
 
     BuildLog "Building main.tcl..."
@@ -1166,7 +1182,8 @@ proc BuildForPlatform { platform } {
         set fileData [read_file $conf(fileDataFile)]
     } else {
         set rebuildOnly 0
-        if {$info(AutoRefreshFiles)} {
+        if {$conf(refreshFiles)} {
+            set conf(refreshFiles) 0
             ::InstallJammer::RefreshFileGroups
         }
 
@@ -1390,8 +1407,8 @@ proc BuildForPlatform { platform } {
             lappend cmd -package [file join $conf(pwd) Binaries Windows twapi]
         }
 
-        if {[$platform get WindowsIcon icon] && [string length $icon]} {
-            set file [GetIcon $icon]
+        if {[$platform get WindowsIcon icon]} {
+            set file [::InstallJammer::FindFile $icon $conf(winico)]
 	    if {![file exists $file]} {
 		BuildLog "Windows Icon '$icon' does not exist." -tags error
 	    } else {
@@ -1428,8 +1445,7 @@ proc BuildForPlatform { platform } {
 
     ::InstallJammer::CheckForBuildStop
 
-    if {[info exists ::tcl_platform(threaded)]} {
-        package require Thread
+    if {[threaded]} {
         thread::errorproc ::InstallJammer::BuildOutput
         set tid [installkit::newThread thread::wait]
         thread::send $tid [list set ::argv [lrange $cmd 2 end]]
@@ -1449,6 +1465,7 @@ proc BuildForPlatform { platform } {
 
 proc ::InstallJammer::BuildZipArchive {} {
     global conf
+    global info
 
     set archive ZipArchive
 
@@ -1456,23 +1473,29 @@ proc ::InstallJammer::BuildZipArchive {} {
 
     BuildLog "Building zip archive..."
 
+    if {$conf(refreshFiles)} {
+        set conf(refreshFiles) 0
+        ::InstallJammer::RefreshFileGroups
+    }
+
     BuildLog "Getting file list..."
+    set filelist {}
     ::InstallJammer::GetSetupFileList -platform $archive \
         -checksave 0 -listvar filelist -includedirs 0
-
-    set level  [$archive get CompressionLevel]
-    set output [::InstallJammer::SubstText [$archive get OutputFileName]]
-    set output [::InstallJammer::OutputDir $output]
-
-    if {[file exists $output]} { file delete -force $output }
-
-    set conf(executable) $output
-    set conf(tmpExecutable) $output.tmp
 
     if {![llength $filelist]} {
         BuildLog "No files to archive..." -tags error
         return
     }
+
+    set level  [$archive get CompressionLevel]
+    set output [::InstallJammer::SubstText [$archive get OutputFileName]]
+    set output [::InstallJammer::OutputDir $output]
+
+    set conf(executable)    $output
+    set conf(tmpExecutable) $output.tmp
+
+    if {[file exists $output]} { file delete -force $output }
 
     set map [list]
     foreach {string value} [$archive get VirtualTextMap] {
@@ -1500,6 +1523,7 @@ proc ::InstallJammer::BuildZipArchive {} {
 
             if {[catch { ::miniarc::addfile $fp $file -name $dest } error]} {
                 BuildLog "Error archiving file '$file': $error" -tags error
+                return
             }
             set done($dest) 1
 
@@ -1518,6 +1542,7 @@ proc ::InstallJammer::BuildZipArchive {} {
 
 proc ::InstallJammer::BuildTarArchive {} {
     global conf
+    global info
 
     set archive TarArchive
 
@@ -1525,7 +1550,13 @@ proc ::InstallJammer::BuildTarArchive {} {
 
     BuildLog "Building tar archive..."
 
+    if {$conf(refreshFiles)} {
+        set conf(refreshFiles) 0
+        ::InstallJammer::RefreshFileGroups
+    }
+
     BuildLog "Getting file list..."
+    set filelist {}
     ::InstallJammer::GetSetupFileList -platform $archive \
         -checksave 0 -listvar filelist -includedirs 1
 
@@ -1587,6 +1618,7 @@ proc ::InstallJammer::BuildTarArchive {} {
             if {[catch { ::miniarc::addfile $fp $file \
                         -name $dest -permissions $mode } error]} {
                 BuildLog "Error archiving file '$file': $error" -tags error
+                return
             }
             set done($dest) 1
 

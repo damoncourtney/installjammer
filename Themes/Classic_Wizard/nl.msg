@@ -11,7 +11,7 @@ ChooseComponents {
     "Custom Setup"
 
     Caption
-    "Selecteer de componenten die u wilt installeren en deselecteer de componenten \
+    "Selecteer de componenten die u wilt installeren en deselecteer de componenten\
      die u niet wilt installeren."
 
     ComponentLabel
@@ -133,12 +133,12 @@ License {
     "Licentie Overeenkomst"
 
     Caption
-    "Lees de licentie overeenkomst aandachtig.  Gebruik de PAGE DOWN toets \
+    "Lees de licentie overeenkomst aandachtig.  Gebruik de PAGE DOWN toets\
      om de rest van de overeenkomst te zien."
 
     Message
-    "Gaat u akkoord met de licentie overeenkomst?  Als u Nee kiest zal \
-     de installatie worden afgebroken.  Om <%AppName%> te installeren, moet \
+    "Gaat u akkoord met de licentie overeenkomst?  Als u Nee kiest zal\
+     de installatie worden afgebroken.  Om <%AppName%> te installeren, moet\
      u akkoord gaan."
 
     Text
@@ -205,7 +205,7 @@ SelectProgramFolder {
 
     Caption
     "Het installatie programma zal de programma iconen toevoegen aan de onderstaande Programma map. \
-     U kunt een nieuwe map aanmaken of een bestaande map selecteren uit de lijst.  \
+     U kunt een nieuwe map aanmaken of een bestaande map selecteren uit de lijst. \
      Klik op Volgende om door te gaan."
 
     ProgramFolderLabel
@@ -277,9 +277,9 @@ StartCopyingFiles {
     "Start Kopiëren Bestanden"
 
     Caption
-    "Het installatie programma heeft genoeg informatie om het kopiëren te starten.\
-     Als u de instellingen wilt bekijken of wijzigen kunt op <%Back%> klikken.  Als u \
-     tevreden bent met de instellingen klikt u op <%Next%> om het kopiëren te starten.\
+    "Het installatie programma heeft genoeg informatie om het kopiëren te starten. \
+     Als u de instellingen wilt bekijken of wijzigen kunt op <%Back%> klikken.  Als u\
+     tevreden bent met de instellingen klikt u op <%Next%> om het kopiëren te starten. \
      \n\nHuidige instellingen:"
 
     Text
@@ -376,12 +376,12 @@ Welcome {
     "Welkomst Scherm"
 
     Caption
-    "Welkom bij het <%AppName%> installatie programma.  Dit programma zal \
+    "Welkom bij het <%AppName%> installatie programma.  Dit programma zal\
      <%AppName%> op uw computer installeren."
 
     Message
-    "Het is aan te raden alle overige applicaties te sluiten alvorens \
-     verder te gaan met deze installatie.\n\nKlik op <%Next%> om verder \
+    "Het is aan te raden alle overige applicaties te sluiten alvorens\
+     verder te gaan met deze installatie.\n\nKlik op <%Next%> om verder\
      te gaan of op <%Cancel%> om deze installatie af te breken"
 
     NextButton

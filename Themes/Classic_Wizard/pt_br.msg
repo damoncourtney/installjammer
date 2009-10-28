@@ -11,7 +11,7 @@ ChooseComponents {
     "Instalação Customizada"
 
     Caption
-    "Selecione os componentes que você quer instalar e deselecione os componentes \
+    "Selecione os componentes que você quer instalar e deselecione os componentes\
      que você não quer instalar."
 
     ComponentLabel
@@ -133,12 +133,12 @@ License {
     "Concordância com a Licença"
 
     Caption
-    "Por favor, leia a Concordância com a Licença.  Pressione PAGEDOWN \
+    "Por favor, leia a Concordância com a Licença.  Pressione PAGEDOWN\
      para visualizar o resto da licença."
 
     Message
-    "Você aceita todos os termos da Licença?  Se \
-     você escolher Não, A instalação será Cancelada.  Para instalar <%AppName%>, você precisa \
+    "Você aceita todos os termos da Licença?  Se\
+     você escolher Não, A instalação será Cancelada.  Para instalar <%AppName%>, você precisa\
      aceitar todos os termos da Licença."
 
     Text
@@ -179,9 +179,9 @@ SelectDestination {
     "Selecione a localização de destino"
 
     Caption
-    "O Instalador irá instalar <%AppName%> Na seguinte pasta.\n\nPara instalar \
-     nesta pasta, clique em Próximo.\n\nPara instalar em uma pasta diferente, clique \
-     Navegar e selecione outra pasta.\n\nVocê pode cancelar a Instalação do \
+    "O Instalador irá instalar <%AppName%> Na seguinte pasta.\n\nPara instalar\
+     nesta pasta, clique em Próximo.\n\nPara instalar em uma pasta diferente, clique\
+     Navegar e selecione outra pasta.\n\nVocê pode cancelar a Instalação do\
      <%AppName%> clicando em Cancelar e o Instalador será finalizado."
 
     NextButton
@@ -205,8 +205,8 @@ SelectProgramFolder {
     "Selecionar a pasta de Programas"
 
     Caption
-    "Setup will add the program icons to the Program Folder listed below.  \
-     You may type a new folder name or select from the existing folders list.  \
+    "Setup will add the program icons to the Program Folder listed below. \
+     You may type a new folder name or select from the existing folders list. \
      Click Next to continue."
 
     ProgramFolderLabel
@@ -279,9 +279,9 @@ StartCopyingFiles {
     "Start Copying Files"
 
     Caption
-    "Setup has enough information to start copying the program files.  If \
-     you want to review or change any settings, click Back.  If you are \
-     satisfied with the settings, click Next to begin copying files.\
+    "Setup has enough information to start copying the program files.  If\
+     you want to review or change any settings, click Back.  If you are\
+     satisfied with the settings, click Next to begin copying files. \
      \n\nCurrent Settings:"
 
     Text
@@ -378,14 +378,14 @@ Welcome {
     "Tela de Boas Vindas"
 
     Caption
-    "Bem vido ao programa de Instalação do <%AppName%>.  Este programa irá instalar \
+    "Bem vido ao programa de Instalação do <%AppName%>.  Este programa irá instalar\
      <%AppName%> em seu computador."
 
     Message
-    "É fortemente recomendado que você feche todos os programas do Windows que você \
-     esteja executando.  Clique em Próximo para continuar o programa de Instalação.\n\nAdvertência: \
+    "É fortemente recomendado que você feche todos os programas do Windows que você\
+     esteja executando.  Clique em Próximo para continuar o programa de Instalação.\n\nAdvertência:\
      Este programa é protegido por leis de Copyright e tratados Internacionais. \n\n
-     A cópia não autorizada ou a distribuição deste programa, or qualquer parte deste, \
+     A cópia não autorizada ou a distribuição deste programa, or qualquer parte deste,\
      poderá resultar em severas penalidades cívis e criminais e será processado dentro da leis aplicáveis."
 
     NextButton

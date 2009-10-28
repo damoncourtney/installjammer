@@ -6,7 +6,7 @@ ChooseComponents {
     "Select the components setup will install."
 
     Caption
-    "Select the components you want to install and deselect the components \
+    "Select the components you want to install and deselect the components\
      you do not want to install."
 
     Message
@@ -180,15 +180,15 @@ SelectDestination {
     "Where should <%AppName%> be installed?"
 
     Caption
-    "Setup will install <%AppName%> in the following folder.\n\nTo install \
-     to this folder, click Next.  To install to a different folder, click \
+    "Setup will install <%AppName%> in the following folder.\n\nTo install\
+     to this folder, click Next.  To install to a different folder, click\
      Browse and select another folder."
 
     Message
     ""
 
     BrowseText
-    "To continue, click Next.  If you would like to select a different \
+    "To continue, click Next.  If you would like to select a different\
      folder, click Browse."
 
     NextButton
@@ -215,8 +215,8 @@ SelectProgramFolder {
     "Please select a program folder."
 
     Caption
-    "Setup will add the program icons to the Program Folder listed below.  \
-     You may type a new folder name or select from the existing folders list.  \
+    "Setup will add the program icons to the Program Folder listed below. \
+     You may type a new folder name or select from the existing folders list. \
      Click Next to continue."
 
     Message
@@ -246,7 +246,7 @@ SetupComplete {
     "InstallJammer Wizard Complete"
 
     Message
-    "The InstallJammer Wizard has successfully installed <%AppName%>.  \
+    "The InstallJammer Wizard has successfully installed <%AppName%>. \
      Click Finish to exit the wizard."
 
     NextButton
@@ -293,8 +293,8 @@ StartCopyingFiles {
     "Review settings before copying files"
 
     Caption
-    "Setup has enough information to start copying the program files.  If \
-     you want to review or change any settings, click Back.  If you are \
+    "Setup has enough information to start copying the program files.  If\
+     you want to review or change any settings, click Back.  If you are\
      satisfied with the settings, click Next to begin copying files."
 
     Message
@@ -425,8 +425,8 @@ Welcome {
     "Welcome to the InstallJammer Wizard for <%AppName%>"
 
     Message
-    "This will install <%AppName%> version <%Version%> on your computer.\
-    \n\nIt is recommended that you close all other applications before \
+    "This will install <%AppName%> version <%Version%> on your computer. \
+    \n\nIt is recommended that you close all other applications before\
     continuing.\n\nClick Next to continue or Cancel to exit Setup."
 
     NextButton

@@ -11,7 +11,7 @@ ChooseComponents {
     "Custom Setup"
 
     Caption
-    "Select the components you want to install and deselect the components \
+    "Select the components you want to install and deselect the components\
      you do not want to install."
 
     ComponentLabel
@@ -133,12 +133,12 @@ License {
     "License Agreement"
 
     Caption
-    "Please read the following License Agreement.  Press the PAGE DOWN key \
+    "Please read the following License Agreement.  Press the PAGE DOWN key\
      to see the rest of the agreement."
 
     Message
-    "Do you accept all the terms of the preceding License Agreement?  If \
-     you choose No, Setup will close.  To install <%AppName%>, you must \
+    "Do you accept all the terms of the preceding License Agreement?  If\
+     you choose No, Setup will close.  To install <%AppName%>, you must\
      accept this agreement."
 
     Text
@@ -179,9 +179,9 @@ SelectDestination {
     "Select Destination Location"
 
     Caption
-    "Setup will install <%AppName%> in the following folder.\n\nTo install \
-     to this folder, click Next.\n\nTo install to a different folder, click \
-     Browse and select another folder.\n\nYou can choose not to install \
+    "Setup will install <%AppName%> in the following folder.\n\nTo install\
+     to this folder, click Next.\n\nTo install to a different folder, click\
+     Browse and select another folder.\n\nYou can choose not to install\
      <%AppName%> by clicking Cancel to exit Setup."
 
     NextButton
@@ -205,8 +205,8 @@ SelectProgramFolder {
     "Select Program Folder"
 
     Caption
-    "Setup will add the program icons to the Program Folder listed below.  \
-     You may type a new folder name or select from the existing folders list.  \
+    "Setup will add the program icons to the Program Folder listed below. \
+     You may type a new folder name or select from the existing folders list. \
      Click Next to continue."
 
     ProgramFolderLabel
@@ -233,7 +233,7 @@ Setup {
     "Setup"
 
     Caption
-    "Setup is preparing the InstallJammer Wizard which will guide you through \
+    "Setup is preparing the InstallJammer Wizard which will guide you through\
      the rest of the setup process.  Please wait."
 }
 
@@ -279,9 +279,9 @@ StartCopyingFiles {
     "Start Copying Files"
 
     Caption
-    "Setup has enough information to start copying the program files.  If \
-     you want to review or change any settings, click Back.  If you are \
-     satisfied with the settings, click Next to begin copying files.\
+    "Setup has enough information to start copying the program files.  If\
+     you want to review or change any settings, click Back.  If you are\
+     satisfied with the settings, click Next to begin copying files. \
      \n\nCurrent Settings:"
 
     Text
@@ -378,15 +378,15 @@ Welcome {
     "Welcome Screen"
 
     Caption
-    "Welcome to the <%AppName%> Setup program.  This program will install \
+    "Welcome to the <%AppName%> Setup program.  This program will install\
      <%AppName%> on your computer."
 
     Message
-    "It is strongly recommended that you exit all Windows programs you have \
-     running.  Click Next to continue with the Setup program.\n\nWARNING: \
-     This program is protected by copyright law and international \
-     treaties.\n\nUnauthorized reproduction or distribution of this program, \
-     or any portion of it, may result in severe civil and criminal penalties, \
+    "It is strongly recommended that you exit all Windows programs you have\
+     running.  Click Next to continue with the Setup program.\n\nWARNING:\
+     This program is protected by copyright law and international\
+     treaties.\n\nUnauthorized reproduction or distribution of this program,\
+     or any portion of it, may result in severe civil and criminal penalties,\
      and will be prosecuted to the maximum extent possible under law."
 
     NextButton

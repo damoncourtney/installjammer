@@ -227,60 +227,64 @@ proc ::FileGroupTree::select { mode node } {
 }
 
 proc ::FileGroupTree::open { tree node } {
+    global conf
+    global info
+    variable LinkDirs
+
     set id [$tree itemcget $node -data]
 
-    ## Check to see if this node already has children or has
-    ## already been opened and has no children.
-    if {[llength [$tree nodes $node]]
-        || [$tree itemcget $node -drawcross] eq "auto"} { return }
+    ## Check to see if this node has already been opened.
+    if {[$tree itemcget $node -drawcross] eq "auto"} { return }
 
-    set dir      [::InstallJammer::GetFileSource $id]
-    set platform [::FileTree::GetPlatform $tree $node]
-
-    set group [::FileGroupTree::GetFileGroup $node]
-    set group [$tree itemcget $group -data]
-
-    set filelist [glob -nocomplain -directory $dir *]
-    eval lappend filelist [glob -nocomplain -type hidden -directory $dir *]
-
-    set children [$id children]
-    
-    if {![llength $filelist] && ![llength $children]} {
-	$tree itemconfigure $node -drawcross auto
-	return
-    }
-
-    set dirs  [list]
-    set files [list]
-
-    foreach file $filelist {
-        if {[file isdir $file]} {
-            lappend dirs $file
-        } else {
-            lappend files $file
-        }
-    }
-
-    foreach child $children {
+    set found 0
+    foreach child [$id children] {
+        set found 1
         AddToFileGroup -id $child
     }
 
-    foreach directory $dirs {
-        set tail [file tail $directory]
-        if {$tail eq "." || $tail eq ".."} { continue }
+    set dir [::InstallJammer::GetFileSource $id]
+    if {[file exists $dir]} {
+        set topdir   [::FileGroupTree::GetTopDirectory $node]
+        set platform [::FileTree::GetPlatform $tree $node]
 
-	set type dir
-        AddToFileGroup -type $type -platform $platform -group $group \
-            -name $directory -text [file tail $directory] -parent $id -modify 0
+        if {[file type $dir] eq "link"} {
+            ## If we find a recursive link we only open the topmost
+            ## directory link.  Going any deeper will just put us
+            ## into an infinite loop, so we stop at one level deep.
+            if {![info exists LinkDirs($topdir)]} { set LinkDirs($topdir) "" }
+            set link [file tail $dir],[file normalize [file readlink $dir]]
+            if {[lsearch -exact $LinkDirs($topdir) $link] > -1} {
+                $tree itemconfigure $node -drawcross auto
+                return
+            }
+            lappend LinkDirs($topdir) $link
+        }
+
+        set group [::FileGroupTree::GetFileGroup $node]
+        set group [$tree itemcget $group -data]
+
+        set filelist [glob -nocomplain -directory $dir *]
+        eval lappend filelist [glob -nocomplain -type hidden -directory $dir *]
+
+        foreach file $filelist {
+            set found 1
+            set type file
+            set tail [file tail $file]
+            if {[file isdir $file]} {
+                if {$tail eq "." || $tail eq ".."} { continue }
+                if {[::InstallJammer::IgnoreDir $file]} { continue }
+                set type dir
+            } else {
+                if {[::InstallJammer::IgnoreFile $tail]} { continue }
+            }
+
+            AddToFileGroup -type $type -platform $platform -group $group \
+                -name $file -text $tail -parent $id -modify 0
+        }
     }
 
-    foreach file $files {
-        set type file
-        AddToFileGroup -type $type -platform $platform -group $group \
-            -name $file -text [file tail $file] -parent $id -modify 0
-    }
-
-    ::FileGroupTree::SortNodes $node
+    if {$found} { ::FileGroupTree::SortNodes $node }
+    $tree itemconfigure $node -drawcross auto
 }
 
 proc ::FileGroupTree::close { tree node } {
@@ -327,6 +331,28 @@ proc ::FileGroupTree::rename { node newtext } {
     $widg(ComponentFileGroupTree) itemconfigure $id -text $newtext
 
     set active(Name) $newtext
+}
+
+proc ::InstallJammer::DeleteFilesFromTree {objects} {
+    global widg
+
+    if {![info exists widg(FileGroupTree)]} { return }
+    set tree $widg(FileGroupTree)
+
+    set items {}
+    foreach id $objects {
+        set node [::InstallJammer::NodeName $id]
+	if {[$tree exists $node]} { lappend items $node }
+        if {[::InstallJammer::ObjExists $id]} { $id destroy }
+    }
+
+    if {[llength $items]} {
+        eval $tree selection remove $items
+        eval $tree delete $items
+        ::InstallJammer::RebuildFileMap
+        Modified
+        ::InstallJammer::FilesModified
+    }
 }
 
 proc ::FileGroupTree::delete { {selection ""} } {
@@ -437,6 +463,15 @@ proc ::FileGroupTree::selection { cmd items } {
     variable tree
 
     eval $tree selection $cmd $items
+}
+
+proc ::FileGroupTree::GetTopDirectory {node} {
+    variable tree
+    set id [$tree itemcget $node -data]
+    foreach parent [$id parent recursive] {
+        if {[$parent type] eq "dir"} { break }
+    }
+    return $parent
 }
 
 proc ::FileGroupTree::GetFileGroup {node} {
@@ -623,11 +658,12 @@ proc ::FileGroupTree::SetupPermissionsArray { id } {
 
     ## Windows permissions are stored as XXXX for
     ## archive,hidden,readonly,system
+    if {$attrs eq ""} { set attrs 0000 }
     lassign_array [split $attrs ""] permissions \
         PermArchive PermHidden PermReadonly PermSystem
 
     ## UNIX permissions.
-    if {![string length $perms]} { set perms 000 }
+    if {$perms eq ""} { set perms 000 }
     set Other [string index $perms end]
     set Group [string index $perms end-1]
     set User  [string index $perms end-2]
@@ -635,7 +671,7 @@ proc ::FileGroupTree::SetupPermissionsArray { id } {
     foreach x [list User Group Other] {
         upvar 0 $x which
         set permissions(Perm${x}Execute) 0
-        if {[expr $which & 4] == 4} {
+        if {[expr $which & 1] == 1} {
             set permissions(Perm${x}Execute) 1
         }
         set permissions(Perm${x}Write) 0
@@ -643,7 +679,7 @@ proc ::FileGroupTree::SetupPermissionsArray { id } {
             set permissions(Perm${x}Write) 1
         }
         set permissions(Perm${x}Read) 0
-        if {[expr $which & 1] == 1} {
+        if {[expr $which & 4] == 4} {
             set permissions(Perm${x}Read) 1
         }
     }
@@ -678,13 +714,13 @@ proc ::FileGroupTree::SetPermissions { arrayName {idlist ""} } {
             set tmp($x) 0
 
             if {$array(Perm${x}Execute)} {
-                set tmp($x) [expr $tmp($x) | 4]
+                set tmp($x) [expr $tmp($x) | 1]
             }
             if {$array(Perm${x}Write)} {
                 set tmp($x) [expr $tmp($x) | 2]
             }
             if {$array(Perm${x}Read)} {
-                set tmp($x) [expr $tmp($x) | 1]
+                set tmp($x) [expr $tmp($x) | 4]
             }
         }
 
@@ -796,6 +832,7 @@ proc ::FileGroupTree::UpdateSelection { tree nodes } {
         set details(FileUpdateMethod)  ""
         set details(Location)          ""
         set details(Version)           ""
+        set details(SaveFiles)         ""
     }
 }
 
@@ -922,13 +959,20 @@ proc ::FileGroupTree::RaiseNode { node } {
         ## use Destination Directory as their install location.
         set type [$id type]
         foreach subnode [$prop nodes filestandard] {
-            if {[$prop itemcget $subnode -text] eq "Target Filename"} {
-                if {$type eq "dir"} {
-                    $prop itemconfigure $subnode -state hidden
-                } else {
-                    $prop itemconfigure $subnode -state normal
-                }
+            set data   [$prop itemcget $subnode -data]
+            set parent [$id parent]
+
+            if {$data eq "TargetFilename" && $type eq "dir"} {
+                $prop itemconfigure $subnode -state hidden
+                continue
             }
+
+            if {$data eq "SaveFiles" && $type eq "file"} {
+                $prop itemconfigure $subnode -state hidden
+                continue
+            }
+
+            $prop itemconfigure $subnode -state normal
         }
 
         ## Setup Standard Properties
@@ -941,6 +985,7 @@ proc ::FileGroupTree::RaiseNode { node } {
         set details(FileUpdateMethod)  [$id filemethod]
         set details(CompressionMethod) [$id compressionmethod]
         set details(Version)           [$id version]
+        set details(SaveFiles)         [$id savefiles]
 
         ::FileGroupTree::UpdateDetails
         ::InstallJammer::SetHelp FilesAndDirectories

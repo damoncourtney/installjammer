@@ -12,6 +12,7 @@ namespace eval ChooseDirectory {
         {-oktext        String   ""        0}
         {-canceltext    String   ""        0}
         {-initialdir    String   ""        0}
+        {-includevfs    Boolean  "0"       0}
     }
 
     bind ChooseDirectory <Destroy> [list ChooseDirectory::_destroy %W]
@@ -102,19 +103,20 @@ proc ChooseDirectory::create { path args } {
     if {![llength $folders]} {
         set desktop   [file normalize [file join ~ Desktop]]
         set documents [file normalize [file join ~ Documents]]
+
+        set desktopText   "Desktop"
+        set documentsText "Documents"
         if {[info exists ::env(HOME)]} {
-            set desktopText Desktop
-
             if {$::tcl_platform(platform) eq "windows"} {
-                set documentsText "My Documents"
+                foreach text {"Documents" "My Documents"} {
+                    set dir [file join ~ $text]
+                    if {[file exists $dir]} {
+                        set documents     $dir
+                        set documentsText $text
+                        break
+                    }
+                }
             } else {
-                set documentsText "Documents"
-            }
-
-            set desktop   [file join $::env(HOME) $desktopText]
-            set documents [file join $::env(HOME) $documentsText]
-
-            if {$::tcl_platform(platform) ne "windows"} {
                 lappend folders [list [file normalize ~] "Home"]
             }
         }
@@ -247,7 +249,9 @@ proc ChooseDirectory::_open_directory { path tree node } {
     eval lappend dirs [glob -nocomplain -type {d hidden} -dir $rootdir *]
 
     set found 0
+    set include [Widget::getoption $path#choosedir -includevfs]
     foreach dir [lsort $sort $dirs] {
+        if {!$include && [string match "*vfs*" [file system $dir]]} { continue }
         set tail [file tail $dir]
         if {$tail eq "." || $tail eq ".."} { continue }
 

@@ -80,14 +80,23 @@ proc Open { {filename ""} } {
 
     set modified 0
 
-    rename ::File ::_fileClass
-    set ::filesLoaded [list]
-    proc File { args } { lappend ::filesLoaded $args }
+    if {[info commands ::_fileClass] eq ""} {
+        rename ::File ::_fileClass
+        proc File { args } { lappend ::filesLoaded $args }
+    }
+    set ::filesLoaded {}
 
     if {[catch { eval [read_file $filename -encoding utf-8] } error]} {
+        if {[vercmp $info(ProjectVersion) $conf(InstallJammerVersion)] == 1} {
+            ::InstallJammer::Error -message "This project file was made with\
+                a newer version ($info(ProjectVersion)) of InstallJammer and\
+                cannot be loaded in this version."
+        } else {
+            ::InstallJammer::Error -message "Could not open '$filename': $error"
+        }
         set conf(loading) 0
         ClearStatus
-    	return -code error "Could not open '$filename': $error"
+        return
     }
 
     set info(Project)     [file root [file tail $filename]]
@@ -624,12 +633,6 @@ proc ::InstallJammer::GetTextData { args } {
     set data ""
 
     set languages [::InstallJammer::GetLanguageCodes]
-    if {$_args(-build)} {
-        set languages [list]
-        foreach {code lang} [::InstallJammer::GetActiveLanguages] {
-            lappend languages $code
-        }
-    }
 
     foreach lang $languages {
         upvar #0 ::InstallJammer::Msgs_$lang messages
@@ -850,19 +853,21 @@ proc ::InstallJammer::SaveFileGroups { args } {
     return $data
 }
 
-proc ::InstallJammer::SaveSetupFiles { filegroup } {
+proc ::InstallJammer::SaveSetupFiles { id } {
     global info
 
     set data ""
 
-    if {$info(SaveOnlyToplevelDirs)} {
-        set ids [$filegroup children]
-    } else {
-        set ids [$filegroup children recursive]
-    }
+    set parent [$id parent]
+    if {[$parent is filegroup] && ($info(SaveOnlyToplevelDirs)
+        || [string is false -strict [$parent get SaveFiles]])} { return }
 
-    foreach id $ids {
+    foreach id [$id children] {
         append data "File ::$id [$id serialize]\n"
+        if {[$id is dir] && [string is false -strict [$id savefiles]]} {
+            continue
+        }
+        append data [::InstallJammer::SaveSetupFiles $id]
     }
 
     return $data
@@ -965,40 +970,83 @@ proc ::InstallJammer::SaveFileGroupsAndComponents { args } {
     return $data
 }
 
-proc ::InstallJammer::RecursiveGetFiles { parent {includeHidden 1} } {
+proc ::InstallJammer::IgnoreDir {dir} {
+    foreach pattern $::info(IgnoreDirectories) {
+        if {[regexp -- $pattern $dir]} { return 1 }
+    }
+    return 0
+}
+
+proc ::InstallJammer::IgnoreFile {file} {
+    set tail [file tail $file]
+    foreach pattern $::info(IgnoreFiles) {
+        if {[regexp -- $pattern $tail]} { return 1 }
+    }
+    return 0
+}
+
+proc ::InstallJammer::RecursiveGetFiles { parent {followLinks 1}
+                                            {linkParent ""} } {
+    global conf
+    variable LinkDirs
+
+    set first 0
+    if {$linkParent eq ""} {
+        set first 1
+        set linkParent $parent
+        set LinkDirs($linkParent) ""
+    }
+
     set ids [list $parent]
     set dir [::InstallJammer::GetFileSource $parent]
 
     set files [glob -type f -nocomplain -directory $dir *]
-    if {$includeHidden} {
-        eval lappend files [glob -type {f hidden} -nocomplain -directory $dir *]
-    }
+    eval lappend files [glob -type {f hidden} -nocomplain -directory $dir *]
 
     foreach file [lsort -dict $files] {
+        if {[::InstallJammer::IgnoreFile $file]} { continue }
         set id [::InstallJammer::FileObj $parent $file -type file]
         if {[$id active]} { lappend ids $id }
     }
 
     set dirs [glob -type d -nocomplain -directory $dir *]
-    if {$includeHidden} {
-        eval lappend dirs [glob -type {d hidden} -nocomplain -directory $dir *]
-    }
+    eval lappend dirs [glob -type {d hidden} -nocomplain -directory $dir *]
 
     foreach dir [lsort -dict $dirs] {
+        if {[::InstallJammer::IgnoreDir $dir]} { continue }
+
         set tail [file tail $dir]
         if {$tail eq "." || $tail eq ".."} { continue }
 
+        if {[file type $dir] eq "link"} {
+            if {$followLinks} {
+                set link $tail,[file normalize [file readlink $dir]]
+                if {[lsearch -exact $LinkDirs($linkParent) $link] > -1} {
+                    continue
+                }
+                lappend LinkDirs($linkParent) $link
+            } else {
+                set id [::InstallJammer::FileObj $parent $dir -type file]
+                if {[$id active]} { lappend ids $id }
+                continue
+            }
+        }
+
         set id [::InstallJammer::FileObj $parent $dir -type dir]
         if {[$id active]} {
-            eval lappend ids [::InstallJammer::RecursiveGetFiles $id]
+            eval lappend ids [::InstallJammer::RecursiveGetFiles \
+                $id $followLinks $linkParent]
         }
     }
+
+    if {$first} { unset -nocomplain LinkDirs }
 
     return $ids
 }
 
 proc ::InstallJammer::RefreshFileGroups {} {
     global conf
+    global info
     global widg
 
     set msg "Refreshing file groups..."
@@ -1011,10 +1059,36 @@ proc ::InstallJammer::RefreshFileGroups {} {
 
     set conf(SortTreeNodes) {}
 
+    if {$info(IgnoreFiles) ne $info(LastIgnoreFiles)
+        || $info(IgnoreDirectories) ne $info(LastIgnoreDirectories)} {
+        set ids {}
+        foreach group [FileGroups children] {
+            foreach id [$group children recursive] {
+                set path [::InstallJammer::GetFileSource $id]
+
+                if {[$id is dir] && [::InstallJammer::IgnoreDir $path]} {
+                    lappend ids $id
+                    continue
+                }
+
+                if {[::InstallJammer::IgnoreFile $path]
+                    || [::InstallJammer::IgnoreDir [file dirname $path]]} {
+                    lappend ids $id
+                }
+            }
+        }
+
+        if {[llength $ids]} { ::InstallJammer::DeleteFilesFromTree $ids }
+    }
+
+    set info(LastIgnoreFiles)       $info(IgnoreFiles)
+    set info(LastIgnoreDirectories) $info(IgnoreDirectories)
+
     foreach group [FileGroups children] {
         foreach id [$group children] {
             if {[$id is dir]} {
-                ::InstallJammer::RecursiveGetFiles $id
+                set follow [$group get FollowDirLinks]
+                ::InstallJammer::RecursiveGetFiles $id $follow
             }
         }
     }
@@ -1110,9 +1184,14 @@ proc ::InstallJammer::GetSetupFileList { args } {
         if {!$conf(windows) && $platform ne "Windows"
             && $info(PreserveFilePermissions)} { set preservePermissions 1 }
 
-        set follow [$group get FollowFileLinks]
+        set followDirs  [$group get FollowDirLinks]
+        set followFiles [$group get FollowFileLinks]
+
+        set parents($group) 1
         foreach id [$group children recursive] {
             if {![::InstallJammer::GetFileActive $id]} { continue }
+
+            if {![info exists parents([$id parent])]} { continue }
 
             set file [::InstallJammer::GetFileSource $id]
 
@@ -1121,11 +1200,22 @@ proc ::InstallJammer::GetSetupFileList { args } {
                 continue
             }
             
-            incr groupsize $s(size)
-
-            set isdir [$id is dir]
+            set type $s(type)
             set doappend $append
-            if {$isdir && !$_args(-includedirs)} { set doappend 0 }
+            if {$type eq "link" && $platform ne "Windows"} {
+                file stat $file s
+                set type $s(type)
+                if {($s(type) eq "file" && !$followFiles)
+                    || ($s(type) eq "directory" && !$followDirs)} {
+                    set type link
+                    set doappend 0
+                }
+            }
+
+            if {$type eq "directory"} {
+                set parents($id) 1
+                if {!$_args(-includedirs)} { set doappend 0 }
+            }
 
             if {$doproc} {
                 append procData "    File ::$id"
@@ -1138,26 +1228,16 @@ proc ::InstallJammer::GetSetupFileList { args } {
                 }
 
                 set dir [::InstallJammer::GetFileDestination $id]
-                if {$isdir} {
-                    append procData " -type dir"
-                } else {
-                    set dir [file dirname $dir]
-                }
-
+                if {$type ne "directory"} { set dir [file dirname $dir] }
                 append procData " -directory [list $dir]"
 
-                ## We only handle file symlinks for now.
-                if {!$isdir && !$follow
-                    && $s(type) eq "link" && $platform ne "Windows"} {
-		    set doappend 0
+                if {$type eq "link"} {
                     append procData " -type link"
                     append procData " -linktarget [list [file link $file]]"
+                } elseif {$type eq "directory"} {
+                    append procData " -type dir"
                 } else {
-                    if {$s(type) eq "link"} {
-                        file stat $file s
-                    }
                     if {$s(size)} { append procData " -size $s(size)" }
-
                     append procData " -mtime $s(mtime)"
                 }
 
@@ -1197,6 +1277,8 @@ proc ::InstallJammer::GetSetupFileList { args } {
             if {$doappend} {
                 lappend filelist [list $id $file $group $s(size) $s(mtime)]
             }
+
+            incr groupsize $s(size)
         }
 
         $group set FileSize $groupsize
@@ -1557,10 +1639,12 @@ proc ::InstallJammer::SaveProjectPreferences {} {
 
     set pref(Locations) [array get Locations]
 
-    set fp [open $file w]
-    fconfigure $fp -translation lf
-    puts $fp [string trim [lindex [ReadableArrayGet pref] end]]
-    close $fp
+    if {[llength $pref(Locations)]} {
+        set fp [open $file w]
+        fconfigure $fp -translation lf
+        puts $fp [string trim [lindex [ReadableArrayGet pref] end]]
+        close $fp
+    }
 }
 
 proc ::InstallJammer::LoadProjectPreferences {} {

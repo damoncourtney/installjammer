@@ -40,6 +40,7 @@ proc ::InstallJammer::LoadReservedVirtualText {} {
         {DefaultDirectoryLocation 1}
         {DefaultLanguage          1}
         {DefaultMode              1}
+        {DefaultToSystemLanguage  1}
         {ErrorsOccurred           1}
         {Ext                      1}
         {FileBeingInstalled       1}
@@ -52,6 +53,8 @@ proc ::InstallJammer::LoadReservedVirtualText {} {
         {GUID                     1}
         {Home                     1}
         {Icon                     1}
+        {IgnoreDirectories        1}
+        {IgnoreFiles              1}
         {Image                    1}
         {InstallFinished          1}
         {InstallID                1}
@@ -65,6 +68,8 @@ proc ::InstallJammer::LoadReservedVirtualText {} {
         {InstallPassword          1}
         {Language                 1}
         {LastGUID                 1}
+        {LastIgnoreDirectories    1}
+        {LastIgnoreFiles          1}
         {LastUUID                 1}
         {LicenseAccepted          1}
         {OriginalInstallDir       1}
@@ -171,10 +176,7 @@ proc ::InstallJammer::LongEditVirtualText { w item } {
     }
     $w edit editvalue $::TMP
     ClearTmpVars
-
-    set entry [$w edit entrypath]
-    $entry selection range 0 end
-    after idle [list focus $entry]
+    $w edit finish
 }
 
 proc ::InstallJammer::EditStartVirtualText { w item col } {
@@ -219,8 +221,6 @@ proc ::InstallJammer::EditFinishVirtualText { w item col } {
         Modified
     }
 
-    $w see item $item
-
     if {[info exists conf(locations)]
         && [lsearch -glob $conf(locations) "*<%$name%>*"] > -1} {
         ::InstallJammer::RedrawFileTreeNodes
@@ -239,7 +239,6 @@ proc ::InstallJammer::FinishExternalEditVirtualText {w item name lang old new} {
         ::msgcat::mcset $lang $name $new
         if {[$w exists $item]} {
             $w itemconfigure $item -values [list $name $new]
-            $w see item $item
         }
     }
 

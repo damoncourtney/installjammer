@@ -46,7 +46,7 @@ proc ::InstallJammer::actions::LocateJavaRuntime { obj } {
     global conf
     global info
 
-    $obj properties props
+    $obj properties props -subst 1
 
     set info(Status) [$obj get StatusMessage]
 
@@ -60,14 +60,14 @@ proc ::InstallJammer::actions::LocateJavaRuntime { obj } {
 
     set id [$obj id]
 
-    set minversion [$obj get MinimumVersion]
-    set maxversion [$obj get MaximumVersion]
+    set minver $props(MinimumVersion)
+    set maxver $props(MaximumVersion)
 
-    if {![string length $minversion]} { set minversion 0 }
-    if {![string length $maxversion]} { set maxversion 100 }
+    if {$minver eq ""} { set minver 0 }
+    if {$maxver eq ""} { set maxver 100 }
 
     set paths [list]
-    foreach path [split [$obj get SearchPath] \;] {
+    foreach path [split $props(SearchPath) \;] {
         set path [string trim $path]
 
         if {$path eq "Default Search Path"} {
@@ -111,7 +111,7 @@ proc ::InstallJammer::actions::LocateJavaRuntime { obj } {
                         set ver [lindex [split $subkey _-] 0]
                         set key $root\\$key\\$subkey
 
-                        if {[package vcompare $ver $minversion] >= 0
+                        if {[vercmp $ver $minver] >= 0
                             && ![catch {registry get $key JavaHome} path]} {
                             lappend paths $path
                         }
@@ -135,27 +135,27 @@ proc ::InstallJammer::actions::LocateJavaRuntime { obj } {
                     /usr/lib/java-1.5.0
 
 
-                if {[package vcompare 1.4.1 $minversion] >= 0} {
+                if {[vercmp 1.4.1 $minver] >= 0} {
                     lappend paths /opt/IBMJava2-141
                 }
 
-                if {[package vcompare 1.4 $minversion] >= 0} {
+                if {[vercmp 1.4 $minver] >= 0} {
                     lappend paths /opt/IBMJava2-14
                 }
 
-                if {[package vcompare 1.3.1 $minversion] >= 0} {
+                if {[vercmp 1.3.1 $minver] >= 0} {
                     lappend paths /opt/IBMJava2-131
                 }
 
-                if {[package vcompare 1.3 $minversion] >= 0} {
+                if {[vercmp 1.3 $minver] >= 0} {
                     lappend paths /opt/IBMJava2-13 /opt/java-1.3
                 }
 
-                if {[package vcompare 1.2.2 $minversion] >= 0} {
+                if {[vercmp 1.2.2 $minver] >= 0} {
                     lappend paths /usr/local/jdk1.2.2 /usr/lib/java/jdk1.2.2
                 }
 
-                if {[package vcompare 1.2 $minversion] >= 0} {
+                if {[vercmp 1.2 $minver] >= 0} {
                     lappend paths /usr/jdk1.2
                 }
             }
@@ -170,7 +170,7 @@ proc ::InstallJammer::actions::LocateJavaRuntime { obj } {
         if {[info exists done($path)]} { continue }
         set done($path) 1
 
-        if {$path eq "Prompt User"} {
+        if {$path eq "Prompt User" && $info(GuiMode)} {
             set path [::InstallJammer::ChooseDirectory -message \
                 [::InstallJammer::GetText $id PromptMessage]]
             update
@@ -183,19 +183,26 @@ proc ::InstallJammer::actions::LocateJavaRuntime { obj } {
         set javac [file join $path bin javac]
         if {$conf(windows)} { append javac .exe }
 
+        debug "Looking for $java."
+
         if {[file exists $java]
             && (!$props(RequireJDK) || [file exists $javac])} {
+            debug "Found $java.  Checking -version."
             catch { exec $java -version } output
-            if {![string match "java version*" $output]} { continue }
+            if {![string match "java version*" $output]} {
+                debug "Bad output from $java."
+                continue
+            }
 
             set ver [lindex [lindex [split $output \n] 0] end]
             set mver [lindex [split $ver _-] 0]
-            lappend versions $mver
-            if {[package vcompare $mver $minversion] >= 0
-                && [package vcompare $mver $maxversion] <= 0} {
+            lappend versions $ver
+            if {[vercmp $ver $minver] >= 0 && [vercmp $ver $maxver] <= 0} {
+                debug "Version $ver matched."
                 set found $path
                 break
             }
+            debug "Version $ver did not match."
         }
     }
 
@@ -206,6 +213,7 @@ proc ::InstallJammer::actions::LocateJavaRuntime { obj } {
         set info(JavaHome)         [file dirname [file dirname $java]]
         set info(JavaVersion)      $ver
         set info(JavaVersionMajor) [join [lrange [split $mver .] 0 1] .]
+        set info(JavaVersionMinor) $mver
         set info(JavaExecutable)   $java
         set info(JavawExecutable)  $java
 

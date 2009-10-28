@@ -60,11 +60,8 @@ proc ::InstallJammer::GetUninstallInfo {} {
         set files [glob -nocomplain -dir $dir *.info]
     }
 
+    set installdir  $info(InstallDir)
     set uninstaller $info(Uninstaller)
-
-    if {$conf(windows)} {
-        set uninstaller [string tolower [Normalize $uninstaller]]
-    }
 
     set conf(uninstall)        $uninstaller
     set conf(UninstallRemoved) 0
@@ -83,12 +80,8 @@ proc ::InstallJammer::GetUninstallInfo {} {
             continue
         }
 
-        set tmpuninstaller $tmp(Uninstaller)
-        if {$conf(windows)} {
-            set tmpuninstaller [string tolower [Normalize $tmpuninstaller]]
-        }
-
-        if {$uninstaller eq $tmpuninstaller} {
+        if {[patheq $installdir $tmp(Dir)]
+            || [patheq $uninstaller $tmp(Uninstaller)]} {
             lappend sort [list $tmp(Date) $id]
         }
     }
@@ -207,6 +200,68 @@ proc ::InstallJammer::CleanupInstallInfoDirs {} {
     }
 }
 
+proc ::InstallJammer::InstallLog {args} {
+    ## This is a dummy proc.  We don't actually want
+    ## to log anything during an uninstall.
+}
+
+proc ::InstallJammer::CleanupTmpDir {} {
+    global conf
+    global info
+
+    set tmpdir [::InstallJammer::TmpDir]
+    if {$conf(windows)} {
+        if {[auto_execok wscript] eq ""} {
+            set tmp [::InstallJammer::TmpDir cleanup.tcl]
+            set fp [open $tmp w]
+            puts $fp "set dir [::InstallJammer::TmpDir]"
+            puts $fp {
+                catch {wm withdraw .}
+                set i 0
+                while {[file exists $dir] && [incr i] < 600} {
+                    file delete -force -- $dir
+                    after 100
+                }
+            }
+            close $fp
+
+            set installkit [::InstallJammer::GetCommonInstallkit]
+            exec $::env(COMSPEC) /c start $installkit $tmp &
+        } else {
+            set bat ij[pid]cleanup.bat
+            set vbs ij[pid]cleanup.vbs
+
+            set fp [open [file join $info(TempRoot) $vbs] w]
+            puts $fp [string map [list @BAT@ $bat @VBS@ $vbs @TMP@ $tmpdir] {
+                On Error Resume Next
+                WScript.Sleep(10000)
+                Set fsObj = WScript.CreateObject("Scripting.FileSystemObject")
+                fsObj.DeleteFile("@BAT@")
+                fsObj.DeleteFile("@VBS@")
+                fsObj.DeleteFolder("@TMP@")
+                WScript.Quit(0)
+            }]
+            close $fp
+
+            set fp [open [file join $info(TempRoot) $bat] w]
+            puts $fp "@echo off"
+            puts $fp "start /WAIT wscript //B //E:vbscript $vbs > nul"
+            close $fp
+
+            cd $info(TempRoot)
+            exec $bat &
+        }
+    } else {
+        set tmp [file join $info(TempRoot) cleanup.sh]
+        set fp [open $tmp w]
+        puts $fp "sleep 3"
+        puts $fp "rm -rf $tmpdir $tmp"
+        close $fp
+
+        exec [auto_execok sh] $tmp &
+    }
+}
+
 proc ::InstallJammer::exit { {prompt 0} } {
     global conf
     global info
@@ -219,29 +274,7 @@ proc ::InstallJammer::exit { {prompt 0} } {
 
     ::InstallJammer::CommonExit
 
-    if {$conf(windows) && !$conf(windows98)} {
-	## We can't delete a file in-use on Windows, so we'll
-	## write out a .bat file to do the cleanup for us.
-	## We'll wait a few seconds before deleting the directory
-	## to give the uninstaller time to exit.
-
-	set tmp [file dirname [::InstallJammer::TmpDir]]
-	set bat [file join $tmp [pid]cleanup.bat]
-	set vbs [file join $tmp [pid]sleep.vbs]
-
-	set fp [open $vbs w]
-	puts $fp "WScript.Sleep(3000)"
-	close $fp
-
-	set fp [open $bat w]
-        puts $fp "@echo off"
-	puts $fp "start /WAIT wscript //B //E:vbscript [file tail $vbs] > nul"
-	puts $fp "rmdir /S /Q \"[::InstallJammer::TmpDir]\" > nul"
-	puts $fp "start /B del [file tail $bat] [file tail $vbs] > nul"
-	close $fp
-	cd $tmp
-	exec $bat &
-    }
+    if {!$info(Debugging)} { ::InstallJammer::CleanupTmpDir }
 
     if {[string is integer -strict $conf(ExitCode)]} { ::exit $conf(ExitCode) }
     ::exit 0
@@ -260,14 +293,7 @@ proc ::InstallJammer::UninstallMain {} {
     }
 
     if {$info(SilentMode)} {
-        if {$conf(windows)} {
-            ## If we're in Windows and we've made it this far,
-            ## we're being started from a temp directory.  If
-            ## we're in Silent mode, we need to give the original
-            ## uninstall a chance to exit.
-            after 1000
-        }
-
+        after 1000
         ::InstallJammer::ExecuteActions "Startup Actions"
         ::InstallJammer::ExecuteActions Silent
     } elseif {$info(ConsoleMode)} {
@@ -291,35 +317,18 @@ proc ::InstallJammer::InitUninstall {} {
 
     SourceCachedFile common.tcl
 
+    ## Check and load the TWAPI extension.
+    ::InstallJammer::LoadTwapi
+
     unset -nocomplain info(Temp)
     unset -nocomplain info(TempRoot)
+
+    cd [::InstallJammer::TmpDir]
 
     set info(RunningInstaller)   0
     set info(RunningUninstaller) 1
 
     ::InstallJammer::CommonInit
-
-    ## If we're on Windows, we can't delete ourselves, Windows won't allow us.
-    ## So, we need to copy ourselves to a temp directory and do the uninstall
-    ## from there.
-    if {$conf(windows)} {
-	set uninstall $conf(exe)
-	set test [file join [file dirname $uninstall] .uninstall]
-	if {![file exists $test]} {
-            ## We're in our original location.  Copy ourselves to
-            ## a temporary directory, startup the copy and then exit.
-	    set new [::InstallJammer::TmpDir [file tail $uninstall]]
-	    file copy $uninstall $new
-	    close [open [::InstallJammer::TmpDir .uninstall] w]
-	    eval exec [list $new] $argv &
-	    ::exit
-	}
-
-        ## We're already in a temp directory, so we just set
-        ## our temp directory to our own to keep the clutter down.
-	set info(Temp) [file dirname $uninstall]
-	cd $info(Temp)
-    }
 
     ::InstallJammer::ReadMessageCatalog messages
 
@@ -348,13 +357,12 @@ proc ::InstallJammer::InitUninstall {} {
 
     ::InstallJammer::ParseCommandLineArguments $::argv
 
-    ## Check and load the TWAPI extension.
-    ::InstallJammer::LoadTwapi
-
     if {$info(GuiMode)} {
         SourceCachedFile gui.tcl
         InitGui
     }
+
+    ::InstallJammer::CommonPostInit
 
     ::InstallJammer::ConfigureBidiFonts
 }

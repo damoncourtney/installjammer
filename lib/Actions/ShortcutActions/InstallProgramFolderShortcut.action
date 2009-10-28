@@ -48,6 +48,8 @@ Property ShortcutType choice "Shortcut Type" "Application" {Link Application}
 
 Property TargetFileName installedfile "Target File Name"
 
+Property VendorID short "Vendor ID" "<%ApplicationID%>"
+
 Property WindowState choice "Window State" "normal" \
     {hidden maximized minimized normal}
 

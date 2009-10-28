@@ -38,7 +38,9 @@ Options:
     --build                   build the installers for the given project file
     --build-dir <directory>   directory to use for temporary build files
     --build-for-release       build the installers for final release
+    --build-log-file          path to the file to log build messages in
     --control-script <file>   load script file before building
+    --debug-log               run installjammer with a debug log
     --help                    display this information
     --output-dir <directory>  directory to store finished installers in
     --platform <platform>     specify a platform to add to the build list
@@ -64,6 +66,7 @@ proc ParseCommandLineArgs {} {
     set switches {
         --build
         --build-for-release
+        --debug-log
         --quick-build
         --test
         --test-without-installing
@@ -77,6 +80,7 @@ proc ParseCommandLineArgs {} {
     set options {
         -d -p
 	--build-dir
+        --build-log-file
         --control-script
 	--output-dir
         --platform
@@ -138,10 +142,18 @@ proc ParseCommandLineArgs {} {
                 set conf(buildForRelease) 1
             }
 
+            "--build-log-file" {
+                set conf(buildLogFile) $val
+            }
+
 	    "--control-script" - "-d" {
 		set conf(cmdline) 1
 		lappend conf(CommandLineOptionFiles) $val
 	    }
+
+            "--debug-log" {
+                set conf(debugLogFile) $val
+            }
 
             "--help" - "-help" {
                 ::InstallJammer::DisplayUsageInformation
@@ -183,7 +195,7 @@ proc ParseCommandLineArgs {} {
 	    }
 
             "--version" - "-version" - "-v" {
-                puts "$conf(Version) ($conf(InstallJammerVersion))"
+                puts "$conf(Version) ($conf(BuildVersion))"
                 puts ""
                 puts "InstallJammer version $conf(Version)"
                 ::exit 0
@@ -240,6 +252,11 @@ proc ParseCommandLineArgs {} {
 
 proc ::InstallJammer::InstallJammerHome { {file ""} } {
     global conf
+
+    if {[file exists [file join $conf(pwd) preferences]]} {
+        set conf(home) $conf(pwd)
+        set conf(InstallJammerHome) $conf(pwd)
+    }
 
     if {![info exists conf(home)] || ![info exists conf(InstallJammerHome)]} {
         if {[info exists env(USERPROFILE)]} {
@@ -326,7 +343,7 @@ proc ::InstallJammer::GuiInit {} {
     #option add *Installjammer*Panedwindow.sashRelief        flat
     #option add *Installjammer*Panedwindow.relief            flat
 
-    image create photo logo  -file [file join $conf(images) logo.png]
+    image create photo logo  -file [file join $conf(icons) logo.png]
 
     ## See if we have the tkdnd package for drag-and-drop support.  If not,
     ## create a dummy command so the dnd commands will do nothing.
@@ -340,9 +357,10 @@ proc ::InstallJammer::GuiInit {} {
 
 proc ::InstallJammer::Debug { string } {
     global conf
+    if {$conf(debugLogFile) eq ""} { return }
     if {![info exists conf(debugfp)]} {
         set home [::InstallJammer::InstallJammerHome]
-        set conf(debugfp) [open [file join $home debug.log] w]
+        set conf(debugfp) [open $conf(debugLogFile) w]
     }
     puts $conf(debugfp) $string
 }
@@ -397,8 +415,8 @@ proc init {} {
     }
 
     array set conf {
-        Version                 1.2.12
-	InstallJammerVersion	1.2.12.0
+        Version                 1.2.13
+	InstallJammerVersion	1.2.13.8
 	projectLoaded		0
 	silent			0
         verbose                 0
@@ -441,6 +459,7 @@ proc init {} {
         Archives                {}
         TreeFocus               ""
         clipboard               {}
+        debugLogFile            ""
 
         TestUninstallSilentMode         0
         TestUninstallConsoleMode        0
@@ -476,6 +495,7 @@ proc init {} {
         }
     }
 
+    set conf(BuildVersion) [file size [file join $conf(pwd) ChangeLog.1.2]]
     set conf(CompressionMethods) {lzma "lzma (solid)" none zlib "zlib (solid)"}
 
     if {![catch { package require miniarc::crap::lzma }]} {
@@ -533,6 +553,7 @@ proc init {} {
         CompressionMethod
         Copyright
         DefaultLanguage
+        EnableResponseFiles
         ExtractSolidArchivesOnStartup
         Icon
         Image
@@ -572,6 +593,7 @@ proc init {} {
         ProgramName
         ProgramReadme
         PromptForRoot
+        RequireAdministrator
         RequireRoot
         RootInstallDir
     }
@@ -629,15 +651,14 @@ proc init {} {
     set conf(gui)     $::tcl_platform(platform)
     set conf(lib)     [file join $conf(pwd) lib]
     set conf(help)    [file join $conf(pwd) docs]
-    set conf(images)  [file join $conf(lib) Icons]
+    set conf(icons)   [file join $conf(lib) Icons]
+    set conf(images)  [file join $conf(pwd) Images]
+    set conf(winico)  [file join $conf(pwd) Images "Windows Icons"]
     set conf(bwidget) [file join $conf(lib) BWidget]
 
     if {$conf(osx)} { set conf(gui) "osx" }
 
     ::ParseCommandLineArgs
-
-    ## Make our home directory.
-    ::InstallJammer::InstallJammerHome
 
     ::InstallJammer::Debug "Initializing InstallJammer..."
 
@@ -684,7 +705,7 @@ proc init {} {
         wm command  . [linsert $::argv 0 $::argv0]
 
         if {$conf(windows)} {
-            wm iconbitmap . -default [file join $conf(images) InstallJammer.ico]
+            wm iconbitmap . -default [file join $conf(icons) InstallJammer.ico]
         }
 
 	Window.splash

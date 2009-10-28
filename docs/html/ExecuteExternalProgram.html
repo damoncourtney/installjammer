@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 #FHNonScroll
-{padding: 6px 6px 0px 6px; border-bottom: none; background: #6699FF; vertical-align: top;z-index: 2; visibility: visible; position: absolute; left: 0; top: 0; width: 100%; }
+{padding: 6px 6px 0px 6px; border-bottom: none; background: #D1D1D1; vertical-align: top;z-index: 2; visibility: visible; position: absolute; left: 0; top: 0; width: 100%; }
 #FHScroll
 {left: 0; top: 0px; position: absolute; margin: 0; padding: 10px; z-index: 1; background-repeat: no-repeat; background-position: bottom right; background-attachment: fixed; }
 
@@ -50,6 +50,13 @@ span.rvts5
  font-family: 'Verdana';
  color: #ff0000;
 }
+a.rvts6, span.rvts6
+{
+ font-family: 'Verdana';
+ color: #0000ff;
+ text-decoration: underline;
+}
+a.rvts6:hover { color: #0000ff; }
 /* ========== Para Styles ========== */
 p,ul,ol /* Left */
 {
@@ -65,20 +72,19 @@ p,ul,ol /* Left */
 <script type="text/javascript" language="JavaScript" src="FHUtilities.js"></script>
 <script type="text/JavaScript" language="JavaScript">
 <!-- If this page is displayed outside of the Website Help Frameset, then reload in the Frame set
-var stContextString;
 if (parent.location.href == self.location.href)
 {location.href = "index.html?"+extractFileNameWithoutKnownExtension(location.href);}
 //--></script>
 <script type="text/javascript" language="JavaScript" src="FHNonscroll.js"></script><script type="text/javascript" language="JavaScript" src="FHUtilities.js"></script></HEAD>
 <body bgcolor="#FFFFFF" scroll="no"><div id="FHNonScroll"><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="100%" align="left">
 <font size=2 color="#000000" face="Arial">
-<div><font size=5 color="#333399" face="Verdana"><b>Execute External Program</b></font></div>
+<div><font size=5 color="#333333" face="Verdana"><b>Execute External Program</b></font></div>
 </font>
 </TD><td width="120" align="right" nowrap><font face="Verdana" size="2"><a href="ExecuteAction.html"><img src="Images/BrowseBlueLeft.png" border="0" alt="Previous Topic"></a>&nbsp;&nbsp;<a href="ExecuteScript.html"><img src="Images/BrowseBlueRight.png" border="0" alt="Next Topic"></a>&nbsp;</font></td></tr></table></div><div id="FHScroll">
 
 <p class=rvps1><span class=rvts2>This action will execute an external program like a shell script or batch file and return the results in specified virtual text.&nbsp; It can also be used to show progressive output while the external program is running, so that the user can see what the program is doing while it runs.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
-<div class=rvps1><table border=0 cellpadding=1 cellspacing=2>
+<div class=rvps1><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=22>
 <p class=rvps1><img border="0" src="Images/note.jpg" alt="Note" width="32" height="32"></p>
@@ -109,7 +115,7 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts3>Execute in Console</span></p>
 <p class=rvps1><span class=rvts2>If this property is true, InstallJammer will execute the external program in a console window.&nbsp; This is useful for executing scripts that expect some kind of input from the user on the command-line.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
-<div class=rvps1><table border=0 cellpadding=1 cellspacing=2>
+<div class=rvps1><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=33>
 <p class=rvps1><img border="0" src="Images/detail.jpg" alt="Technical Detail" width="32" height="32"></p>
@@ -132,7 +138,7 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts2>It should be noted that arguments on the command-line are separated by spaces, and each argument is passed separately to the system as arguments to the command being executed.&nbsp; Each argument is parsed individually for virtual text rather than substituting the string as a whole so that each argument is properly appended to a list of arguments to execute.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts3>Progressive Output Widget</span></p>
-<p class=rvps1><span class=rvts2>This property specifies a textbox widget on the current pane that will be updated with the output of a progressive command as it becomes available.&nbsp; The textbox will automatically scroll down to keep up with new input.</span></p>
+<p class=rvps1><span class=rvts2>This property specifies a textbox widget that will be updated with the output of a progressive command as it becomes available.&nbsp; The textbox will automatically scroll down to keep up with new input.&nbsp; A widget can be specified by its ID or Alias if it was created with the </span><a class=rvts6 href="AddWidget.html">Add Widget</a><span class=rvts2> action, or it can be the name of a widget on the current pane, or it can be specified as &lt;PANE&gt;.&lt;WIDGET&gt;.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts3>Result Virtual Text&nbsp; </span></p>
 <p class=rvps1><span class=rvts2>This is a virtual text variable to store the result of external program.&nbsp; This will be any data that is output to standard out while the program is running.&nbsp; If progressive output is being shown, this variable will be the entire result that was output when the program finishes executing.</span></p>

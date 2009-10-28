@@ -45,6 +45,8 @@ Property ShortcutType choice "Shortcut Type" "Application" {Link Application}
 
 Property TargetFileName installedfile "Target File Name"
 
+Property VendorID short "Vendor ID" "<%ApplicationID%>"
+
 proc ::InstallJammer::actions::InstallUNIXShortcut { obj } {
     global conf
     global info
@@ -106,19 +108,22 @@ proc ::InstallJammer::actions::InstallUNIXShortcut { obj } {
 
     if {$props(ShortcutLocation) eq "Desktop"} {
         catch { exec xdg-desktop-icon install --novendor $file }
-        ::InstallJammer::InstallLog [list :XDGRESOURCE desktop $file]
+        set tail [file tail $file]
+        ::InstallJammer::InstallLog [list :XDGRESOURCE desktop $tail]
     } elseif {$props(ShortcutLocation) eq "Program Folder"} {
         set files [list]
         foreach folder [file split $props(ProgramFolderName)] {
-            set uuid    $info(ApplicationID)-[join $folder ""]
+            set uuid    $props(VendorID)-[join $folder ""]
             set dirfile [::InstallJammer::TmpDir $uuid.directory]
 
-            set fp [open $dirfile w]
-            puts $fp {[Desktop Entry]}
-            puts $fp "Version=1.0"
-            puts $fp "Type=Directory"
-            puts $fp "Name=$folder"
-            close $fp
+            if {![file exists $dirfile]} {
+                set fp [open $dirfile w]
+                puts $fp {[Desktop Entry]}
+                puts $fp "Version=1.0"
+                puts $fp "Type=Directory"
+                puts $fp "Name=$folder"
+                close $fp
+            }
 
             lappend files $dirfile
         }
@@ -131,16 +136,18 @@ proc ::InstallJammer::actions::InstallUNIXShortcut { obj } {
 
         lappend files $file
 
-        catch { eval exec xdg-desktop-menu install --novendor $files }
+        set mode user
+        if {$info(UserIsRoot)} { set mode system }
+        catch {
+            eval exec xdg-desktop-menu install --mode $mode --novendor $files
+        }
 
         foreach file $files {
             lappend logfiles [file tail $file]
         }
 
-        ::InstallJammer::InstallLog [list :XDGRESOURCE menu $logfiles]
-
-        if {[::InstallJammer::GetDesktopEnvironment] eq "Gnome"} {
-            set conf(RestartGnomePanel) 1
-        }
+        ::InstallJammer::InstallLog [list :XDGRESOURCE menu $logfiles $mode]
     }
+
+    set conf(RestartGnomePanel) 1
 }

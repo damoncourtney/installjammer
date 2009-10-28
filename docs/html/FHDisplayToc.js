@@ -1,4 +1,4 @@
-﻿/*Copyright DevHost Ltd. 2006 : v2.023*/
+﻿/*Copyright DevHost Ltd. 2007 : v2.026*/
 var isIE = navigator.appName.toLowerCase().indexOf("explorer") > -1;
 var mdi = (isIE) ? textSizes[1]:textSizes[3];
 var sml = (isIE) ? textSizes[2]:textSizes[4];
@@ -13,8 +13,10 @@ function reDisplay(currentNumber,tocChange,noLink,e) {
     ctrlKeyDown = (isIE) ? e.ctrlKey : (e.modifiers==2);
     if (tocChange && ctrlKeyDown) tocChange = 2;
   }
-
-  toc.document.clear();
+  try
+  {toc.document.clear();}
+  catch (e)
+  {location.href = "index.html";}
   toc.document.write("<!-- saved from url=(0014)about:internet -->\n<html>\n<head>\n<title>ToC</title>\n</head>\n<body bgcolor=\"" + backColor + "\">\n<table border=0 cellspacing=1 cellpadding=0>\n<tr>\n<td colspan=" + (nCols+1) + "><a href=\"javaScript:history.go(0)\" onMouseDown=\"parent.reDisplay('" + tocTab[0][0] + "',0,0)\" style=\"font-family: " + fontTitle + "; font-weight:bold; font-size:" + textSizes[0] + "em; color: " + titleColor + "; text-decoration:none\">" + tocTab[0][1] + "</a></td></tr>\n<tr>");
 
   for (k=0; k<nCols; k++) 
@@ -52,7 +54,8 @@ function reDisplay(currentNumber,tocChange,noLink,e) {
       }
     }
 
-  if (currentIndex == null) return false;
+  if (currentIndex == null)
+    {currentIndex=0;}//the requested page was not found, so show the home page instead
         
   if (currentIndex < tocTab.length-1) 
     {
@@ -99,9 +102,9 @@ function reDisplay(currentNumber,tocChange,noLink,e) {
           if (i < tocTab.length-1) 
             {
               nextLevel = tocTab[i+1][0].split(".").length-1;
-              img = (thisLevel >= nextLevel) ? "topic.gif" : ((toDisplay[i+1]) ? "open.gif" : "closed.gif");
+              img = (thisLevel >= nextLevel) ? "topic.png" : ((toDisplay[i+1]) ? "open.png" : "closed.png");
             } 
-          else img = "topic.gif";
+          else img = "topic.png";
 
           if (addScroll) scrollY+=((thisLevel<2)?mdi:sml)*25;
           if (isCurrent) addScroll=false;
@@ -126,11 +129,11 @@ function reDisplay(currentNumber,tocChange,noLink,e) {
 
   toc.document.writeln("</table>\n");
   toc.document.writeln("\n\r\n\r  <br>\n\r  <hr>\n\r <div style=\'font-family: Verdana; font-size:0.6em; color:#000000\'>\n\r  \n\r  </div>\n</body></html>");
-  toc.document.close();
   if (tocScroll) toc.scroll(0,scrollY);
   if (theHref) 
     if (theTarget=="top") top.location.href = theHref;
     else if (theTarget=="parent") parent.location.href = theHref;
     else if (theTarget=="blank") open(theHref,"");
     else content.location.href = theHref;
+  toc.document.close();
 }

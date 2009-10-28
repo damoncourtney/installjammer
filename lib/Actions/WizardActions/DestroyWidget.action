@@ -27,10 +27,5 @@ Property WidgetId widget "Widget ID"
 
 proc ::InstallJammer::actions::DestroyWidget { obj } {
     $obj properties props -subst 1
-
-    set wid [::InstallJammer::ID $props(WidgetId)]
-
-    if {![catch { $wid window } window]} {
-        destroy $window
-    }
+    ::InstallAPI::DestroyWidget -widgets [split $props(WidgetId) \;]
 }

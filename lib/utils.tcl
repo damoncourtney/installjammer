@@ -152,7 +152,11 @@ proc TestInstall {} {
     if {$conf(TestConsole)} {
         ::InstallJammer::ExecuteInTerminal $file $args
     } else {
-        eval exec [list $file] $args &
+        if {$conf(windows)} {
+            installkit::Windows::shellExecute open $file $args
+        } else {
+            eval exec [list $file] $args &
+        }
     }
 }
 
@@ -194,10 +198,19 @@ proc TestUninstall {} {
     set args $conf(TestUninstallCommandLineOptions)
     set file [lindex [lindex [lsort -integer -index 0 $sort] end] 1]
 
+    foreach list [lsort -decreasing -integer -index 0 $sort] {
+        set file [lindex $list 1]
+        if {[file exists $file]} { break }
+    }
+
     if {$conf(TestUninstallConsoleMode)} {
         ::InstallJammer::ExecuteInTerminal $file $args
     } else {
-        eval exec [list $file] $args &
+        if {$conf(windows)} {
+            installkit::Windows::shellExecute open $file $args
+        } else {
+            eval exec [list $file] $args &
+        }
     }
 }
 
@@ -231,6 +244,7 @@ proc AdjustTestUninstallOptions {} {
     if {$conf(windows)} { set head / }
 
     array set options {
+        TestUninstallDebugging     debug
 	TestUninstallSilentMode    {mode silent}
 	TestUninstallConsoleMode   {mode console}
         TestUninstallWithConsole   debugconsole
@@ -256,13 +270,17 @@ proc InstallKitStub { platform {type ""} } {
     global info
 
     set exe installkit
-    if {$platform eq "Windows"} { append exe .exe }
+    if {$platform eq "Windows"} {
+        if {[$platform get UseUncompressedBinaries]} { append exe "U" }
+        if {[$platform get RequireAdministrator]} { append exe "A" }
+        append exe .exe
+    }
 
     set stub [file join $conf(pwd) Binaries $platform $exe]
 
     if {![file exists $stub]} {
         ::InstallJammer::Error -message \
-	    "Could not find installkit binary for $platform!"
+	    "Could not find the appropriate installkit binary for $platform!"
 	::exit
     }
 
@@ -501,7 +519,7 @@ proc AddFiles { args } {
 
         ## Scan through the directory recursively so we
         ## can create a file object for every file.
-        ::InstallJammer::RecursiveGetFiles $dirid
+        ::InstallJammer::RecursiveGetFiles $dirid [$group get FollowDirLinks]
     }
 
     ::FileGroupTree::SortNodes $node
@@ -1365,12 +1383,13 @@ proc EditTextField { id field title varName {multilang 1} args } {
             if {$var ne $conf(editOldText)} {
                 set lang [list [::editor::language]]
                 ::InstallJammer::SetVirtualText $lang $id $field $var
-                Modified
             }
         }
 
         set var [::InstallJammer::GetText $id $field -subst 0]
     }
+
+    if {$var ne $conf(editOldText)} { Modified }
 }
 
 proc ::InstallJammer::EditorLanguageChanged {} {
@@ -1903,6 +1922,10 @@ proc AddProperty { prop index parent id name varName args } {
             lappend opts -modifycommand
             lappend opts [list ::InstallJammer::ConfigureAddWidgetFrame $id]
         }
+
+        "platform" {
+            lappend opts -valuescommand "AllPlatforms"
+        }
     }
 
     eval $prop insert $index $parent $data(-node) $opts
@@ -1910,6 +1933,12 @@ proc AddProperty { prop index parent id name varName args } {
 
 proc ::InstallJammer::CheckAlias { id alias } {
     variable aliases
+
+    if {$alias eq "all"} {
+        ::InstallJammer::Error -message \
+            "The word '$alias' is reserved and cannot be used as an alias"
+        return 0
+    }
 
     if {[info exists aliases($alias)] && $aliases($alias) ne $id} {
         ::InstallJammer::Error -message \
@@ -2257,21 +2286,27 @@ proc ::InstallJammer::Explore { {initdir ""} } {
 
     set explorer ""
 
+    if {$initdir ne "" && ![file exists $initdir]} {
+        ::InstallJammer::Error -message \
+	    "Directory '$initdir' does not exist"
+        return
+    }
+
     if {[info exists preferences(FileExplorer)] 
 	&& $preferences(FileExplorer) ne ""} {
-	set explorer [list $preferences(FileExplorer)]
+	set explorer [list exec $preferences(FileExplorer)]
     } else {
         if {$conf(windows)} {
-	    set explorer [list [auto_execok explorer.exe]]
+	    set explorer [list exec [auto_execok explorer.exe]]
             if {$initdir ne ""} {
-		set initdir [file attributes $initdir -shortname]
-		regsub -all {/} $initdir {\\} initdir
-	    	set initdir "/e,,$initdir"
+                set initdir  [file nativename $initdir]
+                set explorer [list ::installkit::Windows::shellExecute explore]
 	    }
         } elseif {$conf(osx)} {
-           set explorer open
+            set explorer [list exec open]
 	} else {
-            set explorer xdg-open
+            set explorer [list exec xdg-open]
+            if {$initdir eq ""} { set initdir ~ }
 	}
     }
 
@@ -2283,10 +2318,10 @@ proc ::InstallJammer::Explore { {initdir ""} } {
 
     Status "Launching File Explorer..." 3000
 
-    if {$initdir ne ""} {
-	set res [catch { eval exec $explorer [list $initdir] & } error]
+    if {$initdir eq ""} {
+	set res [catch { eval $explorer & } error]
     } else {
-	set res [catch { eval exec $explorer & } error]
+	set res [catch { eval $explorer [list $initdir] & } error]
     }
 
     if {$res} {
@@ -2326,32 +2361,8 @@ proc GetImage { image } {
     return [InstallJammerIcons image $image]
 }
 
-proc GetIcon {icon} {
-    global conf
-    global info
-
-    set file $icon
-
-    if {[file pathtype $file] eq "relative"} {
-        ## The icon file's path is relative.  Look for it
-        ## first in our project directory and then in the
-        ## InstallJammer Images/Windows Icons/ directory.
-
-        set dir [file join $conf(pwd) Images "Windows Icons"]
-
-        if {[file exists [file join $info(ProjectDir) $file]]} {
-            set file [file join $info(ProjectDir) $file]
-        } elseif {[file exists [file join $dir $file]]} {
-            set file [file join $dir $file]
-        }
-    }
-
-    return $file
-}
-
 proc GetIconList {} {
-    set dir [file join $::conf(pwd) Images "Windows Icons"]
-    return [glob -nocomplain -tails -directory $dir *.ico]
+    return [glob -nocomplain -tails -directory $::conf(winico) *.ico]
 }
 
 proc SetIconTheme {} {
@@ -2915,9 +2926,23 @@ proc ::InstallJammer::LoadMessages { args } {
         } else {
             seek $fp 0 start
         }
-        array set msg [read $fp]
+
+        set data [read $fp]
         close $fp
 
+        unset -nocomplain first
+        foreach line [split $data \n] {
+            set line [string trim $line]
+            if {$line eq ""} { continue }
+            if {![info exists first]} { set first $line; continue }
+            set second $line
+            break
+        }
+
+        if {![string match {"*"} $second] && ![string match "*\{" $first]} {
+            continue
+        }
+        if {[catch {array set msg $data}]} { continue }
         foreach text [array names msg] {
             if {[lsearch -exact $list $text] > -1} {
                 ## This is an action or something, so it has
@@ -2949,15 +2974,10 @@ proc ::InstallJammer::GetActiveLanguages {} {
 
     set langs [list]
 
-    if {$info(AllowLanguageSelection)} {
-        foreach code [::InstallJammer::GetLanguageCodes] {
-            if {$info(Language,$code)} {
-                lappend langs $code $languagecodes($code)
-            }
+    foreach code [::InstallJammer::GetLanguageCodes] {
+        if {$info(Language,$code)} {
+            lappend langs $code $languagecodes($code)
         }
-    } else {
-        set code $languages($info(DefaultLanguage))
-        lappend langs $code $info(DefaultLanguage)
     }
 
     if {[lsearch -exact $langs "English"] < 0} {
@@ -3101,6 +3121,14 @@ proc ::InstallJammer::LibDir { {file ""} } {
     return $return
 }
 
+proc ::InstallJammer::GetBuildLogFile {} {
+    global conf
+    if {![info exists conf(buildLogFile)]} {
+        set conf(buildLogFile) [InstallDir build.log]
+    }
+    return $conf(buildLogFile)
+}
+
 proc ::InstallJammer::GetDefaultTitle { id } {
     return [[$id object] title]
 }
@@ -3152,4 +3180,39 @@ proc ::InstallJammer::LaunchExternalEditor { value command } {
     set conf(watch,$file) [file mtime $file]
     set conf(watch,$file,text) $value
     ::InstallJammer::WatchExternalFile $pid $file $command 0
+}
+
+proc ::InstallJammer::FindFile {file args} {
+    if {$file eq ""} { return }
+    if {[file pathtype $file] eq "absolute"} { return $file }
+
+    set dirs [linsert $args 0 [InstallDir]]
+    foreach dir $dirs {
+        set path [file join $dir $file]
+        if {[file exists $path]} { return $path }
+    }
+
+    return $file
+}
+
+proc ::InstallJammer::GetWindowGeometry {window default} {
+    global preferences
+    variable WindowGeometry
+
+    set geometry $default
+    if {[info exists preferences(Geometry,$window)]} {
+        set geometry $preferences(Geometry,$window)
+        lassign [split $geometry x+] w h x y
+        lassign [wm maxsize .] maxW maxH
+
+        ## If this is the first time to display this window, and it's
+        ## outside of the viewing area, readjust to use the default geometry.
+        if {![info exists WindowGeometry($window)]
+            && ($x < 0 || ($x + $w) > $maxW || $y < 0 || ($y + $h) > $maxH)} {
+            set geometry $default
+        }
+    }
+
+    set WindowGeometry($window) $geometry
+    return $geometry
 }

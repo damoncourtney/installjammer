@@ -40,6 +40,8 @@ Text Message
 proc ::InstallJammer::actions::MessagePanel { obj } {
     global info
 
+    if {!$info(GuiMode)} { return }
+
     set id [$obj id]
 
     $id window .[$id name]

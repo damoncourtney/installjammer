@@ -6,7 +6,7 @@ ChooseComponents {
     "Válassza ki a telepítend\u0151 komponenseket."
 
     Caption
-    "Válassza ki azokat a komponenseket, amelyeket fel akar telepíteni, \
+    "Válassza ki azokat a komponenseket, amelyeket fel akar telepíteni,\
      és ne válassza ki azokat, amelyeket nem akar telepíteni."
 
     Message
@@ -178,14 +178,14 @@ SelectDestination {
 
     Caption
     "A telepít\u0151 a <%AppName%> programot a következ\u0151 könyvtárba telepíti.\n\n
-     Ahhoz, hogy ebbe könyvtárba kerüljön kattintson a <%Next%> gombra \
+     Ahhoz, hogy ebbe könyvtárba kerüljön kattintson a <%Next%> gombra\
      Ahhoz, hogy más könyvtárba kerüljön kattintson a <%Browse%> gombra."
 
     Message
     ""
 
     BrowseText
-    "A folytatáshoz nyomja meg a <%Next%> gombot.  \
+    "A folytatáshoz nyomja meg a <%Next%> gombot. \
      Ha másik könyvtárat szeretne kiválasztani nyomja meg a <%Browse%> gombot."
 
     NextButton
@@ -243,7 +243,7 @@ SetupComplete {
     "InstallJammer Varázsló befejez\u0151dött"
 
     Message
-    "Az InstallJammer Varázsló sikeresen telepítette a <%AppName%> alkalmazást.  \
+    "Az InstallJammer Varázsló sikeresen telepítette a <%AppName%> alkalmazást. \
 	 Kattintson a <%Finish%> gombra ahhoz, hogy kilépjen a varázslóból."
 
     NextButton
@@ -290,9 +290,9 @@ StartCopyingFiles {
     "Tekintse át a beállításokat, miel\u0151tt átmásolnánk az állományokat!"
 
     Caption
-    "A telepít\u0151nek elég információja van ahhoz, hogy a program állományait \
-	elkezdje másolni. Ha meg akarja nézni vagy változtatni a beállításokat, \
-	akkor kattintson a <%Back%> gombra. Ha elégedett a beállításokkal, akkor \
+    "A telepít\u0151nek elég információja van ahhoz, hogy a program állományait\
+	elkezdje másolni. Ha meg akarja nézni vagy változtatni a beállításokat,\
+	akkor kattintson a <%Back%> gombra. Ha elégedett a beállításokkal, akkor\
 	kattintson a <%Next%> gombra, hogy elkezd\u0151djön a fájlok másolása."
 
     Message
@@ -423,9 +423,9 @@ Welcome {
     "Isten hozta a <%AppName%> InstallJammer Varázslójában"
 
     Message
-    "Ez a <%AppName%> alkalmazás <%Version%> verzióját fogja telepíteni \
-	a számítógépére.\n\n Javasoljuk, hogy zárjon be minden alkalmazást, \
-	miel\u0151tt folytatná.\n\n Kattintson a <%Next%> gombra a folytatáshoz \
+    "Ez a <%AppName%> alkalmazás <%Version%> verzióját fogja telepíteni\
+	a számítógépére.\n\n Javasoljuk, hogy zárjon be minden alkalmazást,\
+	miel\u0151tt folytatná.\n\n Kattintson a <%Next%> gombra a folytatáshoz\
 	vagy a <%Cancel%> gombra kilépéshez."
 
     NextButton

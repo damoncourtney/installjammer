@@ -146,11 +146,11 @@ UninstallCompleteText
 "Eltávolítás befejez\u0151d\u0151tt."
 
 UninstallStartupText
-"Ez teljesen letörli a <%AppName%> alkalmazást a rendszerér\u0151l.\
+"Ez teljesen letörli a <%AppName%> alkalmazást a rendszerér\u0151l. \
  Biztos abban, hogy ezt akarja?"
 
 UninstallLeftoverText
-"Néhány elemet nem kellene eltávolítani.\
+"Néhány elemet nem kellene eltávolítani. \
  Mindenáron töröljük \u0151ket (nem javasolt)?"
 
 UninstallTitleText

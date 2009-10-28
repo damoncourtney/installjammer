@@ -6,7 +6,7 @@ ChooseComponents {
     "Selezionare le parti che saranno installate dal programma."
 
     Caption
-    "Selezionare le parti che si desidera installare e deselezionare le \
+    "Selezionare le parti che si desidera installare e deselezionare le\
      parti che non si desidera installare."
 
     Message
@@ -33,7 +33,7 @@ CopyFiles {
     "Installazione di <%AppName%>"
 
     Caption
-    "Si prega di attendere mentre il programma installa <%AppName%> sul \
+    "Si prega di attendere mentre il programma installa <%AppName%> sul\
      computer."
 
     Message
@@ -178,16 +178,16 @@ SelectDestination {
     "Dove si desidera installare <%AppName%>?"
 
     Caption
-    "Il programma di installazione installerà <%AppName%> nella seguente \
+    "Il programma di installazione installerà <%AppName%> nella seguente\
      cartella.\n\nPer installare in questa cartella, premere su Avanti. \
-     Per installare in una cartella diversa, premere su Sfoglia e \
+     Per installare in una cartella diversa, premere su Sfoglia e\
      selezionare un'altra cartella."
 
     Message
     ""
 
     BrowseText
-    "Per proseguire, premere su Avanti. Se si desidera selezionare una \
+    "Per proseguire, premere su Avanti. Se si desidera selezionare una\
      cartella diversa, premere su Sfoglia."
 
     NextButton
@@ -214,9 +214,9 @@ SelectProgramFolder {
     "Si prega di selezionare la cartella del programma."
 
     Caption
-    "Il programma di installazione aggiungerà le icone del programma nella \
+    "Il programma di installazione aggiungerà le icone del programma nella\
      cartella elencata sotto. \
-     Si può inserire il nome di una nuova cartella o selezionarla dalla \
+     Si può inserire il nome di una nuova cartella o selezionarla dalla\
      lista delle cartelle esistenti. \
      Premere su Avanti per proseguire."
 
@@ -247,7 +247,7 @@ SetupComplete {
     "Autocomposizione di InstallJammer completata"
 
     Message
-    "L'autocomposizione di InstallJammer ha installato <%AppName%> con \
+    "L'autocomposizione di InstallJammer ha installato <%AppName%> con\
      successo. Premere su Fine per uscire dall'autocomposizione."
 
     NextButton
@@ -294,9 +294,9 @@ StartCopyingFiles {
     "Controllo delle impostazioni prima della copia dei file"
 
     Caption
-    "Il programma di installazione ha sufficienti informazioni per iniziare \
-     la copia dei file del programma. Se si desidera controllare o \
-     modificare le impostazioni, premere Indietro. Se si è soddisfatti \
+    "Il programma di installazione ha sufficienti informazioni per iniziare\
+     la copia dei file del programma. Se si desidera controllare o\
+     modificare le impostazioni, premere Indietro. Se si è soddisfatti\
      delle impostazioni, premere Avanti per iniziare a copiare i file."
 
     Message
@@ -400,7 +400,7 @@ UserInformation {
     "Si prega di inserire le informazioni."
 
     Caption
-    "Si prega di inserire il proprio nome e il nome della società per cui \
+    "Si prega di inserire il proprio nome e il nome della società per cui\
      si lavora."
 
     Message
@@ -428,9 +428,9 @@ Welcome {
     "Benvenuti nell'autocomposizione di InstallJammer per <%AppName%>"
 
     Message
-    "Si sta per installare <%AppName%> nella versione <%Version%> \
-     sul computer.\
-     \n\nE' consigliata la chiusura di tutte le altre applicazioni prima di \
+    "Si sta per installare <%AppName%> nella versione <%Version%>\
+     sul computer. \
+     \n\nE' consigliata la chiusura di tutte le altre applicazioni prima di\
      proseguire.\n\nPremere su Avanti per continuare o su Annulla per uscire dall'installazione."
 
     NextButton
