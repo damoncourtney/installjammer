@@ -1,0 +1,211 @@
+ApplicationReadmeText
+"<%AppName%> Readme"
+
+Back
+"Back"
+
+Browse
+"Browse..."
+
+BuildFileText
+"Building <%Tail <%FileBeingInstalled%>%>..."
+
+BuildUninstallText
+"Building uninstall..."
+
+Cancel
+"Cancel"
+
+CleanupInstallText
+"Cleaning up install..."
+
+Close
+"Close"
+
+ConsolePauseQuitText
+"-- Press space to continue or 'q' to quit --"
+
+ConsolePauseText
+"-- Press space to continue --"
+
+ConsoleSelectDestinationText
+"Where do you want to install <%AppName%>?"
+
+CreateDesktopShortcutText
+"Create Desktop Shortcut"
+
+CreateQuickLaunchShortcutText
+"Create Quick Launch Shortcut"
+
+CustomInstallDescription
+"Select custom components for installation."
+
+DirectoryNameErrorText
+"A directory name cannot contain any of the following characters:
+        \\ / : * ? \" < > |"
+
+DirectoryPermissionText
+"You do not have permission to write to <%Dir%>."
+
+DisplayName
+"<%AppName%>"
+
+DownloadingFilesText
+"Downloading files..."
+
+ExitText
+"Are you sure you want to exit this setup?"
+
+FileBeingInstalledText
+"Copying <%FileBeingInstalled%>"
+
+FileBeingUninstalledText
+"Removing <%FileBeingUninstalled%>"
+
+FileOverwriteText
+"The file <%FileBeingInstalled%> already exists.  Do you want to overwrite it?"
+
+Finish
+"Finish"
+
+GroupBeingInstalledText
+"Installing <%GroupBeingInstalled%>..."
+
+GroupBeingUninstalledText
+"Removing <%GroupBeingUninstalled%>"
+
+Help
+"Help"
+
+InstallApplicationText
+"Install <%AppName%>"
+
+InstallationCompleteText
+"Installation complete."
+
+InstallCompleteText
+"File installation complete..."
+
+InstallingApplicationText
+"Installing <%AppName%>..."
+
+InstallErrorText
+"An error has occurred during installation."
+
+InstallPrepareText
+"Preparing to install..."
+
+InstallStartupText
+"This will install <%AppName%> on your computer.  Continue?"
+
+InstallTitleText
+"<%AppName%> Setup"
+
+LaunchApplicationText
+"Launch <%AppName%>"
+
+Next
+"Next"
+
+No
+"No"
+
+OK
+"OK"
+
+PasswordIncorrectText
+"Password is incorrect."
+
+ProgramFilesDescription
+"Common Program Files"
+
+PromptForDirectoryMessage
+"Please choose a directory, then select OK."
+
+PromptForDirectoryNewFolderText
+"Make New Folder"
+
+PromptForDirectoryTitle
+"Browse for Folder"
+
+PromptForRootText
+"Please enter your root password."
+
+RequireRootText
+"You must be root to run this installer."
+
+SeparatorText
+"InstallJammer"
+
+TypicalInstallDescription
+"A typical installation."
+
+UninstallApplicationText
+"Uninstall <%AppName%>"
+
+UninstallPrepareText
+"Preparing to uninstall..."
+
+UpdateRegistryText
+"Updating Windows Registry..."
+
+UninstallingApplicationText
+"Uninstalling <%AppName%>..."
+
+UninstallCompleteText
+"Uninstall complete."
+
+UninstallStartupText
+"This will completely remove <%AppName%> from your system.  Are you sure\
+ you want to do this?"
+
+UninstallLeftoverText
+"Some components could not be removed.  Do you wish to delete them anyway\
+ (not recommended)?"
+
+UninstallTitleText
+"Uninstall <%AppName%>"
+
+UnpackingFilesText
+"Unpacking files..."
+
+VersionHelpText
+"This program will install <%AppName%> version <%Version%>."
+
+ViewReadmeText
+"View Readme"
+
+Yes
+"Yes"
+
+ConsolePause {
+    Message
+    "<%ConsolePauseText%>"
+}
+
+LocateJavaRuntime {
+    PromptMessage
+    "Please tell us where your Java Runtime is located"
+
+    StatusMessage
+    "Locating Java Runtime..."
+}
+
+TextWindow {
+    Title
+    "Window Title"
+
+    Caption
+    "Caption"
+
+    Message
+    "Message goes here."
+
+    CloseButton
+    "<%Close%>"
+}
+
+UnzipFile {
+    StatusText
+    "<%FileBeingInstalledText%>"
+}

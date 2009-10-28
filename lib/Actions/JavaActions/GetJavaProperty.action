@@ -1,0 +1,86 @@
+## $Id$
+##
+## BEGIN LICENSE BLOCK
+##
+## Copyright (C) 2002  Damon Courtney
+## 
+## This program is free software; you can redistribute it and/or
+## modify it under the terms of the GNU General Public License
+## version 2 as published by the Free Software Foundation.
+## 
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License version 2 for more details.
+## 
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, write to the
+##     Free Software Foundation, Inc.
+##     51 Franklin Street, Fifth Floor
+##     Boston, MA  02110-1301, USA.
+##
+## END LICENSE BLOCK
+
+Action GetJavaProperty "Get Java Property"
+
+Property Property       short         "Property"
+Property PropertyFile   installedfile "Property File"
+Property VirtualText    short         "Virtual Text"
+
+proc ::InstallJammer::actions::GetJavaProperty { obj } {
+    global info
+
+    $obj properties props -subst 1
+
+    set info($props(VirtualText)) ""
+
+    if {![string length $props(Property)]
+        || ![string length $props(VirtualText)]
+        || ![file exists $props(PropertyFile)]} { return }
+
+    set fp [open $props(PropertyFile)]
+
+    set append 0
+    while {[gets $fp line] != -1} {
+        set trimmed [string trim $line]
+
+        ## Skip empty lines.
+        if {![string length $trimmed]} { set append 0; continue }
+
+        ## Skip comments.
+        set i [string index $trimmed 0]
+        if {$i eq "#" || $i eq "!"} { continue }
+
+        set noback [string trimright $trimmed \\]
+
+        if {!$append} {
+            if {![regexp -indices {[^\\][:=]} $noback indexes]} {
+                ## We couldn't find a key separator.  The whole line
+                ## is the key, and the value is empty.
+                set array($trimmed) ""
+                continue
+            }
+
+            set idx1 [lindex $indexes 0]
+            set idx2 [expr {[lindex $indexes 1] + 1}]
+            set key  [string trim [string range $noback 0 $idx1]]
+            set array($key) [string trimleft [string range $noback $idx2 end]]
+        } else {
+            append array($key) $noback
+        }
+
+        ## See if the last character of the line is a \.
+        ## If so, we want to append the next line to our
+        ## current line before processing it.
+        #
+        set chk [string length $noback]
+        set len [string length $trimmed]
+        set append [expr {($len - $chk != 0) && ($len - $chk % 2)}]
+    }
+
+    close $fp
+
+    if {[info exists array($props(Property))]} {
+        set info($props(VirtualText)) $array($props(Property))
+    }
+}
