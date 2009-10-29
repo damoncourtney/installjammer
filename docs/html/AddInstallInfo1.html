@@ -34,14 +34,14 @@ span.rvts2
 }
 span.rvts3
 {
- font-family: 'Courier New';
- color: #993366;
-}
-span.rvts4
-{
  font-family: 'Verdana';
  font-weight: bold;
  color: #000000;
+}
+span.rvts4
+{
+ font-family: 'Courier New';
+ color: #993366;
 }
 /* ========== Para Styles ========== */
 p,ul,ol /* Left */
@@ -68,34 +68,34 @@ if (parent.location.href == self.location.href)
 </font>
 </TD><td width="120" align="right" nowrap><font face="Verdana" size="2"><a href="WhatIsTheInstallAPI.html"><img src="Images/BrowseBlueLeft.png" border="0" alt="Previous Topic"></a>&nbsp;&nbsp;<a href="AddLanguage.html"><img src="Images/BrowseBlueRight.png" border="0" alt="Next Topic"></a>&nbsp;</font></td></tr></table></div><div id="FHScroll">
 
-<p class=rvps1><span class=rvts4>::InstallAPI::AddInstallInfo</span></p>
+<p class=rvps1><span class=rvts3>::InstallAPI::AddInstallInfo</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts2>Add information to be stored in the install log for this installation.&nbsp; InstallJammer automatically creates a log file for every installation that contains a default set of values for each installation.&nbsp; This API lets you add information to that log so that it can be fetched on subsequent installs.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
-<p class=rvps1><span class=rvts4>Supported Platforms</span></p>
+<p class=rvps1><span class=rvts3>Supported Platforms</span></p>
 <p class=rvps1><span class=rvts2>All</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
-<p class=rvps1><span class=rvts4>Returns</span></p>
+<p class=rvps1><span class=rvts3>Returns</span></p>
 <p class=rvps1><span class=rvts2>Empty String</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
-<p class=rvps1><span class=rvts4>Options</span></p>
+<p class=rvps1><span class=rvts3>Options</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
-<p class=rvps1><span class=rvts4>-key &lt;key&gt; (required)</span></p>
+<p class=rvps1><span class=rvts3>-key &lt;key&gt; (required)</span></p>
 <p class=rvps1><span class=rvts2>The key to store the value under.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
-<p class=rvps1><span class=rvts4>-value &lt;value&gt; (required)</span></p>
+<p class=rvps1><span class=rvts3>-value &lt;value&gt; (required)</span></p>
 <p class=rvps1><span class=rvts2>The value to store with the key.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
-<p class=rvps1><span class=rvts4>Example</span></p>
-<p class=rvps1><span class=rvts4><br></span></p>
+<p class=rvps1><span class=rvts3>Example</span></p>
+<p class=rvps1><span class=rvts3><br></span></p>
 <p class=rvps1><span class=rvts2>The following example adds the Spanish language.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
-<p class=rvps1><span class=rvts3>::InstallAPI::AddInstallInfo -key Foo -value bar</span></p>
-<p class=rvps1><span class=rvts3><br></span></p>
+<p class=rvps1><span class=rvts4>::InstallAPI::AddInstallInfo -key Foo -value bar</span></p>
+<p class=rvps1><span class=rvts4><br></span></p>
 <p class=rvps1><span class=rvts2>This would add a key "Foo" with the value "bar" to the install log.&nbsp; When using a Check for Previous Install action on subsequent installations, you would get a new virtual text called &lt;%PreviousInstallFoo%&gt; that contains "bar".</span><span class=rvts1></span></p>
 
 </div></body></html>

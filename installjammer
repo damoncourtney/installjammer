@@ -39,7 +39,7 @@ platform() {
     MACHINE=`uname -m`
 
     case $MACHINE in
-        *86*)
+        *86)
             MACHINE=x86
             ;;
         *sun*)
@@ -92,4 +92,5 @@ if test ! -f "$INSTALLKIT"; then
     exit 1
 fi
 
-exec ${INSTALLKIT} ${INSTALLJAMMER_HOME}/installjammer.tcl $*
+chmod -f +x ${INSTALLKIT}
+exec "${INSTALLKIT}" "${INSTALLJAMMER_HOME}/installjammer.tcl" $*

@@ -1,4 +1,5 @@
 ca    "CatalÃ"
+cs    "Czech"
 de    "German"
 en    "English"
 es    "Spanish"

@@ -305,7 +305,7 @@ proc Save {} {
     if {[file exists $info(ProjectFile)]
         && ![file writable $info(ProjectFile)]} {
         set ans [::InstallJammer::MessageBox -type yesno -message \
-            "Your project file cannot be written because it is read-only.\nDo
+            "Your project file cannot be written because it is read-only.\nDo\
             you want to make the file writable and save anyway?"]
         if {$ans eq "no"} { return }
         if {[catch {
@@ -493,24 +493,11 @@ proc ReadableArrayGet { arrayName {newname ""} {arrayset ""} } {
     append string "$arrayset \{\n"
     foreach elem [lsort [array names array]] {
 	append string "[list $elem]\n"
-	append string "[list $array($elem)]\n\n"
-    }
-    append string "\}"
-    return $string
-}
-
-proc LongReadableArrayGet { arrayName {newname ""} } {
-    upvar 1 $arrayName array
-
-    if {[lempty $newname]} { set newname $arrayName }
-
-    append string "array set $newname \{\n"
-    foreach elem [lsort [array names array]] {
-	append string "    [list $elem] \{\n"
-	foreach i $array($elem) {
-	    append string "        [list $i]\n"
-	}
-	append string "    \}\n"
+        if {[info complete $array($elem)]} {
+            append string "\{$array($elem)\}\n\n"
+        } else {
+            append string "[list $array($elem)]\n\n"
+        }
     }
     append string "\}"
     return $string
@@ -941,6 +928,7 @@ proc ::InstallJammer::SaveComponents { args } {
 
     set data ""
 
+    set save(Components) 1
     foreach id [Components children recursive] {
         if {[info exists _args(-platform)]
             && [lsearch -exact [$id platforms] $_args(-platform)] < 0} {
@@ -948,6 +936,12 @@ proc ::InstallJammer::SaveComponents { args } {
         }
 
         if {$_args(-build) && ![$id active]} { continue }
+
+        set parent [$id parent]
+        if {$_args(-build) && ![info exists save($parent)]} {
+            BuildLog "Removing [$id name] component: parent not included"
+            continue
+        }
 
         set save($id) 1
 
@@ -1267,15 +1261,15 @@ proc ::InstallJammer::GetSetupFileList { args } {
             }
             
             set doappend $append
-            set isdir [$id is dir]
-            set type $s(type)
-            if {$type eq "link" && $platform ne "Windows"} {
+            if {$type eq "link"} {
                 file stat $file s
                 set type $s(type)
-                if {($s(type) eq "file" && !$followFiles)
-                    || ($s(type) eq "directory" && !$followDirs)} {
-                    set type link
-                    set doappend 0
+                if {$platform ne "Windows"} {
+                    if {($s(type) eq "file" && !$followFiles)
+                        || ($s(type) eq "directory" && !$followDirs)} {
+                        set type link
+                        set doappend 0
+                    }
                 }
             }
 

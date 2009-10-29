@@ -62,8 +62,14 @@ DisplayName
 DownloadingFilesText
 "Downloading files..."
 
+ErrorTitle
+"Install Error"
+
 ExitText
 "Are you sure you want to exit this setup?"
+
+ExitTitle
+"Exit Setup"
 
 FileBeingInstalledText
 "Copying <%FileBeingInstalled%>"
@@ -140,6 +146,9 @@ PasswordIncorrectText
 ProgramFilesDescription
 "Common Program Files"
 
+PromptForAdministratorText
+"This program requires administrator privileges.  Please enter your password."
+
 PromptForDirectoryMessage
 "Please choose a directory, then select OK."
 
@@ -158,6 +167,12 @@ RequireAdministratorText
 RequireRootText
 "You must be root to run this installer."
 
+RequireRootTitleText
+"Root Required"
+
+RequireRootUninstallText
+"You must be root to uninstall this application."
+
 RestartAsRoot,FailureMessage
 "<%RequireRootText%>"
 
@@ -169,6 +184,27 @@ SelectLanguageText
 
 SeparatorText
 "InstallJammer"
+
+String.database.entries
+"database entries"
+
+String.directories
+"directories"
+
+String.environment.variables
+"environment variables"
+
+String.files
+"files"
+
+String.package.entries
+"package entries"
+
+String.registry.entries
+"registry entries"
+
+String.shortcuts
+"shortcuts"
 
 TextWindow,Caption
 "Caption"
@@ -202,6 +238,9 @@ UninstallPrepareText
 
 UninstallStartupText
 "This will completely remove <%AppName%> from your system.  Are you sure you want to do this?"
+
+UninstallPrepareText
+"Preparing to uninstall..."
 
 UninstallTitleText
 "Uninstall <%AppName%>"

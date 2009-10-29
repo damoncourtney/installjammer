@@ -603,6 +603,7 @@ proc init {} {
         CompressionMethod
         Copyright
         DefaultLanguage
+        DefaultToSystemLanguage
         EnableResponseFiles
         ExtractSolidArchives
         Icon

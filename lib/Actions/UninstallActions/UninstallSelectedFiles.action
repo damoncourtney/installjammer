@@ -48,7 +48,7 @@ proc ::InstallJammer::actions::UninstallSelectedFiles {obj {forceUninstall 0}} {
                 GroupBeingUninstalled UninstallPercentComplete}]
 
     if {!$forceUninstall} {
-        set info(Status) "Preparing to uninstall..."
+        set info(Status) "<%UninstallPrepareText%>"
 
         ::InstallJammer::GetUninstallInfo
 
@@ -79,7 +79,7 @@ proc ::InstallJammer::actions::UninstallSelectedFiles {obj {forceUninstall 0}} {
     }
 
     if {$fileLen} {
-        set info(GroupBeingUninstalled) "files"
+        set info(GroupBeingUninstalled) "<%String.files%>"
         set info(Status) "<%FileBeingUninstalledText%>"
 
         for {set i [expr $fileLen -1]} {$i >= 0} {incr i -1} {
@@ -111,17 +111,20 @@ proc ::InstallJammer::actions::UninstallSelectedFiles {obj {forceUninstall 0}} {
     }
 
     ## If we successfully removed all of the files, we want to
-    ## go ahead and delete our installer now before the
+    ## go ahead and delete our uninstaller now before the
     ## directories start being deleted, or we'll end up thinking
     ## a directory is not empty.
     if {$info(Errors) eq ""} {
         set conf(UninstallRemoved) 1
-        set tmpuninstall [::InstallJammer::TmpDir uninstaller$info(Ext)]
+        set tmpuninstall [::InstallJammer::TmpDir uninstall$info(Ext)]
         catch {file rename -force $conf(uninstall) $tmpuninstall}
+        set conf(UninstallRenamed) [expr {![file exists $conf(uninstall)]}]
+        if {$conf(UninstallRenamed)} { set conf(uninstall) $tmpuninstall }
     }
 
     if {$dirLen} {
-        set info(GroupBeingUninstalled) "directories"
+        set notEmptyDirs ""
+        set info(GroupBeingUninstalled) "<%String.directories%>"
         ::InstallJammer::UpdateWidgets -update 1
 
         set p $::tcl_platform(platform)
@@ -151,9 +154,8 @@ proc ::InstallJammer::actions::UninstallSelectedFiles {obj {forceUninstall 0}} {
                 ## installed it.
                 if {[lindex [file split $dir] end] ne $info(Company)} {
                     lappend ::leftovers(:DIR) $list
-                    append info(Errors) "[::InstallJammer::Normalize $dir $p] "
-                    append info(Errors) "is not empty\n"
-                    lappend info(ErrorDirs) $dir
+                    lappend info(ErrorDirs) [file normalize $dir]
+                    lappend notEmptyDirs [file normalize $dir]
                 }
 
                 debug "Skipping non-empty directory $dir."
@@ -172,13 +174,31 @@ proc ::InstallJammer::actions::UninstallSelectedFiles {obj {forceUninstall 0}} {
             if {[catch {::InstallJammer::UninstallDirectory $dir $force} err]} {
                 debug "Failed to delete directory $dir."
                 append info(Errors) "$err\n"
-                lappend info(ErrorDirs) $dir
+                lappend info(ErrorDirs) [file normalize $dir]
             }
+        }
+
+        ## Look through our list of non-empty directories and see if one
+        ## is a result of our uninstaller not being renamed out of the way.
+        ## If so, we don't actually want to report that directory as having
+        ## failed since our exit cleanup script should take care of it.
+        set uninstallDir [file normalize [file dirname $conf(uninstall)]]
+        foreach dir $notEmptyDirs {
+            if {!$conf(UninstallRenamed) && $dir eq $uninstallDir} {
+                ## If this is the directory the uninstaller was in, and it
+                ## only has a single file remaining, it's our uninstaller,
+                ## so we don't want to report it as an error.
+                set files [glob -nocomplain -dir $dir *]
+                eval lappend files [glob -nocomplain -dir $dir -type hidden *]
+                if {[llength $files] == 1} { continue }
+            }
+            append info(Errors) "[::InstallJammer::Normalize $dir $p] "
+            append info(Errors) "is not empty\n"
         }
     }
 
     if {[info exists array(:ENV)]} {
-        set info(GroupBeingUninstalled) "environment variables"
+        set info(GroupBeingUninstalled) "<%String.environment.variables%>"
         ::InstallJammer::UpdateWidgets -update 1
 
         if {$conf(windows)} {
@@ -249,7 +269,7 @@ proc ::InstallJammer::actions::UninstallSelectedFiles {obj {forceUninstall 0}} {
     if {[info exists array(:PATH)]} {
         ## Paths are specific to Windows.  On UNIX they are treated
         ## as normal environment variables.
-        set info(GroupBeingUninstalled) "environment variables"
+        set info(GroupBeingUninstalled) "<%String.environment.variables%>"
         ::InstallJammer::UpdateWidgets -update 1
 
         foreach list [lreverse $array(:PATH)] {
@@ -286,7 +306,7 @@ proc ::InstallJammer::actions::UninstallSelectedFiles {obj {forceUninstall 0}} {
 
     if {$conf(windows)} {
         if {$regLen} {
-            set info(GroupBeingUninstalled) "registry entries"
+            set info(GroupBeingUninstalled) "<%String.registry.entries%>"
             ::InstallJammer::UpdateWidgets -update 1
 
             set command ::InstallJammer::UninstallRegistryKey
@@ -302,7 +322,7 @@ proc ::InstallJammer::actions::UninstallSelectedFiles {obj {forceUninstall 0}} {
             }
         }
     } elseif {[info exists array(:XDGRESOURCE)]} {
-        set info(GroupBeingUninstalled) "shortcuts"
+        set info(GroupBeingUninstalled) "<%String.shortcuts%>"
         ::InstallJammer::UpdateWidgets -update 1
 
         foreach list [lreverse $array(:XDGRESOURCE)] {
@@ -363,8 +383,8 @@ proc ::InstallJammer::actions::UninstallSelectedFiles {obj {forceUninstall 0}} {
     close $fp
 
     if {[info exists db]} {
-        set info(FileBeingUninstalled)  "$db database entries"
-        set info(GroupBeingUninstalled) "package entries"
+        set info(FileBeingUninstalled)  "$db <%String.database.entries%>"
+        set info(GroupBeingUninstalled) "<%String.package.entries%>"
         ::InstallJammer::UpdateWidgets -update 1
 
         if {!$info(UserIsRoot)} {

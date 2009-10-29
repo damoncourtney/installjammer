@@ -206,13 +206,13 @@ proc ::InstallJammer::EditCommandLineOptionChoices { table item } {
 }
 
 proc ::InstallJammer::EditCommandLineOptionDescription { table item } {
-    set ::TMP [$w edit editvalue]
+    set ::TMP [$table edit editvalue]
     ::editor::new -title "Editing Command Line Option Description" \
         -variable ::TMP
-    $w edit editvalue [string trim $::TMP]
+    $table edit editvalue [string trim $::TMP]
     ClearTmpVars
 
-    set entry [$w edit entrypath]
+    set entry [$table edit entrypath]
     $entry selection range 0 end
     after idle [list focus $entry]
 }

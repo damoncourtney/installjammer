@@ -1,11 +1,11 @@
-[07 July 2008]
+[18 September 2009]
 
-ANNOUNCE: InstallJammer Multiplatform Installer, version 1.2.7
+ANNOUNCE: InstallJammer Multiplatform Installer, version 1.2.14
 
 The InstallJammer Team is pleased to announce the release of
-InstallJammer 1.2.7!
+InstallJammer 1.2.14!
 
-This release contains major bug fixes and enhancements.
+This release contains minor bug fixes and enhancements.
 
 ~ What is it?
 
@@ -28,12 +28,15 @@ InstallJammer Features:
 * Easily extended to new platforms.
 
 
-~ What's New in 1.2.7
+~ What's New in 1.2.14
 
-This release contains major bug fixes and enhancements.
+This release contains minor bug fixes and enhancements.
 Please see the Release Notes in the documentation for
 a full list of changes.  The complete ChangeLog is
 also included with each release.
+
+Release Notes:
+http://www.installjammer.com/docs/ReleaseNotes.html
 
 
 ~ Availability:
@@ -45,13 +48,13 @@ Downloads are available at:
 http://www.installjammer.com/download/
 
 Windows Download
-http://downloads.sourceforge.net/installjammer/InstallJammer-1.2.7-Setup.exe
+http://downloads.installjammer.com/installjammer/1.2/InstallJammer-1.2.14-Setup.exe
 
 Linux Download
-http://downloads.sourceforge.net/installjammer/InstallJammer-1.2.7-Linux-x86-Install
+http://downloads.installjammer.com/installjammer/1.2/InstallJammer-1.2.14-Linux-x86-Install
 
-All Other Platforms Download
-http://downloads.sourceforge.net/installjammer/installjammer-1.2.7.tar.gz
+All Other Platform Downloads
+http://downloads.installjammer.com/installjammer/1.2/installjammer-1.2.14.tar.gz
 
 
 Feedback and bug reports are greatly appreciated.

@@ -222,8 +222,8 @@ proc ::InstallJammer::exit { {prompt 0} } {
     if {$prompt} {
         ::InstallJammer::PauseInstall
 
-        set title   "Exit Setup"
-        set message [::InstallJammer::SubstText "<%ExitText%>"]
+        set title   [sub "<%ExitTitle%>"]
+        set message [sub "<%ExitText%>"]
         set ans [MessageBox -type yesno -default no \
             -parent [::InstallJammer::TransientParent] \
             -title $title -message $message]
@@ -1096,15 +1096,17 @@ proc ::InstallJammer::InitInstall {} {
         #}
     } elseif {$conf(unix)} {
         if {$info(RequireRoot) && !$info(UserIsRoot)} {
-            if {!$info(PromptForRoot)} {
-                ::InstallJammer::Message -title "Root Required" -message \
-                    [::InstallJammer::SubstText "<%RequireRootText%>"]
-                ::exit 1
+            if {$info(GuiMode) && $info(PromptForRoot)} {
+                set msg [sub "<%PromptForAdministratorText%>"]
+                set cmd [concat [list [info nameofexecutable]] $::argv]
+                ::InstallJammer::ExecAsRoot $cmd -message $msg
+                ::exit 0
             }
 
-            if {$info(PromptForRoot)} {
-                ::InstallAPI::RestartAsRoot
-            }
+            set title   [sub "<%RequireRootTitleText%>"]
+            set message [sub "<%RequireRootText%>"]
+            ::InstallJammer::Message -title $title -message $message
+            ::exit 1
         }
 
         ## If we have a root install dir, and the user is root,

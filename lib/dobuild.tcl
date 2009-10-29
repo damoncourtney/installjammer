@@ -33,11 +33,11 @@ for {set i 0} {$i < $len} {incr i} {
     }
 }
 
-unset -nocomplain tmp
-installkit::ParseWrapArgs tmp $args
+unset -nocomplain _args
+installkit::ParseWrapArgs _args $args
 
-set conf(pwd)   [file dirname [file dirname [info script]]]
-set pwd         [file dirname $tmp(executable)]
+set pwd         [file dirname $_args(executable)]
+set conf(pwd)   [file dirname [info script]]
 set conf(stop)  [file join $pwd .stop]
 set conf(pause) [file join $pwd .pause]
 
@@ -128,9 +128,9 @@ catch {
     set totalSize     0
     set lastfiletotal 0
 
-    if {[info exists tmp(wrapFiles)] && [llength $tmp(wrapFiles)]} {
+    if {[info exists _args(wrapFiles)] && [llength $_args(wrapFiles)]} {
         unset -nocomplain sizes
-        foreach file $tmp(wrapFiles) {
+        foreach file $_args(wrapFiles) {
             set sizes($file) [file size $file].0
             iincr totalSize $sizes($file)
         }
@@ -150,9 +150,13 @@ catch {
             lappend files($group) [list $file -name $id -method $method]
         }
 
+        set opts [list -flatheaders 1]
+        if {[info exists _args(password)]} {
+            lappend opts -password $_args(password)
+        }
         foreach group [array names files] {
             set archive [file join $outputDir setup[incr i].ijc]
-            set fp [miniarc::open crap $archive w -flatheaders 1]
+            set fp [miniarc::open crap $archive w {*}$opts]
             miniarc::addfilelist $fp $files($group) -progress Progress
             miniarc::close $fp
         }

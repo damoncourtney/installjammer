@@ -187,6 +187,10 @@ proc ::InstallJammer::UnpackMain {} {
         installkit::Windows::disableWow64FsRedirection
     }
 
+    if {[info exists info(InstallPassword)] && $info(InstallPassword) ne ""} {
+        ::InstallAPI::SetInstallPassword -password [sub $info(InstallPassword)]
+    }
+
     ::InstallJammer::InstallFiles
 
     ::InstallJammer::exit

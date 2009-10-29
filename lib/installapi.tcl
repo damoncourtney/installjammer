@@ -323,12 +323,12 @@ proc ::InstallAPI::EncodeURL { args } {
 
 proc ::InstallAPI::ErrorMessage { args } {
     ::InstallAPI::ParseArgs _args $args {
-        -title   { string 0 "Install Error" }
+        -title   { string 0 "<%ErrorTitle%>" }
         -message { string 1 }
     }
 
     ::InstallJammer::Message -icon "error" \
-        -title $_args(-title) -message $_args(-message)
+        -title [sub $_args(-title)] -message [sub $_args(-message)]
 }
 
 proc ::InstallAPI::EnvironmentVariableExists { args } {
@@ -991,13 +991,14 @@ proc ::InstallAPI::GetWidgetPath { args } {
             && [::InstallJammer::ObjExists $name]} {
             set widg [$name window]
         } else {
+            if {![::InstallJammer::ObjExists $window]} { return }
             set widg [$window widget get $name]
         }
 
         if {![winfo exists $widg]} { return }
         if {$_args(-frame)} { return $widg }
         set class [winfo class $widg]
-        if {$class eq "Frame" || $class eq "TFrame"} {
+        if {$class eq "Frame" || $class eq "TFrame" || $class eq "Labelframe"} {
             foreach w [winfo children $widg] {
                 set class [winfo class $w]
                 if {$class eq "Label" || $class eq "TLabel"} { continue }
@@ -1712,51 +1713,151 @@ proc ::InstallAPI::PromptForFile { args } {
     }
 }
 
-proc ::InstallAPI::RestartAsRoot { args } {
-    global conf
-    global info
-
+proc ::InstallAPI::PropertyFileAPI { args } {
     ::InstallAPI::ParseArgs _args $args {
-        -promptmessage  { string 0 "<%PromptForRootText%>" }
-        -failuremessage { string 0 "<%RequireRootText%>" }
+        -array       { string 1 }
+        -do          { choice 1 "" {append data keys read set unset write}}
+        -file        { string 0 }
+        -key         { string 0 }
+        -line        { string 0 }
+        -value       { string 0 }
     }
 
-    if {$conf(windows) || $info(UserIsRoot)} { return }
+    upvar 1 $_args(-array) array
 
-    set cmd [concat [list [info nameofexecutable]] $::argv]
-    set msg [::InstallAPI::SubstVirtualText -virtualtext $_args(-promptmessage)]
-    
-    if {![::InstallJammer::ExecAsRoot $cmd -message $msg]} {
-        ::InstallJammer::Message -title "Root Required" -message \
-            [::InstallJammer::SubstText $_args(-failuremessage)]
-        ::exit 1
-    }
-
-    ::exit 0
-}
-
-proc ::InstallAPI::RestartProcess { args } {
-    global conf
-
-    ::InstallAPI::ParseArgs _args $args {
-        -pid    { string  0 }
-        -glob   { boolean 0 0}
-        -name   { string  0 }
-        -user   { string  0 }
-        -group  { string  0 }
-    }
-
-    set pids [eval ::InstallAPI::FindProcesses $args]
-
-    foreach pid $pids {
-        if {$conf(windows)} {
-            set cmd [twapi::get_process_commandline $pid]
-            twapi::end_process $pid -force
-            after 1000 [list twapi::create_process "" -cmdline $cmd]
-        } else {
-            exec kill -HUP $pid
+    if {$_args(-do) eq "read"} {
+        if {![info exists _args(-file)]} {
+            return -code error "missing required option -file"
         }
+
+        if {![info exists array(!keys)]} { set array(!keys) {} }
+
+        set fp [open $_args(-file)]
+
+        set i -1
+        set append 0
+        while {[gets $fp line] != -1} {
+            incr i
+            lappend array(!lines) $line
+            set trimmed [string trim $line]
+
+            ## Skip empty lines.
+            if {![string length $trimmed]} { set append 0; continue }
+
+            ## Skip comments.
+            set x [string index $trimmed 0]
+            if {$x eq "#" || $x eq "!"} { continue }
+
+            set noback [string trimright $trimmed \\]
+
+            if {!$append} {
+                if {![regexp -indices {[^\\][:=]} $noback indexes]} {
+                    ## We couldn't find a key separator.  The whole line
+                    ## is the key, and the value is empty.
+                    set array($trimmed) ""
+                    continue
+                }
+
+                set idx1 [lindex $indexes 0]
+                set idx2 [expr {[lindex $indexes 1] + 1}]
+                set key  [string trim [string range $noback 0 $idx1]]
+                set array($key) \
+                    [string trimleft [string range $noback $idx2 end]]
+                if {[lsearch -exact $array(!keys) $key] < 0} {
+                    lappend array(!keys) $key
+                }
+                lappend array($key!lines) $i
+            } else {
+                append array($key) $noback
+                lappend array($key!lines) $i
+            }
+
+            ## See if the last character of the line is a \.
+            ## If so, we want to append the next line to our
+            ## current line before processing it.
+            set chk    [string length $noback]
+            set len    [string length $trimmed]
+            set append [expr {($len - $chk != 0) && ($len - $chk % 2)}]
+        }
+
+        close $fp
+    } elseif {$_args(-do) eq "write"} {
+        if {![info exists _args(-file)]} {
+            return -code error "missing required option -file"
+        }
+
+        set data [::InstallAPI::PropertyFileAPI -do data -array array]
+
+        set fp [open $_args(-file) w]
+        puts $fp $data
+        close $fp
+    } elseif {$_args(-do) eq "set"} {
+        if {![info exists _args(-key)]} {
+            return -code error "missing required option -key"
+        }
+        if {![info exists _args(-value)]} {
+            return -code error "missing required option -value"
+        }
+
+        if {![info exists array(!lines)]} { set array(!lines) {} }
+
+        set key   $_args(-key)
+        set value $_args(-value)
+        set array($key) $value
+        if {[info exists array($key!lines)]} {
+            foreach x [lreverse $array($key!lines)] {
+                set array(!lines) [lreplace $array(!lines) $x $x]
+            }
+            set array(!lines) [linsert $array(!lines) $x "$key=$value"]
+            set array($key!lines) $x
+        } else {
+            lappend array(!keys) $key
+            lappend array(!lines) "$key=$value"
+            set array($key!lines) [expr {[llength $array(!lines)] - 1}]
+        }
+    } elseif {$_args(-do) eq "unset"} {
+        if {![info exists _args(-key)]} {
+            return -code error "missing required option -key"
+        }
+
+        set key $_args(-key)
+        unset -nocomplain array($key)
+        if {[info exists array($key!lines)] && [info exists array(!lines)]} {
+            foreach x [lreverse $array($key!lines)] {
+                set array(!lines) [lreplace $array(!lines) $x $x]
+            }
+            unset array($key!lines)
+        }
+        if {[info exists array(!keys)]} {
+            set array(!keys) [lremove $array(!keys) $key]
+        }
+    } elseif {$_args(-do) eq "append"} {
+        if {![info exists _args(-line)]} {
+            return -code error "missing required option -line"
+        }
+        lappend array(!lines) $_args(-line)
+    } elseif {$_args(-do) eq "data"} {
+        set lines {}
+        if {[info exists array(!lines)]} {
+            set lines $array(!lines)
+        } elseif {[info exists array(!keys)]} {
+            foreach key $array(!keys) {
+                if {![info exists array($key)]} { continue }
+                lappend lines "$key=$array($key)"
+            }
+        } else {
+            foreach key [lsort [array names array]] {
+                if {[string match "*!*" $key]} { continue }
+                lappend lines "$key=$array($key)"
+            }
+        }
+
+        return [join $lines \n]
+    } elseif {$_args(-do) eq "keys"} {
+        if {[info exists array(!keys)]} { return $array(!keys) }
     }
+
+    return
 }
 
 proc ::InstallAPI::ReadInstallInfo { args } {
@@ -1876,6 +1977,53 @@ proc ::InstallAPI::ResponseFileAPI { args } {
     }
 
     return $conf(SaveResponseVars)
+}
+
+proc ::InstallAPI::RestartAsRoot { args } {
+    global conf
+    global info
+
+    ::InstallAPI::ParseArgs _args $args {
+        -promptmessage  { string 0 "<%PromptForRootText%>" }
+        -failuremessage { string 0 "<%RequireRootText%>" }
+    }
+
+    if {$conf(windows) || $info(UserIsRoot)} { return }
+
+    set cmd [concat [list [info nameofexecutable]] $::argv]
+    set msg [::InstallAPI::SubstVirtualText -virtualtext $_args(-promptmessage)]
+    
+    if {![::InstallJammer::ExecAsRoot $cmd -message $msg]} {
+        ::InstallJammer::Message -title "Root Required" -message \
+            [::InstallJammer::SubstText $_args(-failuremessage)]
+        ::exit 1
+    }
+
+    ::exit 0
+}
+
+proc ::InstallAPI::RestartProcess { args } {
+    global conf
+
+    ::InstallAPI::ParseArgs _args $args {
+        -pid    { string  0 }
+        -glob   { boolean 0 0}
+        -name   { string  0 }
+        -user   { string  0 }
+        -group  { string  0 }
+    }
+
+    set pids [eval ::InstallAPI::FindProcesses $args]
+
+    foreach pid $pids {
+        if {$conf(windows)} {
+            set cmd [twapi::get_process_commandline $pid]
+            twapi::end_process $pid -force
+            after 1000 [list twapi::create_process "" -cmdline $cmd]
+        } else {
+            exec kill -HUP $pid
+        }
+    }
 }
 
 proc ::InstallAPI::RollbackInstall { args } {
@@ -2000,6 +2148,14 @@ proc ::InstallAPI::SetFileTypeEOL { args } {
     foreach ext [split $_args(-extension) \;] {
         set conf(eol,$ext) $eol
     }
+}
+
+proc ::InstallAPI::SetInstallPassword { args } {
+    ::InstallAPI::ParseArgs _args $args {
+        -password  { string 1 }
+    }
+
+    crapvfs::setPassword $_args(-password)
 }
 
 proc ::InstallAPI::SetObjectProperty { args } {
@@ -2429,7 +2585,7 @@ proc ::InstallAPI::VirtualTextAPI { args } {
 
     if {$_args(-do) eq "settype"} {
         if {![info exists _args(-type)]} {
-            return -code error "must specify -type"
+            return -code error "missing required option -type"
         }
 
         foreach var $_args(-virtualtext) {
@@ -2445,4 +2601,28 @@ proc ::InstallAPI::VirtualTextExists { args } {
     }
 
     return [::msgcat::mcexists $_args(-virtualtext) $_args(-language)]
+}
+
+proc ::InstallAPI::WizardAPI { args } {
+    ::InstallAPI::ParseArgs _args $args {
+        -checkconditions { boolean 0 0 }
+        -do              { choice  1 "" {back next}}
+        -exit            { boolean 0 1 }
+    }
+
+    global info
+
+    set opts {1 0}
+    if {$_args(-checkconditions)} { set opts {1 1} }
+
+    if {$_args(-do) eq "back"} {
+        eval ::InstallJammer::Wizard back $opts
+    } elseif {$_args(-do) eq "next"} {
+        set next [$info(Wizard) step next]
+        if {$next eq ""} {
+            if {$_args(-exit)} { ::InstallAPI::Exit }
+            return
+        }
+        eval ::InstallJammer::Wizard next $opts
+    }
 }

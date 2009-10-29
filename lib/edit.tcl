@@ -78,10 +78,12 @@ proc ::InstallJammer::EditCopy {} {
     set tree [::InstallJammer::EditGetTree]
 
     if {$tree ne ""} {
-        set conf(clipboard) {}
+        set list [list ##IJCV1##]
         foreach item [::InstallJammer::EditGetSelectedItems] {
-            lappend conf(clipboard) [::InstallJammer::DumpObject $item]
+            lappend list [::InstallJammer::DumpObject $item]
         }
+        clipboard clear
+        clipboard append $list
     }
 }
 
@@ -98,7 +100,9 @@ proc ::InstallJammer::EditPaste {} {
     if {$tree ne ""} {
         set setup [::InstallJammer::EditGetSetup]
 
-        foreach list $conf(clipboard) {
+        if {[catch {clipboard get} list]} { return }
+        if {[lindex $list 0] ne "##IJCV1##"} { return }
+        foreach list [lrange $list 1 end] {
             ::InstallJammer::CreateComponentFromDump $setup $list
         }
     }

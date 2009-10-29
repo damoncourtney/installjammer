@@ -181,6 +181,7 @@ proc twapi::write_shortcut {link args} {
         minimized { set opts(showcmd) 7 }
         maximized { set opts(showcmd) 3 }
         normal    { set opts(showcmd) 1 }
+        hidden    { set opts(showcmd) 0 }
     }
 
     Twapi_WriteShortcut $link $opts(path) $opts(idl) $opts(args) \
