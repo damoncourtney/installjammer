@@ -48,8 +48,8 @@ Text Caption
 Text Message
 Text Destination
 Text BrowseText   "Browse Text"
-Text NextButton   "Next Button"   1
-Text BackButton   "Back Button"   1
-Text CancelButton "Cancel Button" 1
-Text BrowseButton "Browse Button" 1
-Text DestinationLabel "Destination Label" 0
+Text NextButton   "Next Button"
+Text BackButton   "Back Button"
+Text CancelButton "Cancel Button"
+Text BrowseButton "Browse Button"
+Text DestinationLabel "Destination Label"

@@ -115,9 +115,7 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts2>Specifies the output directory to store the resulting installers in when they are built.&nbsp; InstallJammer will attempt to create the directory if it does not already exist.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts3>--platform &lt;platform&gt;</span></p>
-<p class=rvps1><span class=rvts2>This option can be specified with the --build option to tell InstallJammer to only build certain platforms. Each platform name specified with a --platform will be built instead of building all of the platforms (the default option). More than one --platform option can be specified, and each platform will be appended to the build list.&nbsp; To get a list of the available platforms and exactly how they are spelled, look in the Binaries/ directory.&nbsp; Each supported platform will have a subdirectory in that directory.&nbsp; You must specify the platform exactly as it is in the Binaries/ directory.</span></p>
-<p class=rvps1><span class=rvts2><br></span></p>
-<p class=rvps1><span class=rvts2>You can also specify 'tar' and/or 'zip' as shorthand platforms for the tar and zip archives.</span></p>
+<p class=rvps1><span class=rvts2>This option can be specified with the -b option to tell InstallJammer to only build certain platforms. Each platform name specified with a -p will be built instead of building all of the platforms (the default option). More than one -p platform can be specified, and each platform will be appended to the build list. </span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts3>--quick-build</span></p>
 <p class=rvps1><span class=rvts2>If this option is specified, the given project file will be rebuilt without repackaging the files for the installer just as a quick build in the GUI.</span></p>

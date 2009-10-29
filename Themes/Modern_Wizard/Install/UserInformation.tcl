@@ -29,23 +29,25 @@ proc CreateWindow.UserInformation { wizard id } {
     grid rowconfigure    $base 0 -weight 1
     grid columnconfigure $base 0 -weight 1
 
-    set frame [frame $base.frame]
+    set frame [ttk::frame $base.frame]
     grid $frame -row 0 -column 0 -sticky new
 
     grid rowconfigure    $frame 0 -weight 1
     grid columnconfigure $frame 0 -weight 1
 
-    label $frame.userLabel -anchor w -padx 0
+    ttk::label $frame.userLabel -anchor w
     grid  $frame.userLabel -row 0 -column 0 -sticky w -pady 5
     $id widget set UserNameLabel -widget $frame.userLabel
 
-    entry $frame.userEntry -textvariable info(UserInfoName)
+    ttk::entry $frame.userEntry \
+        -textvariable info([$id get UserNameVirtualText])
     grid  $frame.userEntry -row 1 -column 0 -sticky ew
 
-    label $frame.companyLabel -anchor w -padx 0
+    ttk::label $frame.companyLabel -anchor w
     grid  $frame.companyLabel -row 2 -column 0 -sticky w -pady 5
     $id widget set CompanyLabel -widget $frame.companyLabel
 
-    entry $frame.companyEntry -textvariable info(UserInfoCompany)
+    ttk::entry $frame.companyEntry \
+        -textvariable info([$id get CompanyVirtualText])
     grid  $frame.companyEntry -row 3 -column 0 -sticky ew
 }

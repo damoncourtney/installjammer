@@ -23,7 +23,7 @@
 
 Action SetObjectProperty
 
-Property ObjectID short "Object ID"
+Property ObjectID object "Object ID"
 Help ObjectID "The ID or alias of the object to set this property for"
 
 Property Property short "Property"

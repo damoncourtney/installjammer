@@ -1,0 +1,54 @@
+## $Id$
+##
+## BEGIN LICENSE BLOCK
+##
+## Copyright (C) 2002  Damon Courtney
+## 
+## This program is free software; you can redistribute it and/or
+## modify it under the terms of the GNU General Public License
+## version 2 as published by the Free Software Foundation.
+## 
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License version 2 for more details.
+## 
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, write to the
+##     Free Software Foundation, Inc.
+##     51 Franklin Street, Fifth Floor
+##     Boston, MA  02110-1301, USA.
+##
+## END LICENSE BLOCK
+
+Action KillProcess
+
+Property ProcessID short "Process ID"
+Help ProcessID "The PID or process ID of the process to kill"
+
+Property ProcessName short "Process Name"
+Help ProcessName "The name of the process to kill"
+
+Property RestartProcess boolean "Restart Process" "No"
+Help RestartProcess "If this property is true, an attempt will be made to\
+    restart the process once it has been killed"
+
+Script {
+    $obj properties props -subst 1
+
+    if {$props(ProcessName) ne ""} {
+        set pid [::InstallAPI::FindProcesses -name $props(ProcessName)]
+    }
+
+    if {$props(ProcessID) ne ""} {
+        set pid [::InstallAPI::FindProcesses -pid $props(ProcessID)]
+    }
+
+    if {$pid eq ""} { return -code error "process does not exist" }
+
+    if {$props(RestartProcess)} {
+        ::InstallAPI::RestartProcess -pid $pid
+    } else {
+        ::InstallAPI::KillProcess -pid $pid
+    }
+}

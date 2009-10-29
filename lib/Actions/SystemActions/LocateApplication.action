@@ -1,0 +1,69 @@
+## $Id$
+##
+## BEGIN LICENSE BLOCK
+##
+## Copyright (C) 2002  Damon Courtney
+## 
+## This program is free software; you can redistribute it and/or
+## modify it under the terms of the GNU General Public License
+## version 2 as published by the Free Software Foundation.
+## 
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License version 2 for more details.
+## 
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, write to the
+##     Free Software Foundation, Inc.
+##     51 Franklin Street, Fifth Floor
+##     Boston, MA  02110-1301, USA.
+##
+## END LICENSE BLOCK
+
+Action LocateApplication
+
+Property FindAllVersions boolean "Find All Versions" "No"
+
+Property PromptUser boolean "Prompt User" "No"
+
+Property SearchExpression long "Search Expression"
+
+Property SearchPath text "Search Path"
+
+Property VirtualTextPrefix short "Virtual Text Prefix" "App"
+
+Text PromptMessage
+Text StatusMessage
+
+Script {
+    global conf
+    global info
+
+    $obj properties props -subst 1
+
+    set info(Status) [$obj get StatusMessage]
+
+    set prefix $props(VirtualTextPrefix)
+
+    set info(${prefix}Found)  0
+    set info(${prefix)Home)   ""
+
+    set args {}
+    lappend args -separator  "\n"
+    lappend args -searchpath $props(SearchPath)
+    lappend args -expression $props(SearchExpression)
+    if {$props(PromptUser)} {
+        lappend args -prompt        $props(PromptUser)
+        lappend args -promptmessage [$obj get PromptMessage]
+    }
+
+    if {$props(FindAllVersions)} { lappend args -all 1 }
+
+    set dirs [eval ::InstallAPI::FindApplication $args]
+
+    if {[llength $dirs]} {
+        set info(${prefix}Found) 1
+        set info(${prefix}Home)  [lindex $dirs 0]
+    }
+}

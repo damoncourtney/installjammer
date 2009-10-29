@@ -37,7 +37,7 @@ proc CreateWindow.ChooseComponents { wizard id } {
     $base.sw setwidget $tree
     $id widget set ComponentTree -widget $tree -type tree
 
-    labelframe $base.frame -relief groove -bd 2
+    ttk::labelframe $base.frame -relief groove -borderwidth 2
     grid $base.frame -row 0 -column 1 -sticky news \
         -padx [list 10 0]
     $id widget set DescriptionLabel -widget $base.frame

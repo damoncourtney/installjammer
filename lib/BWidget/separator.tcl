@@ -30,7 +30,12 @@ namespace eval Separator {
 proc Separator::create { path args } {
     Widget::initArgs Separator $args maps
 
-    eval [list frame $path -class Separator] $maps(:cmd)
+    if {[BWidget::using ttk]} {
+        dict unset maps(:cmd) -background
+        eval [list ttk::frame $path -class Separator] $maps(:cmd)
+    } else {
+        eval [list frame $path -class Separator] $maps(:cmd)
+    }
 
     Widget::initFromODB Separator $path $maps(Separator)
 

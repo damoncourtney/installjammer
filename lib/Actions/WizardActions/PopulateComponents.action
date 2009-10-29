@@ -28,13 +28,8 @@ proc ::InstallJammer::actions::PopulateComponents { obj } {
     global info
 
     set step [$obj parent]
-
     set tree [$step widget get ComponentTree]
     set text [$step widget get DescriptionText]
-
-    if {[lsearch -exact $conf(ComponentTrees) $tree] < 0} {
-        lappend conf(ComponentTrees) $tree
-    }
 
     $tree clear
 
@@ -44,9 +39,10 @@ proc ::InstallJammer::actions::PopulateComponents { obj } {
     if {![info exists conf(PopulatedSetupType)]
         || $conf(PopulatedSetupType) ne $setuptype} {
         set new 1
-        array unset ::InstallJammer::Components $tree,*
+        unset -nocomplain ::InstallJammer::Components
     }
 
+    set conf(ComponentTree) $tree
     set conf(PopulatedSetupType) $setuptype
 
     foreach id [$setuptype get Components] {
@@ -60,9 +56,9 @@ proc ::InstallJammer::actions::PopulateComponents { obj } {
         ## possible that the parent is not being shown.
         if {![$tree exists $parent]} { continue }
 
-        set varName ::InstallJammer::Components($tree,$id)
+        set varName ::InstallJammer::Components($id)
         if {$group ne ""} {
-            set varName ::InstallJammer::Components($tree,$group)
+            set varName ::InstallJammer::Components($group)
             if {![info exists $varName]} { set $varName "" }
         }
 
@@ -70,6 +66,16 @@ proc ::InstallJammer::actions::PopulateComponents { obj } {
         set required [$id get RequiredComponent]
 
         if {$required} { set checked 1 }
+
+        if {$checked && $group ne ""} {
+            ## Only let the first checked component in a group
+            ## be marked active.
+            if {[info exists done($group)]} {
+                set checked 0
+            } else {
+                set done($group) $id
+            }
+        }
 
         if {$new} { $id active $checked }
 
@@ -91,8 +97,6 @@ proc ::InstallJammer::actions::PopulateComponents { obj } {
             $tree insert end $parent $id -text $text -type radiobutton \
                 -command [list ::InstallJammer::ToggleComponent %W $step %n] \
                 -variable $varName -value $id -open 1
-            lappend ::InstallJammer::Components($tree,$group,others) $id
-
             if {$new && $checked} { set $varName $id }
         }
 

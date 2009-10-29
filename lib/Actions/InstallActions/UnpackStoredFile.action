@@ -26,7 +26,7 @@ Action UnpackStoredFile "Unpack Stored File"
 Property AddToUninstall boolean "Add to Uninstall" "Yes"
 Help AddToUninstall "Whether this file should be added to the uninstaller"
 
-Property FileID shorttext "File ID"
+Property FileID object "File ID"
 Property TargetDirectory installedfile "Target Directory" "<%Temp%>"
 Property TargetFilename  shorttext "Target Filename"
 

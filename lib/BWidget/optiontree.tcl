@@ -356,6 +356,8 @@ proc OptionTree::_redraw_node { path node force args } {
 
     if {[Widget::getoption $onode -state] eq "disabled"} {
         lappend opts -fill [Widget::getoption $onode -disabledforeground]
+    } else {
+        lappend opts -fill black
     }
 
     switch -- [Widget::getoption $onode -type] {

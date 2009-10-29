@@ -38,7 +38,9 @@ proc ::InstallJammer::actions::LaunchWebBrowser { obj } {
 
     if {$conf(windows)} {
         installkit::Windows::shellExecute open $url
+    } elseif {$conf(osx)} {
+        exec open [string map {& \&} $url] &
     } else {
-        exec xdg-open $url &
+        exec xdg-open [string map {& \&} $url] &
     }
 }

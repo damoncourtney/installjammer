@@ -25,7 +25,7 @@ Action FocusOnWidget "Focus On Widget"
 
 Property WidgetID widget "Widget ID"
 
-proc ::InstallJammer::actions::FocusOnWidget { obj } {
+Script {
     $obj properties props -subst 1
     set w [::InstallAPI::GetWidgetPath -widget $props(WidgetID)]
     if {[winfo exists $w]} { focus $w }

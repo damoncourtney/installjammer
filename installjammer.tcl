@@ -23,6 +23,9 @@
 
 if {[info exists ::installkit::wrapped] && $::installkit::wrapped} {
     set conf(pwd) [file dirname [info nameofexecutable]]
+    if {[file tail $conf(pwd)] eq "MacOS"} {
+        set conf(pwd) [file join [file dirname $conf(pwd)] Resources]
+    }
 } else {
     set conf(pwd) [file dirname [info script]]
 }

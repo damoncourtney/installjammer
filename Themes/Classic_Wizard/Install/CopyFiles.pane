@@ -39,5 +39,5 @@ Property Grab hidden "Grab Window" No
 Text Title
 Text Caption
 Text Message
-Text ProgressValue "Progress Value" 1
-Text CancelButton  "Cancel Button"  1
+Text ProgressValue "Progress Value"
+Text CancelButton  "Cancel Button"

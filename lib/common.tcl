@@ -30,28 +30,12 @@ proc lempty { list } {
     return $ret
 }
 
-proc lassign { list args } {
-    foreach elem $list varName $args {
-    	upvar 1 $varName var
-	set var $elem
-    }
-}
-
 proc lremove { list args } {
     foreach arg $args {
 	set x [lsearch -exact $list $arg]
 	set list [lreplace $list $x $x]
     }
     return $list
-}
-
-proc lreverse { list } {
-    set new [list]
-    set len [llength $list]
-    for {set i [expr $len - 1]} {$i >= 0} {incr i -1} {
-	lappend new [lindex $list $i]
-    }
-    return $new
 }
 
 proc lassign_array {list arrayName args} {
@@ -100,95 +84,124 @@ proc read_file { file args } {
     return $x
 }
 
-proc verbose {} {
-    if {[info exists ::verbose]} { return $::verbose }
-    return 0
+proc sha1hex {string} {
+    set sha1 [sha1 $string]
+    binary scan $sha1 H* hex
+    return $hex
+}
+
+proc stack {} {
+    set list {}
+    for {set i [expr {[info level] - 1}]} {$i > 0} {incr i -1} {
+        lappend list "$i: [info level $i]"
+    }
+    return [join $list \n]
 }
 
 proc debugging { {value ""} {level ""} {file ""} } {
-    if {$value eq "state"} {
-        if {$::debug || $::info(Debugging)} { return 1 }
+    global info
+
+    if {$value eq "ison"} {
+        if {[info exists info(DebugLogLevel)]
+            && ($info(DebugLogToFile) || $info(DebugLogToConsole))} {
+            return $info(DebugLogLevel)
+        }
         return 0
-    } elseif {[string is true -strict $value]} {
+    }
+
+    if {$value eq "level"} {
+        if {$level eq ""} { return $info(DebugLogLevel) }
+
+        if {$level < 0 || $level > 3} {
+            return -code error "invalid debug level \"$level\":\
+                should be 0, 1, 2 or 3"
+        }
+
+        set info(DebugLogLevel) $level
+        return $info(DebugLogLevel)
+    }
+
+    if {[string is true -strict $value]} {
         if {$level eq "" || $level eq "console"} {
-            set ::debug 1
+            set info(DebugLogToConsole) 1
         } elseif {$level eq "file"} {
-            set ::info(Debugging) 1
+            set info(DebugLogToFile) 1
             if {$file eq ""} {
-                set file [::InstallJammer::TmpDir debug.log]
+                set file $info(DebugLogFile)
+            } else {
+                set info(DebugLogFile) $file
             }
             if {[info exists ::debugfp]} {
                 catch { close $::debugfp }
                 set ::debugfp ""
             }
-            set ::info(DebugLog) $file
-            set ::debugfp [open $file w]
+            set ::debugfp [open [sub $file] w]
         } else {
             return -code error "bad debugging option \"$level\":\
                 should be console or file"
         }
     } elseif {[string is false -strict $value]} {
         if {$level eq ""} {
-            set ::debug 0
-            set ::info(Debugging) 0
+            set info(DebugLogToFile) 0
+            set info(DebugLogToConsole) 0
             if {[info exists ::debugfp]} {
                 catch { close $::debugfp }
                 set ::debugfp ""
             }
         } elseif {$level eq "console"} {
-            set ::debug 0
+            set info(DebugLogToConsole) 0
         } elseif {$level eq "file"} {
-            set ::info(Debugging) 0
+            set info(DebugLogToFile) 0
             if {[info exists ::debugfp]} {
                 catch { close $::debugfp }
                 set ::debugfp ""
             }
         }
     } elseif {$value eq "level"} {
-        if {$level eq ""} {
-            if {!$::debug} { return 0 }
-            return [expr {$::verbose + 1}]
-        } else {
-            if {$level < 0 || $level > 3} {
-                return -code error "invalid debug level \"$level\":\
-                    should be 0, 1, 2 or 3"
-            }
+        if {$level eq ""} { return $info(DebugLogLevel) }
 
-            if {$level == 0} {
-                set ::debug "off"
-                set ::info(Debugging) 0
-            } else {
-                set ::debug "on"
-                set ::info(Debugging) 1
-                set ::verbose [incr level -1]
-            }
+        if {$level < 0 || $level > 3} {
+            return -code error "invalid debug level \"$level\":\
+                should be 0, 1, 2 or 3"
         }
+
+        set info(DebugLogLevel) $level
     } elseif {$value ne ""} {
         return -code error "usage: debugging ?on|off? ?file|console? ?logfile?"
     }
 
-    if {$::debug || $::info(Debugging)} {
-        echo "Debugging is turned on"
-    } else {
-        echo "Debugging is turned off"
-    }
-    if {$::debug} {
-        echo "Debug output is being written to the console"
-    }
-    if {$::info(Debugging)} {
-        echo "Debug output is being saved to a debug log file"
-        echo "Debug log file is <%DebugLog%>" 1
+    if {$info(DebugLogToConsole)} {
+        if {[debugging ison]} {
+            echo "Debugging is turned on"
+        } else {
+            echo "Debugging is turned off"
+        }
+        echo "Debug level is set to $info(DebugLogLevel)"
+        if {$info(DebugLogToConsole)} {
+            echo "Debug output is being written to the console"
+        }
+        if {$info(DebugLogToFile)} {
+            echo "Debug output is being saved to a log file"
+            echo "Debug log file is <%DebugLog%>" 1
+        }
     }
 }
 
-proc debug { message {id ""} } {
+proc debug { message args } {
     global info
 
     ## We don't output debugging in the builder.
     if {[info exists ::InstallJammer]} { return }
 
-    if {![string is true -strict $::debug]
-        && ![string is true -strict $info(Debugging)]} { return }
+    ## If we're not logging to a file or the console, we've got nothing to do.
+    if {!$info(DebugLogToFile) && !$info(DebugLogToConsole)} { return }
+
+    set logToFile 1
+    if {[set x [lsearch -exact $args "-nofile"]] > -1} {
+        set logToFile 0
+        set args [lreplace $args $x $x]
+    }
+    set id [lindex $args 0]
 
     set time [clock format [clock seconds] -format "%m/%d/%Y %H:%M:%S%p"]
     set string "$time - $message"
@@ -205,12 +218,13 @@ proc debug { message {id ""} } {
     }
 
     if {![info exists ::InstallJammer]} {
-        if {[string is true -strict $::debug]} {
+        if {$info(DebugLogToConsole)} {
             puts  stderr $string
             flush stderr
+            update
         }
 
-        if {[string is true -strict $info(Debugging)]} {
+        if {$logToFile && $info(DebugLogToFile)} {
             if {![info exists ::debugfp]} {
                 set ::debugfp [open [::InstallJammer::TmpDir debug.log] w]
             } elseif {$::debugfp eq ""} {
@@ -522,6 +536,9 @@ proc ::InstallJammer::CommonInit {} {
     set conf(wine)      [expr {$conf(windows) && [info exists ::env(_)]
                          && [file tail $::env(_)] eq "wine"}]
 
+    set conf(cmdlineMessages) 1
+    if {$conf(windows)} { set conf(cmdlineMessages) 0 }
+
     array set conf {
 	commonInit   1
 
@@ -638,6 +655,7 @@ proc ::InstallJammer::CommonInit {} {
         set ::debug "off"
 
         array set conf {
+            ExitScripts       {}
             ConsoleWidth      80
             ConsoleHeight     24
             NativeMessageBox  0
@@ -665,15 +683,21 @@ proc ::InstallJammer::CommonInit {} {
             UserMovedBack      0
             UserMovedNext      0
 
-            ShowConsole        0
-
-            Debugging          0
-            Testing            0
+            InAppBundle        0
         }
 
 	SafeArraySet info {
             AllowLanguageSelection 1
             PromptForRoot          1
+
+            Testing                 0
+            Debugging               0
+            DebugLogFile            "<%Temp%>/debug.log"
+            DebugLogLevel           1
+            DebugLogToFile          0
+            DebugLogToConsole       0
+            ShowConsole             0
+            SaveTempDirectory       0
 
             Language                "en"
             DefaultToSystemLanguage "Yes"
@@ -714,13 +738,14 @@ proc ::InstallJammer::CommonInit {} {
             }
         }
 
+        ::InstallJammer::SetupPlatformVirtualText
+
         if {$conf(windows)} {
             set info(Username)      $::tcl_platform(user)
             set info(PathSeparator) \;
 
             set info(Desktop) <%DESKTOP%>
 
-            ::InstallJammer::SetWindowsPlatform
             ::InstallJammer::SetupRegVirtualText
         } else {
             set info(Username)        [id user]
@@ -739,6 +764,8 @@ proc ::InstallJammer::CommonInit {} {
             }
 
             set info(HaveTerminal) [expr {[catch { exec tty }] == 0}]
+
+            if {!$info(HaveTerminal)} { set conf(cmdlineMessages) 0 }
         }
 
         if {[info exists info(Language)]} {
@@ -762,6 +789,12 @@ proc ::InstallJammer::CommonInit {} {
             -command ::InstallJammer::ModifyInstallTitle
         ::InstallAPI::SetVirtualText -virtualtext InstallTitleText \
             -language all -command ::InstallJammer::ModifyInstallTitle
+
+        ## Setup some other variables when <%Debugging%> is modidifed.
+        ::InstallAPI::SetVirtualText -virtualtext Debugging -command {
+            set ::info(DebugLogToFile) $::info(Debugging)
+            set ::info(SaveTempDirectory) $::info(Debugging)
+        }
 
         ::InstallAPI::VirtualTextAPI -do settype -type directory -virtualtext {
 	    CommonStartMenu
@@ -817,6 +850,7 @@ proc ::InstallJammer::CommonPostInit {} {
 
 proc ::InstallJammer::InitializeGui {} {
     global conf
+    global info
 
     if {[info exists ::InstallJammer]} { return }
     if {[info exists conf(InitGui)]} { return }
@@ -826,11 +860,23 @@ proc ::InstallJammer::InitializeGui {} {
 
     if {$conf(osx)} {
         bind Text <Command-Tab> [bind Text <Tab>]
+
+        proc ::tk::mac::Quit {} {
+            global info
+            $info(Wizard) cancel 1
+        }
     } else {
         bind Text <Control-Tab> [bind Text <Tab>]
     }
     bind Text <Tab> "# nothing"
     bind Text <Shift-Tab> ""
+
+    set wizard $info(Wizard)
+    bind $wizard <<WizardStep>>      "::InstallJammer::RaiseEventHandler  %W"
+    bind $wizard <<WizardCancel>>    "::InstallJammer::CancelEventHandler %W"
+    bind $wizard <<WizardFinish>>    "::InstallJammer::FinishEventHandler %W"
+    bind $wizard <<WizardLastStep>>  "set ::info(WizardLastStep)  1"
+    bind $wizard <<WizardFirstStep>> "set ::info(WizardFirstStep) 1"
 }
 
 proc ::InstallJammer::InitializeMessageCatalogs {} {
@@ -920,6 +966,7 @@ proc ::InstallJammer::ConfigureBidiFonts {} {
 proc ::InstallJammer::LoadTwapi {} {
     global conf
 
+    set conf(twapi) 0
     ## Check to see if the user included the TWAPI extension
     ## and that we're on Windows XP or higher.  If so, require
     ## the extension to load the commands.
@@ -996,12 +1043,8 @@ proc ::InstallJammer::HideMainWindow {} {
     global info
 
     if {[info exists ::tk_patchLevel]} {
-        ## Hide the . window so no one will ever find it.
-        wm geometry . 0x0+-10000+-10000
+        wm withdraw .
         ::InstallJammer::ModifyInstallTitle
-        if {!$conf(windows) || !$info(GuiMode)} { wm overrideredirect . 1 }
-
-        if {$info(GuiMode)} { wm deiconify . }
     }
 }
 
@@ -1038,6 +1081,29 @@ proc ::InstallJammer::DirIsEmpty { dir } {
     set list2 [glob -nocomplain -directory $dir -types hidden *]
     set list  [lremove [concat $list1 $list2] $dir/. $dir/..]
     return    [lempty $list]
+}
+
+proc ::InstallJammer::PlaceToplevel { path args } {
+    array set _args {
+        -width      0
+        -height     0
+        -anchor     "center"
+    }
+    set _args(-parent) [winfo parent $path]
+    array set _args $args
+
+    if {$_args(-parent) eq "."} { set _args(-parent) "" }
+
+    if {$_args(-width) != 0 && $_args(-height) != 0} {
+        wm geometry $path $_args(-width)x$_args(-height)
+    }
+
+    if {$_args(-parent) eq ""} {
+        BWidget::place $path $_args(-width) $_args(-height) $_args(-anchor)
+    } else {
+        BWidget::place $path $_args(-width) $_args(-height) $_args(-anchor) \
+            $_args(-parent)
+    }
 }
 
 proc ::InstallJammer::PlaceWindow { id args } {
@@ -1205,10 +1271,24 @@ proc ::InstallJammer::ExecuteActions { id args } {
 
     if {![llength $idlist]} { return 1 }
 
-    set msg "Executing actions $id"
-    if {![catch { $id title } title]} { append msg " - $title" }
-    if {$_args(-when) ne ""} { append msg " - $_args(-when)" }
-    debug $msg
+    if {[debugging ison]} {
+        set word action
+        if {[$id is pane]} { set word "actions for pane" }
+        if {[$id is actiongroup]} { set word "action group" }
+
+        set msg "Executing $word"
+        if {[catch { $id title } title]} {
+            append msg " $id"
+        } else {
+            append msg " $title ($id)"
+        }
+
+        if {$_args(-when) ne ""} {
+            append msg " [string tolower $_args(-when)]"
+        }
+
+        debug $msg
+    }
 
     set res 1
     set conf(moveToPane) ""
@@ -1241,7 +1321,16 @@ proc ::InstallJammer::ExecuteActions { id args } {
 
         set when "Before Action is Executed"
         if {$_args(-conditions) && ![$obj checkConditions $when]} {
-            debug "Skipping action $id - [$id title] - conditions failed"
+            if {[debugging ison]} {
+                set msg "Skipping action"
+                if {[$id title] eq ""} {
+                    append msg " $id"
+                } else {
+                    append msg " [$id title] ($id)"
+                }
+                append msg ". Conditions failed."
+                debug $msg $id
+            }
             ::InstallJammer::CurrentObject pop
             continue
         }
@@ -1272,17 +1361,17 @@ proc ::InstallJammer::ExecuteActions { id args } {
     }
 
     if {[info exists tempObjects]} {
-        eval itcl::delete object $tempObjects
+        ::obj::object destroy {*}$tempObjects
     }
 
     return $res
 }
 
 proc ::InstallJammer::CreateTempAction { id child } {
-    set obj [InstallComponent ::#auto -temp 1 -parent [$id parent] \
+    set obj [Action new -temp 1 -parent [$id parent] \
         -setup [$id setup] -type action -id $child -name [$child name] \
         -component [$child component] -conditions [$child conditions] \
-        -operator [$child operator]]
+        -operator [$child operator] -title [$child title]]
 
     return $obj
 }
@@ -1333,12 +1422,19 @@ proc ::InstallJammer::CancelCommand { wizard id } {
 
 ## Uses the wizard's <<WizardCancel>> event.
 proc ::InstallJammer::CancelEventHandler { wizard } {
+    global info
     #set id [$wizard raise]
 
     #set when "After Pane is Cancelled"
     #::InstallJammer::ExecuteActions $id -when $when
 
-    if {[$wizard itemcget cancel -state] eq "normal"} {
+    if {!$info(WizardStarted)} {
+        ::InstallJammer::exit 0
+        return
+    }
+
+    if {![$wizard itemcget cancel -hide]
+        && [$wizard itemcget cancel -state] eq "normal"} {
         ::InstallJammer::exit 1
     }
 }
@@ -1378,10 +1474,20 @@ proc ::InstallJammer::RaiseEventHandler { wizard } {
         ## Remove it from the order of the wizard and continue on
         ## to the next pane.
 
-        if {![$id active]} {
-            debug "Skipping pane $id - [$id title] - pane is inactive" $id
-        } else {
-            debug "Skipping pane $id - [$id title] - conditions failed" $id
+        if {[debugging ison]} {
+            set msg "Skipping pane"
+            if {[$id title] eq ""} {
+                append msg " $id"
+            } else {
+                append msg " [$id title] ($id)"
+            }
+
+            if {![$id active]} {
+                append msg ". Pane is inactive."
+            } else {
+                append msg ". Conditions failed."
+            }
+            debug $msg $id
         }
 
         $wizard order [lrange [$wizard order] 0 end-1]
@@ -1389,7 +1495,15 @@ proc ::InstallJammer::RaiseEventHandler { wizard } {
         return
     }
 
-    debug "Displaying pane $id - [$id title]" $id
+    if {[debugging ison]} {
+        set msg "Displaying pane"
+        if {[$id title] eq ""} {
+            append msg " $id"
+        } else {
+            append msg " [$id title] ($id)"
+        }
+        debug $msg $id
+    }
 
     ::InstallJammer::ExecuteActions $id -when $when
 
@@ -1461,8 +1575,21 @@ proc ::InstallJammer::RaiseEventHandler { wizard } {
     set conf(LastStepId) $id
 }
 
+proc ::InstallJammer::IsButtonWidget {widget {varName ""}} {
+    global conf
+    if {$varName ne ""} { upvar 1 $varName name }
+
+    set widget [join $widget ""]
+    if {$widget in $conf(ButtonWidgets)} {
+        set name [string tolower [string map {Button ""} $widget]]
+        return 1
+    }
+    return 0
+}
+
 proc ::InstallJammer::UpdateWizardButtons { args } {
     global info
+    variable HiddenWidgets
 
     if {[llength $args]} {
         lassign $args wizard id
@@ -1476,15 +1603,20 @@ proc ::InstallJammer::UpdateWizardButtons { args } {
     foreach button [list back next cancel finish help] {
         if {![$wizard exists $button]} { continue }
 
+        set hide 0
+        if {[info exists HiddenWidgets($button)]} {
+            set hide $HiddenWidgets($button)
+        }
+
         set text [string totitle $button]
         if {[string match "*$text*" $buttons]} {
-            $wizard itemconfigure $button -hide 0
-
             set w [$wizard widget get $button -step $id]
             ::InstallJammer::SetText $w $id [string toupper $button 0]Button
         } else {
-            $wizard itemconfigure $button -hide 1
+            set hide 1
         }
+
+        $wizard itemconfigure $button -hide $hide
     }
 }
 
@@ -1566,13 +1698,6 @@ proc ::InstallJammer::CreateWindow { wizard id {preview 0} } {
             -cancelcommand [list ::InstallJammer::CancelCommand $wizard $id] \
             -finishcommand [list ::InstallJammer::FinishCommand $wizard $id]
 
-        bind $wizard <<WizardStep>>   "::InstallJammer::RaiseEventHandler  %W"
-        bind $wizard <<WizardCancel>> "::InstallJammer::CancelEventHandler %W"
-        bind $wizard <<WizardFinish>> "::InstallJammer::FinishEventHandler %W"
-
-        bind $wizard <<WizardLastStep>>  "set ::info(WizardLastStep)  1"
-        bind $wizard <<WizardFirstStep>> "set ::info(WizardFirstStep) 1"
-
         $id created 1
     }
 
@@ -1605,7 +1730,7 @@ proc ::InstallJammer::TransientParent { {parent ""} {remove 0} } {
         }
     }
 
-    set parent "."
+    set parent ""
     if {[info exists conf(ParentWindow)]} {
         set windows $conf(ParentWindow)
         set conf(ParentWindow) [list]
@@ -1619,14 +1744,16 @@ proc ::InstallJammer::TransientParent { {parent ""} {remove 0} } {
 
         ## Find the first parent that is actually visible.
         foreach window [lreverse $conf(ParentWindow)] {
-            if {[wm state $parent] eq "normal"} {
+            if {[wm state $window] eq "normal"} {
                 set parent $window
                 break
             }
         }
     }
 
-    if {[wm state $parent] ne "normal"} { set parent "" }
+    if {![winfo exists $parent] || [wm state $parent] ne "normal"} {
+        set parent ""
+    }
 
     return $parent
 }
@@ -1667,133 +1794,12 @@ proc ::InstallJammer::ParseArgs { arrayName arglist args } {
     }
 }
 
-proc ::InstallJammer::SetObjectProperties { id args } {
-    variable ::InstallJammer::Properties
-
-    ::InstallJammer::ParseArgs _args $args -switches {-safe -nocomplain}
-
-    set args $_args(_ARGS_)
-
-    if {[llength $args] == 1} { set args [lindex $args 0] }
-    if {[llength $args] == 1} {
-        set property [lindex $args 0]
-        if {[info exists Properties($id,$property)]} {
-            return $Properties($id,$property)
-        }
-
-        if {!$_args(-nocomplain)} {
-            return -code error "invalid property '$property'"
-        }
-
-        return
+proc ::InstallJammer::ObjectRecursiveList { what object } {
+    set list {}
+    foreach x [$object $what] {
+        lappend list $x {*}[::InstallJammer::ObjectRecursiveList $what $x]
     }
-
-    foreach {property value} $args {
-        if {!$_args(-safe) || ![info exists Properties($id,$property)]} {
-            if {$property eq "Alias"} {
-		catch { $id alias $value }
-
-		if {[info exists ::InstallJammer::aliasmap($id)]} {
-		    $id CleanupAlias
-		}
-
-		if {$value ne ""} {
-		    set ::InstallJammer::aliases($value) $id
-		    set ::InstallJammer::aliasmap($id) $value
-		}
-            }
-
-            if {$property eq "Active"} { $id active $value }
-
-            if {![info exists ::InstallJammer]} {
-                variable ::InstallJammer::PropertyMap
-                if {[info exists PropertyMap($property)]} {
-                    set n $value
-                    if {![string is integer -strict $n]} {
-                        set n [lsearch -exact $PropertyMap($property) $value]
-                        if {$n < 0} {
-                            return -code error [BWidget::badOptionString value \
-                                $value $PropertyMap($property)]
-                        }
-                    }
-                    set value $n
-                }
-            }
-            set Properties($id,$property) $value
-        }
-    }
-
-    return $Properties($id,$property)
-}
-
-proc ::InstallJammer::GetObjectProperty { id property {varName ""} } {
-    set value  ""
-    set exists [info exists ::InstallJammer::Properties($id,$property)]
-    if {$exists} {
-        set value $::InstallJammer::Properties($id,$property)
-        if {[info exists ::InstallJammer::PropertyMap($property)]
-            && [string is integer -strict $value]} {
-            set value [lindex $::InstallJammer::PropertyMap($property) $value]
-        }
-    }
-
-    if {$varName ne ""} {
-        upvar 1 $varName var
-        set var $value
-        return $exists
-    } else {
-        return $value
-    }
-}
-
-proc ::InstallJammer::ObjectProperties { id arrayName args } {
-    upvar 1 $arrayName array
-    variable ::InstallJammer::Properties
-
-    ::InstallJammer::ParseArgs _args $args -options {-prefix "" -subst 0}
-
-    set slen 0
-    if {[info exists _args(-subst)]} {
-        set subst $_args(-subst)
-        set slen  [llength $subst]
-    }
-
-    set props $_args(_ARGS_)
-    if {![llength $props]} {
-        foreach varName [array names Properties $id,*] {
-            lappend props [string map [list $id, ""] $varName]
-        }
-    }
-
-    set vars {}
-    foreach prop $props {
-        if {![info exists Properties($id,$prop)]} { continue }
-
-        set val $Properties($id,$prop)
-        if {$slen && ($subst eq "1" || [lsearch -exact $subst $prop] > -1)} {
-            set val [::InstallJammer::SubstText $val]
-        }
-        if {[info exists ::InstallJammer::PropertyMap($prop)]
-            && [string is integer -strict $val]} {
-            set val [lindex $::InstallJammer::PropertyMap($prop) $val]
-        }
-        set prop $_args(-prefix)$prop
-        lappend vars $prop
-        set array($prop) $val
-    }
-
-    return $vars
-}
-
-proc ::InstallJammer::ObjectChildrenRecursive { object } {
-    set children [list]
-
-    foreach child [$object children] {
-        lappend children $child
-        eval lappend children [::InstallJammer::ObjectChildrenRecursive $child]
-    }
-
-    return $children
+    return $list
 }
 
 proc ::InstallJammer::SetTitle { w id } {
@@ -1806,7 +1812,8 @@ proc ::InstallJammer::SetVirtualText { languages window args } {
     if {[llength $args] == 1} { set args [lindex $args 0] }
 
     if {[string equal -nocase $languages "all"]} {
-        set languages [::InstallJammer::GetLanguageCodes]
+        $window set $args
+        return
     }
 
     foreach lang $languages {
@@ -1830,61 +1837,34 @@ proc ::InstallJammer::GetText { id field args } {
 
     array set _args {
         -subst      1
-        -language   ""
-        -forcelang  0
+        -default    0
         -forcesubst 0
     }
     array set _args $args
 
-    set languages {}
-    if {$_args(-language) ne ""} {
-        foreach lang $_args(-language) {
-            lappend languages [::InstallJammer::GetLanguageCode $lang]
-        }
-    }
-    if {!$_args(-forcelang)} {
-        eval lappend languages [::msgcat::mcpreferences]
-    }
+    if {$_args(-default)} { set _args(-subst) 0 }
 
-    if {[string equal -nocase $_args(-language) "all"]} {
-        foreach lang [::InstallJammer::GetLanguageCodes] {
-            set text [::InstallJammer::GetTextForField $id $field $lang]
-            if {[info exists last] && $last ne $text} { return }
-            set last $text
-        }
-        if {$_args(-subst)} { set text [::InstallJammer::SubstText $text] }
-        return $text
-    }
-
-    set found 0
-    foreach lang $languages {
-        set text [::InstallJammer::GetTextForField $id $field $lang]
-        if {$text ne ""} {
-            set found 1
-            break
+    if {$_args(-default) || ![$id get $field text]} {
+        set comp [$id component]
+        set text [::msgcat::mc $comp,$field]
+        if {$text ne "$comp,$field"} {
+            set text "<%${comp},${field}%>"
+        } else {
+            set text [::msgcat::mc ${field}Text]
+            if {$text ne "${field}Text"} {
+                set text "<%${field}Text%>"
+            } else {
+                set text ""
+            }
         }
     }
 
-    if {$found} {
-	if {$_args(-forcesubst)
-	    || ($_args(-subst) && [$id get $field,subst subst] && $subst)} {
-	    set text [::InstallJammer::SubstText $text]
-	}
+    if {$_args(-forcesubst)
+        || ($_args(-subst) && [$id get $field,subst subst] && $subst)} {
+        set text [::InstallJammer::SubstText $text]
+    }
 
-	return $text
-    }
-}
-
-proc ::InstallJammer::GetTextForField { id field lang } {
-    set id   [::InstallJammer::ID $id]
-    set item [$id component]
-    set text [::msgcat::mcget $lang $id,$field]
-    if {$text eq "$id,$field"} {
-        set text [::msgcat::mcget $lang $item,$field]
-    }
-    if {$text ne "$item,$field"} {
-        return $text
-    }
+    return $text
 }
 
 proc ::InstallJammer::SetText { args } {
@@ -1914,10 +1894,11 @@ proc ::InstallJammer::SetText { args } {
         ## We're using the -maxundo property as a trick for other
         ## code to tell us not to update this widget.
         if {![$w cget -maxundo]} {
+            set state [$w cget -state]
             $w configure -state normal
             $w delete 0.0 end
             $w insert end $text
-            $w configure -state disabled
+            $w configure -state $state
         }
     } elseif {($class eq "Label" || $class eq "TLabel")
     	&& [string length [$w cget -textvariable]]} {
@@ -1997,8 +1978,7 @@ proc ::InstallJammer::FindUpdateWidgets { textList args } {
     global conf
     global info
 
-    if {![info exists ::tk_patchLevel]} { return }
-    if {![info exists info(Wizard)]} { return }
+    if {![::InstallJammer::WizardExists]} { return }
 
     set _args(-wizard)  $info(Wizard)
     array set _args $args
@@ -2046,7 +2026,7 @@ proc ::InstallJammer::FindUpdateWidgets { textList args } {
 }
 
 proc ::InstallJammer::UpdateSelectedWidgets { {widgets {}} args } {
-    if {![info exists ::tk_patchLevel]} { return }
+    if {![::InstallJammer::WizardExists]} { return }
 
     if {![llength $widgets]} { set widgets $::conf(UpdateWidgets) }
 
@@ -2104,8 +2084,7 @@ proc ::InstallJammer::UpdateWidgets { args } {
     global conf
     global info
 
-    if {![info exists ::tk_patchLevel]} { return }
-    if {![info exists info(Wizard)]} { return }
+    if {![::InstallJammer::WizardExists]} { return }
 
     array set _args {
         -update          0
@@ -2387,36 +2366,40 @@ proc ::InstallJammer::SetupRegVirtualText {} {
     return
 }
 
-proc ::InstallJammer::SetWindowsPlatform {} {
+proc ::InstallJammer::SetupPlatformVirtualText {} {
     global conf
     global info
 
-    set string Windows
-
+    set arch $::tcl_platform(machine)
     if {$conf(windows)} {
-        switch -- $::tcl_platform(os) {
-            "Windows 95" { set string "Win95" }
-            "Windows 98" { set string "Win98" }
-            "Windows NT" {
-                switch -- $::tcl_platform(osVersion) {
-                    "4.0" { set string "WinNT" }
-                    "5.0" { set string "Win2k" }
-                    "5.1" { set string "WinXP" }
-                    "5.2" { set string "Win2003" }
-                    "6.0" { set string "Vista" }
-                }
-            }
+        set arch x86
+        if {$::env(PROCESSOR_ARCHITECTURE) ne "x86"
+            || [info exists ::env(PROCESSOR_ARCHITEW6432)]} { set arch x86_64 }
 
-            default {
-                ## Not really sure what ME puts out, but if we
-                ## didn't match one of the above, that's probably
-                ## what we've got.
-                set string "WinME"
+        set info(WindowsPlatform) "Windows"
+        if {$conf(windows)} {
+            switch -- $::tcl_platform(os) {
+                "Windows 95" { set info(WindowsPlatorm) "Win95" }
+                "Windows 98" { set info(WindowsPlatorm) "Win98" }
+                "Windows ME" { set info(WindowsPlatorm) "WinME" }
+                "Windows NT" {
+                    switch -- $::tcl_platform(osVersion) {
+                        "4.0" { set info(WindowsPlatorm) "WinNT" }
+                        "5.0" { set info(WindowsPlatorm) "Win2k" }
+                        "5.1" { set info(WindowsPlatorm) "WinXP" }
+                        "5.2" { set info(WindowsPlatorm) "Win2003" }
+                        "6.0" { set info(WindowsPlatorm) "Vista" }
+                        "6.1" { set info(WindowsPlatorm) "Windows 7" }
+                    }
+                }
             }
         }
     }
 
-    set info(WindowsPlatform) $string
+    if {[string match "*86" $arch]} { set arch x86 }
+    set info(ProcessorArchitecture) $arch
+    set info(PlatformVersion) $::tcl_platform(osVersion)
+    set info(Is64Bit) [expr {$arch eq "x86_64"}]
 }
 
 proc ::InstallJammer::SubstVar { var } {
@@ -2455,7 +2438,7 @@ proc ::InstallJammer::SubstVar { var } {
         return [eval ::InstallJammer::subst::$word $args]
     }
 
-    if {$var ne "" && $var eq [string toupper $var]} {
+    if {$var ne "" && $conf(windows) && $var eq [string toupper $var]} {
         ## If the string is all uppercase and we haven't matched
         ## something yet, it's a Windows directory.
         return [::InstallJammer::WindowsDir $var]
@@ -2605,9 +2588,14 @@ proc ::InstallJammer::SubstText { str {num 0} } {
     return $s
 }
 interp alias {} sub {} ::InstallJammer::SubstText
+interp alias {} gettext {} ::InstallJammer::GetText
 
-proc settext {var val} {
-    set ::info($var) $val
+proc settext {args} {
+    if {[llength $args] == 2} {
+        set ::info($var) $val
+    } else {
+        ::InstallJammer::SetVirtualText all {*}$args
+    }
 }
 
 proc vercmp {ver1 ver2} {
@@ -2802,31 +2790,6 @@ proc ::InstallJammer::SetPermissions { file perm } {
     }
 }
 
-proc ::InstallJammer::WriteDoneFile { {dir ""} } {
-    if {$dir eq ""} { set dir [::InstallJammer::TmpDir] }
-    close [open [file join $dir .done] w]
-}
-
-## This proc attempts to find any InstallJammer temporary directories laying
-## around and clean them up.  If a file called .done is in the directory,
-## we know the InstallJammer program using that directory has finished with it,
-## and it's ok to remove.
-proc ::InstallJammer::CleanupTmpDirs {} {
-    global info
-
-    if {[string is true -strict $info(Debugging)]} { return }
-
-    set tmp  [file dirname [TmpDir]]
-    set time [expr {[clock seconds] - 86400}]
-    foreach dir [glob -nocomplain -type d -dir $tmp ijtmp_*] {
-        if {[DirIsEmpty $dir]
-	    || [file exists [file join $dir .done]]
-	    || [file mtime $dir] < $time} {
-            catch { file delete -force $dir }
-        }
-    }
-}
-
 proc ::InstallJammer::EvalCondition { condition } {
     if {[string is true  $condition]} { return 1 }
     if {[string is false $condition]} { return 0 }
@@ -2849,7 +2812,9 @@ proc ::InstallJammer::HomeDir { {file ""} } {
 
 proc ::InstallJammer::PauseInstall {} {
     global conf
-    if {[info exists conf(pause)]} {
+    global info
+
+    if {$info(Installing) && [info exists conf(pause)]} {
         ::InstallJammer::TmpDir
         close [open $conf(pause) w]
     }
@@ -2863,7 +2828,7 @@ proc ::InstallJammer::ContinueInstall {} {
 proc ::InstallJammer::StopInstall {} {
     global conf
     global info
-    if {[info exists conf(stop)]} {
+    if {$info(Installing) && [info exists conf(stop)]} {
         ::InstallJammer::TmpDir
         close [open $conf(stop) w]
         set info(InstallStopped) 1
@@ -2996,7 +2961,7 @@ proc ::InstallJammer::MessageBox { args } {
     global conf
     global widg
 
-    if {$conf(windows)} { ::InstallJammer::InitializeGui }
+    ::InstallJammer::InitializeGui
 
     set win  .__message_box
 
@@ -3067,20 +3032,19 @@ proc ::InstallJammer::MessageBox { args } {
 }
 
 proc ::InstallJammer::Message { args } {
-    set gui [info exists ::tk_patchLevel]
+    global conf
+
+    if {[info exists conf(cmdlineMessages)]} {
+        set cmdline $conf(cmdlineMessages)
+    } else {
+        set cmdline [expr {![info exists ::tk_patchLevel]}]
+    }
 
     if {[info exists ::InstallJammer]
         && $::tcl_platform(platform) eq "windows"
-        && [file extension [info nameof]] eq ".com"} { set gui 0 }
+        && [file extension [info nameof]] eq ".com"} { set cmdline 1 }
 
-    if {$gui} {
-        if {[catch { eval ::InstallJammer::MessageBox $args } error]} {
-            if {[info exists ::conf(unix)] && $::conf(unix)} {
-                catch {rename ::tk_messageBox ""}
-            }
-            eval tk_messageBox -title "InstallJammer" $args
-        }
-    } else {
+    if {$cmdline} {
         set _args(-icon) "info"
 	array set _args $args
 	if {![info exists _args(-message)]} { return }
@@ -3095,6 +3059,13 @@ proc ::InstallJammer::Message { args } {
         }
 
         flush $chan
+    } else {
+        if {[catch { eval ::InstallJammer::MessageBox $args } error]} {
+            if {[info exists ::conf(unix)] && $::conf(unix)} {
+                catch {rename ::tk_messageBox ""}
+            }
+            eval tk_messageBox -title "InstallJammer" $args
+        }
     }
 }
 
@@ -3203,7 +3174,7 @@ proc ::InstallJammer::uuid {} {
         return [string range [::InstallJammer::guid] 1 end-1]
     }
 
-    set sha [sha1 -string [info hostname][clock seconds][pid][info cmdcount]]
+    set sha [sha1hex [info hostname][clock seconds][pid][info cmdcount]]
 
     set i 0
     foreach x {8 4 4 4 12} {
@@ -3235,7 +3206,7 @@ proc ::InstallJammer::IsID { id } {
 }
 
 proc ::InstallJammer::ObjExists { obj } {
-    return [info exists ::InstallJammer::ObjMap([namespace tail $obj])]
+    return [::obj::object exists $obj]
 }
 
 proc ::InstallJammer::ReadMessageCatalog { catalog } {
@@ -3259,6 +3230,22 @@ proc ::InstallJammer::Wrap { args } {
     }
 
     eval ::installkit::wrap $args
+}
+
+proc ::InstallJammer::BaseInstallkit {{file ""}} {
+    global info
+
+    if {$file eq ""} { set file [TmpDir installkit$info(Ext)] }
+    if {![file exists $file]} { set file [::InstallJammer::Wrap -o $file] }
+    return [::InstallJammer::Normalize $file]
+}
+
+proc ::InstallJammer::Mount {archive mountPoint} {
+    crapvfs::mount $archive $mountPoint
+}
+
+proc ::InstallJammer::Unmount {mountPoint} {
+    crapvfs::unmount $mountPoint
 }
 
 proc ::InstallJammer::Grab { command args } {
@@ -3290,12 +3277,12 @@ proc ::InstallJammer::Grab { command args } {
         "set" {
             set window [lindex $args 0]
             grab $window
-            lappend GrabStack $window
+            if {$window ni $GrabStack} { lappend GrabStack $window }
         }
 
         default {
             grab $command
-            lappend GrabStack $command
+            if {$command ni $GrabStack} { lappend GrabStack $command }
         }
     }
 
@@ -3488,58 +3475,77 @@ proc ::InstallJammer::ExecAsRoot { command args } {
 
     ## Determine the best way to ask for the root password.
     if {$info(GuiMode)} {
-        ## Check the known desktops first and try to find
-        ## their appropriate graphical SU program.
-        set desktop [::InstallJammer::GetDesktopEnvironment]
+        if {$conf(osx)} {
+            set binary [::InstallJammer::TmpDir "This installer"]
+            file copy -force [auto_execok osascript] $binary
 
-        if {$desktop eq "KDE"} {
-            if {[string length [auto_execok kdesu]]} {
-                set cmd [list kdesu -d -c $cmdline]
-            }
-        } elseif {$desktop eq "Gnome"} {
-            if {[string length [auto_execok gksu]]} {
-                set cmd [list gksu $cmdline]
-            } elseif {[string length [auto_execok gnomesu]]} {
-                set cmd [list gnomesu $cmdline]
-            }
+            set script [::InstallJammer::TmpDir escalate.sh]
+            set fp [open $script w]
+            set cmdline [string map {' \\\"} $cmdline]
+            set scr "do shell script \"$cmdline\" with administrator privileges"
+            puts $fp "\"$binary\" -e '$scr'"
+            puts $fp "rm -rf \"[::InstallJammer::TmpDir]\""
+            close $fp
 
-            if {[llength $cmd] && [string length $title]} {
-                set cmd [linsert $cmd 1 --title $title]
-            }
-        }
+            system "sh $script &"
+            return 1
+        } else {
+            ## Check the known desktops first and try to find
+            ## their appropriate graphical SU program.
+            set desktop [::InstallJammer::GetDesktopEnvironment]
 
-        ## We either have an unknown desktop, or we didn't find
-        ## the appropriate program for the desktop we have.
-        ## Try and figure out the best option here.
-        if {![llength $cmd]} {
-            if {[string length [auto_execok kdesu]]} {
-                set cmd [list kdesu -d -c $cmdline]
-            } elseif {[string length [auto_execok gksu]]} {
-                set cmd [list gksu $cmdline]
-                if {[string length $title]} {
+            if {$desktop eq "KDE"} {
+                if {[string length [auto_execok kdesu]]} {
+                    set cmd [list kdesu -d -c $cmdline]
+                }
+            } elseif {$desktop eq "Gnome"} {
+                if {[string length [auto_execok gksu]]} {
+                    set cmd [list gksu $cmdline]
+                } elseif {[string length [auto_execok gnomesu]]} {
+                    set cmd [list gnomesu $cmdline]
+                }
+
+                if {[llength $cmd] && [string length $title]} {
                     set cmd [linsert $cmd 1 --title $title]
                 }
-            } elseif {[string length [auto_execok gnomesu]]} {
-                set cmd [list gnomesu $cmdline]
-                if {[string length $title]} {
-                    set cmd [linsert $cmd 1 --title $title]
-                }
-            } elseif {[string length [auto_execok xsu]]} {
-                set cmd [list xsu $cmdline]
-                if {[string length $title]} {
-                    set cmd [linsert $cmd 1 --title $title]
-                }
-            } elseif {!$info(HaveTerminal)} {
-                ## Better to ask on the terminal (if we have one)
-                ## than to pop up an ugly xterm to ask for the root
-                ## password.
-                set cmd [list xterm -e "echo '$msg' && su -c \"$cmdline\""]
+            }
 
-                if {$title eq ""} { set title "xterm" }
-                set cmd [linsert $cmd 1 -T $title]
+            ## We either have an unknown desktop, or we didn't find
+            ## the appropriate program for the desktop we have.
+            ## Try and figure out the best option here.
+            if {![llength $cmd]} {
+                if {[string length [auto_execok kdesu]]} {
+                    set cmd [list kdesu -d -c $cmdline]
+                } elseif {[string length [auto_execok gksu]]} {
+                    set cmd [list gksu $cmdline]
+                    if {[string length $title]} {
+                        set cmd [linsert $cmd 1 --title $title]
+                    }
+                } elseif {[string length [auto_execok gnomesu]]} {
+                    set cmd [list gnomesu $cmdline]
+                    if {[string length $title]} {
+                        set cmd [linsert $cmd 1 --title $title]
+                    }
+                } elseif {[string length [auto_execok xsu]]} {
+                    set cmd [list xsu $cmdline]
+                    if {[string length $title]} {
+                        set cmd [linsert $cmd 1 --title $title]
+                    }
+                } elseif {!$info(HaveTerminal)
+                    && [string length [auto_execok xterm]]} {
+                    ## Better to ask on the terminal (if we have one)
+                    ## than to pop up an ugly xterm to ask for the root
+                    ## password.
+                    set cmd [list xterm -e "echo '$msg' && su -c \"$cmdline\""]
+
+                    if {$title eq ""} { set title "xterm" }
+                    set cmd [linsert $cmd 1 -T $title]
+                }
             }
         }
     }
+
+    if {!$info(HaveTerminal) && ![llength $cmd]} { return 0 }
 
     if {![llength $cmd]} {
         ## We never found a good X utility to ask for the root
@@ -3558,9 +3564,10 @@ proc ::InstallJammer::ExecAsRoot { command args } {
         }
     } else {
         if {!$wait} { lappend cmd & }
-
         catch { eval exec $cmd }
     }
+
+    return 1
 }
 
 proc ::InstallJammer::GetFilesForPattern { patternString args } {
@@ -3720,15 +3727,26 @@ proc ::InstallJammer::ShowUsageAndExit { {message ""} {title ""} } {
 
     append usage \n
 
-    if {$conf(windows) || !$info(HaveTerminal)} {
-        if {$title eq ""} { set title "Invalid Arguments" }
-        ::InstallJammer::MessageBox -icon error -font "Courier 8" \
-            -title $title -message $usage
-    } else {
-        puts $usage
-    }
+    if {$title eq ""} { set title "Invalid Arguments" }
+    ::InstallJammer::Message -icon error -font TkFixedFont \
+        -title $title -message $usage
 
     ::exit [expr {$message eq "" ? 0 : 1}]
+}
+
+proc ::InstallJammer::DisplayVersionInfo {} {
+    global conf
+    global info
+
+    set msg "InstallJammer Installer version $conf(version)\n\n"
+    if {$info(RunningInstaller)} {
+        append msg "<%VersionHelpText%>"
+    } else {
+        append msg "<%AppName%> <%Version%>"
+    }
+    set msg [sub $msg]
+
+    ::InstallJammer::Message -default ok -title "InstallJammer" -message $msg
 }
 
 proc ::InstallJammer::ParseCommandLineArguments { argv } {
@@ -3742,6 +3760,15 @@ proc ::InstallJammer::ParseCommandLineArguments { argv } {
     ::InstallJammer::ExecuteActions "Command Line Actions"
 
     ::InstallJammer::InitializeCommandLineOptions
+
+    if {$conf(osx) && [string match "-psn_0_*" [lindex $argv 0]]} {
+        set argv [lreplace $argv 0 0]
+        set ::argv [lreplace $::argv 0 0]
+        set conf(cmdlineMessages) 0
+        set info(InAppBundle) 1
+        set info(AppBundlePath) \
+            [file join {*}[lrange [file split [info nameof]] 0 end-3]]
+    }
 
     set i 0
     foreach arg $argv {
@@ -3768,23 +3795,7 @@ proc ::InstallJammer::ParseCommandLineArguments { argv } {
         }
 
         if {$opt eq "v" || $opt eq "version"} {
-            set message "InstallJammer Installer version $conf(version)\n\n"
-            if {$info(RunningInstaller)} {
-                append message "<%VersionHelpText%>"
-            } else {
-                append message "<%AppName%> <%Version%>"
-            }
-
-            if {$conf(windows)} {
-                ::InstallJammer::MessageBox -default ok \
-                    -title "InstallJammer Installer" \
-                    -message [::InstallJammer::SubstText $message]
-            } else {
-                set version "<%Version%> (<%InstallVersion%>)\n"
-                puts [::InstallJammer::SubstText $version]
-                puts $msg
-            }
-
+            ::InstallJammer::DisplayVersionInfo
             ::exit 0
         }
 
@@ -3887,6 +3898,7 @@ proc ::InstallJammer::ParseCommandLineArguments { argv } {
     if {$info(ShowConsole)} {
         ::InstallJammer::InitializeGui
         if {!$conf(windows)} { SourceCachedFile console.tcl }
+        console eval {wm geometry . 80x24+0+0}
         console show
     }
 
@@ -3923,18 +3935,12 @@ proc ::InstallJammer::CommonExit {} {
     global conf
 
     catch { 
-        if {$conf(windows) && $conf(UpdateWindowsRegistry)} {
-            registry broadcast Environment -timeout 1
+        foreach script $conf(ExitScripts) {
+            uplevel #0 $script
         }
     }
 
-    catch {
-        if {$conf(RestartGnomePanel)
-            && [::InstallJammer::GetDesktopEnvironment] eq "Gnome"} {
-            set pid [::InstallAPI::FindProcesses -name gnome-panel]
-            if {$pid ne ""} { catch {exec kill -HUP $pid} }
-        }
-    }
+    catch { ::InstallJammer::ExecuteActions "Exit Actions" }
 
     catch {
         foreach chan [file channels] {
@@ -3943,10 +3949,7 @@ proc ::InstallJammer::CommonExit {} {
         }
     }
 
-    catch {
-        ::InstallJammer::WriteDoneFile
-        ::InstallJammer::CleanupTmpDirs
-    }
+    catch { file delete -force [::InstallJammer::TmpDir] }
 
     if {[info exists ::debugfp]} { catch { close $::debugfp } }
 }
@@ -4049,9 +4052,9 @@ proc ::InstallJammer::InGuiMode {} {
 }
 
 proc ::InstallJammer::WizardExists {} {
-    global info
-    if {![::InstallJammer::InGuiMode]} { return 0 }
-    return [expr {[info exists info(Wizard)] && [winfo exists $info(Wizard)]}]
+    return [expr {[info exists ::tk_patchLevel]
+                    && [info exists ::info(Wizard)]
+                    && [winfo exists $::info(Wizard)]}]
 }
 
 proc ::InstallJammer::ConsoleClearLastLine { {len 0} } {
@@ -4123,145 +4126,397 @@ proc ::InstallJammer::MountSetupArchives {} {
             set file [file join $info(InstallSource) $file]
             if {[file exists $file]} {
                 set found 1
-                installkit::Mount $file $conf(vfs)
+                ::InstallJammer::Mount $file $conf(vfs)
             }
         }
     }
     return $found
 }
 
+proc ::InstallJammer::GetHandCursor {} {
+    global conf
+    if {$conf(osx)} { return "pointinghand" }
+    return "hand2"
+}
+
 proc ::InstallJammer::GetCommonInstallkit {} {
     global info
     ::InstallJammer::TmpDir
     set kit [file join $info(TempRoot) installkit$info(Ext)]
-    return [::installkit::base $kit]
+    return [::InstallJammer::BaseInstallkit $kit]
 }
 
-package require Itcl
 
-proc ::InstallJammer::Class { name body } {
-    set matches [regexp -all -inline {\s+writable attribute\s+([^\s]+)} $body]
-    foreach {match varName} $matches {
-        append body "method $varName {args} { cfgvar $varName \$args }\n"
-    }
+## OBJ
 
-    set matches [regexp -all -inline {\s+readable attribute\s+([^\s]+)} $body]
-    foreach {match varName} $matches {
-        append body "method $varName {args} { set $varName }\n"
-    }
-
-    set map [list]
-    lappend map "writable attribute" "public variable"
-    lappend map "readable attribute" "private variable"
-
-    set body [string map $map $body]
-
-    itcl::class ::$name $body
+namespace eval ::obj::class {
+    namespace export create defaults exists instances \
+        subclasses superclass variables
+    namespace ensemble create
 }
 
-::itcl::class Object {
+namespace eval ::obj::object {
+    namespace export class create destroy exists instances
+    namespace ensemble create
+}
+
+namespace eval ::obj::create  {}
+namespace eval ::obj::classes {}
+namespace eval ::obj::private {}
+
+namespace eval :: {
+    namespace unknown [list ::obj::Unknown [namespace unknown]]
+}
+
+proc ::obj::Unknown {next args} {
+    set obj [string trimleft [lindex $args 0] :]
+    if {![info exists ::obj::instances($obj)]} {return [uplevel 1 $next $args]}
+
+    set method  [lindex $args 1]
+    set classns ::obj::classes::[lindex $::obj::instances($obj) 0]
+    if {[catch {dict get [set ${classns}::methods] $method} command]} {
+        return -code error "unknown or ambiguous method \"$method\": must be\
+            [join [dict keys [set ${classns}::methods]] ", "]"
+    }
+
+    uplevel 1 [list $command $classns $obj {*}[lrange $args 2 end]]
+}
+
+proc ::obj::object::class {objName} {
+    if {![info exists ::obj::instances($objName)]} {
+        return -code error "object \"$objName\" does not exist"
+    }
+    return [lindex $::obj::instances($objName) 0]
+}
+
+proc ::obj::object::create {class objName args} {
+    set ns ::obj::classes::${class}
+    set objName [string trimleft $objName :]
+    if {$objName eq "#auto" || $objName eq "new"} {
+        set objName [namespace tail $class][incr ::obj::autocount]
+    }
+    set ::obj::instances($objName) [set ${ns}::default]
+
+    set configure [dict get [set ${ns}::methods] configure]
+    if {[llength $args]} { $configure $ns $objName {*}$args }
+
+    if {![catch {dict get [set ${ns}::methods] __constructor__} constructor]
+        && [catch {$constructor $ns $objName {*}$args} err]} {
+        return -code error "error in object constructor: $::errorInfo"
+    }
+
+    return $objName
+}
+
+proc ::obj::object::destroy {args} {
+    foreach obj $args {
+        set obj [string trimleft $obj :]
+        if {![info exists ::obj::instances($obj)]} { continue }
+        set ns ::obj::classes::[lindex $::obj::instances($obj) 0]
+        catch {[dict get [set ${ns}::methods] __destructor__] $ns $obj}
+        unset ::obj::instances($obj)
+    }
+}
+
+proc ::obj::object::exists {objName} {
+    set objName [string trimleft $objName :]
+    return [info exists ::obj::instances($objName)]
+}
+
+proc ::obj::object::instances {{class ""}} {
+    if {$class eq ""} { return [array names ::obj::instances] }
+
+    set list {}
+    foreach obj [array names ::obj::instances] {
+        if {[lindex $::obj::instances($obj) 0] eq $class} { lappend list $obj }
+    }
+    return $list
+}
+
+proc ::obj::class::create {className bodyScript} {
+    variable ::obj::create::class $className
+    variable ::obj::create::ns ::obj::classes::$className
+
+    namespace eval ${ns} {
+        namespace path ::obj::private
+    }
+
+    set ${ns}::default    [list $class]
+    set ${ns}::methods    [dict create]
+    set ${ns}::varcount   0
+    set ${ns}::variables  [dict create __class 0]
+    set ${ns}::superclass ""
+    set ${ns}::subclasses [list]
+
+    ::obj::create::superclass ::obj::Object
+
+    namespace eval ::obj::create $bodyScript
+
+    interp alias {} ::$className {} ::obj::object::create $className
+
+    return $className
+}
+
+proc ::obj::class::defaults {className} {
+    return [set ::obj::classes::${className}::default]
+}
+
+proc ::obj::class::exists {className} {
+    return [namespace exists ::obj::classes::$className]
+}
+
+proc ::obj::class::instances {className} {
+    set classes [list $className {*}[::obj::class subclasses $className]]
+
+    set list {}
+    foreach obj [array names ::obj::instances] {
+        if {[lindex $::obj::instances($obj) 0] in $classes} {
+            lappend list $obj
+        }
+    }
+    return $list
+}
+
+proc ::obj::class::subclasses {className} {
+    variable ::obj::classes::${className}::subclasses
+    set list {}
+    foreach subclass $subclasses {
+        lappend list $subclass
+        lappend list {*}[::obj::class subclasses $subclass]
+    }
+    return $list
+}
+
+proc ::obj::class::superclass {className} {
+    return [set ::obj::classes::${className}::superclass]
+}
+
+proc ::obj::class::variables {className} {
+    return [dict keys [set ::obj::classes::${className}::variables]]
+}
+
+proc ::obj::create::constructor {arguments body} {
+    method __constructor__ $arguments $body
+}
+
+proc ::obj::create::destructor {body} {
+    method __destructor__ {} $body
+}
+
+proc ::obj::create::method {methodName arguments body} {
+    ::variable ns
+
+    set proc ${ns}::Method_$methodName
+    dict set ${ns}::methods $methodName $proc
+    proc $proc [list __classns self {*}$arguments] "set __methodns $ns\n$body"
+}
+
+proc ::obj::create::mixin {args} {
+    ::variable ns
+    ::variable class
+
+    foreach className $args {
+        if {![::obj::class exists $className]} {
+            return -code error "class \"$className\" does not exist"
+        }
+        if {$class eq $className} { return }
+
+        set superns ::obj::classes::$className
+        dict for {method command} [set ${superns}::methods] {
+            dict set ${ns}::methods $method $command
+        }
+        lappend ${ns}::mixins $className
+    }
+}
+
+proc ::obj::create::superclass {className} {
+    ::variable ns
+    ::variable class
+
+    if {![::obj::class exists $className]} {
+        return -code error "class \"$className\" does not exist"
+    }
+    if {$class eq $className} { return }
+
+    set superns ::obj::classes::$className
+
+    set ${ns}::default    [lreplace [set ${superns}::default] 0 0 $class]
+    set ${ns}::methods    [set ${superns}::methods]
+    set ${ns}::varcount   [set ${superns}::varcount]
+    set ${ns}::variables  [set ${superns}::variables]
+    set ${ns}::superclass $superns
+    lappend ${superns}::subclasses $class
+}
+
+proc ::obj::create::variable {varName args} {
+    ::variable ns
+    ::variable ${ns}::variables
+
+    if {[dict exists $variables $varName]} {
+        if {[llength $args]} {
+            set idx [dict get $variables $varName]
+            lset ${ns}::default $idx [lindex $args 0]
+        }
+    } else {
+        set idx [incr ${ns}::varcount]
+        dict set variables $varName $idx
+        lappend ${ns}::default [lindex $args 0]
+
+        method $varName {{value ""}} [string map "@IDX@ $idx" {
+            if {[llength [info level 0]] == 4} {
+                lset ::obj::instances($self) @IDX@ $value
+            }
+            return [lindex $::obj::instances($self) @IDX@]
+        }]
+    }
+}
+
+proc ::obj::private::my {method args} {
+    upvar 1 __classns __classns
+    set proc [dict get [set ${__classns}::methods] $method]
+    uplevel 1 $proc \$__classns \$self $args
+}
+
+proc ::obj::private::next {args} {
+    upvar 1 __classns __classns __methodns __methodns self self
+    upvar #0 ${__methodns}::superclass super
+
+    if {$super ne ""} {
+        set method [namespace tail [lindex [info level -1] 0]]
+        set method [string range $method 7 end]
+        if {[dict exists [set ${super}::methods] $method]} {
+            set command [dict get [set ${super}::methods] $method]
+            namespace eval $super [list $command $__classns $self {*}$args]
+        }
+
+        if {![info exists ::obj::instances($self)]} { return -code return }
+    }
+}
+
+::obj::class create ::obj::Object {
+    ::obj::create::method destroy {args} {
+        ::obj::object destroy $self
+    }
+
+    ::obj::create::method class {} {
+        return [my cget __class]
+    }
+
+    ::obj::create::method cget {var} {
+        if {[string index $var 0] eq "-"} { set var [string range $var 1 end] }
+        set idx [dict get [set ${__classns}::variables] $var]
+        return [lindex $::obj::instances($self) $idx]
+    }
+
+    ::obj::create::method configure {args} {
+        if {[llength $args] == 0} {
+            return $::obj::instances($self)
+        } elseif {[llength $args] == 1} {
+            set ::obj::instances($self) [lindex $args 0]
+        } else {
+            variable ${__classns}::variables
+            foreach {var val} $args {
+                if {[string index $var 0] eq "-"} {
+                    set var [string range $var 1 end]
+                }
+                if {[dict exists $variables $var]} {
+                    set idx [dict get $variables $var]
+                    lset ::obj::instances($self) $idx $val
+                } else {
+                    my $var $val
+                }
+            }
+            return $val
+        }
+    }
+}
+
+
+## CLASSES
+
+::obj::class create TreeObject {
+    variable id        ""
+    variable temp      0
+    variable name      ""
+    variable type      ""
+    variable parent    ""
+    variable platforms {}
+
     constructor {args} {
-        eval configure $args
-        set ::InstallJammer::ObjMap([namespace tail $this]) [incr objc]
-    }
+        if {[my cget temp]} { return }
 
-    destructor {
-        unset ::InstallJammer::ObjMap([namespace tail $this])
-    }
-
-    method destroy {} {
-        ::itcl::delete object $this
-    }
-
-    method cfgvar { args } {
-        set option -[lindex $args 0]
-        if {[llength $args] == 2} {
-            configure $option [lindex $args 1]
-            if {![catch {$this type} type] && $type eq "file"} {
-                lappend ::conf(modifiedFiles) $this
-            }
-        }
-        return [cget $option]
-    }
-
-    method serialize {} {
-        set return [list]
-        foreach list [configure] {
-            set opt [lindex $list 0]
-            set def [lindex $list end-1]
-            set val [lindex $list end]
-            if {$def == $val} { continue }
-            lappend return $opt $val
-        }
-        return $return
-    }
-
-    common objc 0
-} ; ## ::itcl::class Object
-
-::itcl::class TreeObject {
-    inherit Object
-
-    constructor { args } {
-        set id [namespace tail $this]
-
-        eval configure $args
-
-        if {!$temp && $parent ne ""} {
-            if {![::InstallJammer::ObjExists $parent]} {
+        my id $self
+        set parent [my cget parent]
+        if {$parent ne ""} {
+            if {![::obj::object exists $parent]} {
                 ## If our parent doesn't exist, we don't exist.
-                destroy
-            } else {
-                $parent children insert $index $id
+                my destroy
+                return
             }
+            $parent children add $self
+        }
+
+        set alias [my alias]
+        if {$alias ne ""} {
+            set ::InstallJammer::aliases($alias) $self
+            set ::InstallJammer::aliasmap($self) $alias
         }
     }
 
     destructor {
-        if {!$temp && $parent ne "" && [::InstallJammer::ObjExists $parent]} {
-            $parent children remove $id
+        if {[my cget temp]} { return }
+
+        set parent [my cget parent]
+
+        if {$parent ne "" && [::obj::object exists $parent]} {
+            $parent children remove $self
         }
 
-        foreach child $children {
+        foreach child [my children] {
             $child destroy
         }
 
-        if {!$temp} { CleanupAlias }
-    }
+        my set Alias ""
+        array unset ::InstallJammer::Properties $self,*
 
-    method serialize {} {
-        set return [list]
-        foreach list [configure] {
-            set opt [lindex $list 0]
-            if {$opt eq "-id" || $opt eq "-index"} { continue }
-            set def [lindex $list end-1]
-            set val [lindex $list end]
-            if {$opt eq "-name" && $val eq [string tolower $id]} { continue }
-            if {$def == $val} { continue }
-            lappend return $opt $val
+        foreach lang [::InstallJammer::GetLanguageCodes] {
+            ::msgcat::mcunset $lang $self,*
         }
-        return $return
+
+        foreach array [info vars ::InstallJammer::Obj_*] {
+            unset -nocomplain ${array}($self)
+        }
     }
 
-    method CleanupAlias {} {
-        variable ::InstallJammer::aliases
-        variable ::InstallJammer::aliasmap
+    method options {} {
+        set list  [list -active [my active]]
+        set class [::obj::object class $self]
+        set defs  [::obj::class defaults $class]
+        set vars  [::obj::class variables $class]
+        foreach var $vars def $defs {
+            if {$var eq "id"} { continue }
+            set val [my cget $var]
+            if {$val eq $def} { continue }
+            lappend list -$var $val
+        }
+        return $list
+    }
 
-        if {[info exists aliasmap($id)]} {
-            unset -nocomplain aliases($aliasmap($id))
-            unset aliasmap($id)
-            set ::InstallJammer::Properties($id,Alias) ""
+    method serialize {{forBuild 0}} {
+        if {$forBuild} {
+            return "[my cget __class] $self [my configure]"
+        } else {
+            return "[my cget __class] $self [my options]"
         }
     }
 
     method parent { args } {
-        if {[lempty $args]} { return $parent }
+        if {![llength $args]} { return [my cget parent] }
 
-        if {![string equal $args "recursive"]} {
-            return [set parent [lindex $args 0]]
-        }
+        set arg [lindex $args 0]
+        if {$arg ne "recursive"} { return [my configure parent $arg] }
 
-        set x    $parent
+        set x    [my parent]
         set list [list]
         while {[string length $x]} {
             set list [linsert $list 0 $x]
@@ -4271,162 +4526,294 @@ proc ::InstallJammer::Class { name body } {
     }
 
     method reparent { newParent } {
+        set parent [my cget parent]
+
         ## If this is already our parent, don't do anything.
         if {$parent eq $newParent} { return }
 
         ## If we have an old parent, remove us from their children.
-        if {$parent ne ""} { $parent children remove $id }
+        if {$parent ne ""} { $parent children remove $self }
 
         ## Add ourselves to the new parent.
-        set parent $newParent
-        if {$parent ne ""} { $parent children add $id }
+        my configure parent $newParent
+        if {$parent ne ""} { $parent children add $self }
     }
 
-    method children { args } {
-        if {![llength $args]} { return $children }
+    method Treecmd { what args } {
+        upvar #0 ::InstallJammer::Obj_${what}($self) list
 
-        lassign $args command obj
+        if {![llength $args]} {
+            if {[info exists list]} { return $list }
+            return
+        }
+
+        lassign $args command obj idx
         switch -- $command {
             "add" {
-                children insert end $obj
+                lappend list $obj
             }
 
             "index" {
-                return [lsearch -exact $children $obj]
+                return [lsearch -exact $list $obj]
             }
 
-            "insert" {
-                lassign $args command index obj
-                if {$index eq "end"} {
-                    lappend children $obj
-                } else {
-                    set children [linsert $children $index $obj]
-                }
+            "move" {
+                set list [linsert [lremove $list $obj] $idx $obj]
             }
 
             "remove" - "delete" {
-                set children [lremove $children $obj]
+                set list [lremove $list $obj]
             }
 
             "reorder" {
-                if {[llength $obj]} { set children $obj }
+                if {[llength $obj]} { set list $obj }
             }
 
             "recursive" {
-                return [::InstallJammer::ObjectChildrenRecursive $this]
+                return [::InstallJammer::ObjectRecursiveList $what $self]
             }
+
+            default {
+                set list $command
+            }
+        }
+    }
+
+    method children {args} {
+        return [my Treecmd children {*}$args]
+    }
+
+    method set { args } {
+        variable ::InstallJammer::Properties
+
+        set id [my id]
+        if {$id eq ""} { set id $self }
+
+        ::InstallJammer::ParseArgs _args $args -switches {-safe -nocomplain}
+
+        set args $_args(_ARGS_)
+
+        if {[llength $args] == 1} { set args [lindex $args 0] }
+        if {[llength $args] == 1} { return [my get [lindex $args 0]] }
+
+        foreach {property value} $args {
+            if {$_args(-safe) && [info exists Properties($id,$property)]} {
+                continue
+            }
+
+            if {$property eq "Alias"} {
+                if {[info exists ::InstallJammer::aliasmap($id)]} {
+                    set alias $::InstallJammer::aliasmap($id)
+                    unset -nocomplain ::InstallJammer::aliasmap($id)
+                    unset -nocomplain ::InstallJammer::aliases($alias)
+                }
+
+                if {$value ne ""} {
+                    set ::InstallJammer::aliases($value) $id
+                    set ::InstallJammer::aliasmap($id) $value
+                }
+            }
+
+            if {![info exists ::InstallJammer]} {
+                variable ::InstallJammer::PropertyMap
+                if {[info exists PropertyMap($property)]} {
+                    set n $value
+                    if {![string is integer -strict $n]} {
+                        set n [lsearch -exact $PropertyMap($property) $value]
+                        if {$n < 0} {
+                            return -code error [BWidget::badOptionString value \
+                                $value $PropertyMap($property)]
+                        }
+                    }
+                    set value $n
+                }
+            }
+
+            set Properties($id,$property) $value
+        }
+
+        return $Properties($id,$property)
+    }
+
+    method get { property {varName ""} } {
+        variable ::InstallJammer::Properties
+
+        set id [my id]
+        if {$id eq ""} { set id $self }
+
+        set value  ""
+        set exists [info exists Properties($id,$property)]
+        if {$exists} {
+            variable ::InstallJammer::PropertyMap
+            set value $Properties($id,$property)
+            if {[info exists PropertyMap($property)]
+                && [string is integer -strict $value]} {
+                set value [lindex $PropertyMap($property) $value]
+            }
+        }
+
+        if {$varName eq ""} { return $value }
+        upvar 1 $varName var
+        set var $value
+        return $exists
+    }
+
+    method properties { arrayName args } {
+        upvar 1 $arrayName array
+        variable ::InstallJammer::Properties
+
+        set id [my id]
+        if {$id eq ""} { set id $self }
+
+        ::InstallJammer::ParseArgs _args $args -options {-prefix "" -subst 0}
+
+        set slen 0
+        if {[info exists _args(-subst)]} {
+            set subst $_args(-subst)
+            set slen  [llength $subst]
+        }
+
+        set props $_args(_ARGS_)
+        if {![llength $props]} {
+            foreach varName [array names Properties $id,*] {
+                lappend props [string map [list $id, ""] $varName]
+            }
+        }
+
+        set vars {}
+        foreach prop $props {
+            if {![info exists Properties($id,$prop)]} { continue }
+
+            set val $Properties($id,$prop)
+            if {$slen && ($subst eq "1" || $prop in $subst)} {
+                set val [sub $val]
+            }
+            if {[info exists ::InstallJammer::PropertyMap($prop)]
+                && [string is integer -strict $val]} {
+                set val [lindex $::InstallJammer::PropertyMap($prop) $val]
+            }
+            set prop $_args(-prefix)$prop
+            lappend vars $prop
+            set array($prop) $val
+        }
+
+        return $vars
+    }
+
+    method getText { field args } {
+        ::InstallJammer::GetText [my id] $field {*}$args
+    }
+
+    method setText { languages args } {
+        if {[llength $args]} {
+            ::InstallJammer::SetVirtualText $languages [my id] {*}$args
         }
     }
 
     method is { args } {
-        if {[llength $args] == 1} {
-            return [string equal [type] [lindex $args 0]]
-        } else {
-            return [expr {[lsearch -exact $args [type]] > -1}]
-        }
+        return [expr {[my type] in $args}]
     }
 
     method index {} {
-        if {[string length $parent]} { return [$parent children index $id] }
+        set parent [my parent]
+        if {$parent ne ""} { return [$parent children index $self] }
     }
 
     method component {} {
         return "ClassObject"
     }
+    
+    method alias {args} {
+        if {[llength $args]} { my set Alias [lindex $args 0] }
+        return [my get Alias]
+    }
+    
+    method comment {args} {
+        if {[llength $args]} { my set Comment [lindex $args 0] }
+        return [my get Comment]
+    }
 
-    method id        { args } { eval cfgvar id        $args }
-    method name      { args } { eval cfgvar name      $args }
-    method type      { args } { eval cfgvar type      $args }
-    method alias     { args } { eval cfgvar alias     $args }
-    method active    { args } { eval cfgvar active    $args }
-    method comment   { args } { eval cfgvar comment   $args }
-    method platforms { args } { eval cfgvar platforms $args }
-
-    public variable id      ""
-    public variable temp    0
-    public variable name    ""
-    public variable type    ""
-    public variable index   "end"
-    public variable active  1
-    public variable parent  ""
-    public variable comment ""
-
-    public variable platforms [list]
-
-    protected variable children [list]
-
-    private variable oldalias ""
-    public variable alias "" {
-	if {$oldalias ne ""} {
-	    $this CleanupAlias
-	}
-	set oldalias $alias
-
-	if {$alias ne ""} {
-	    set ::InstallJammer::aliases($alias) $id
-	    set ::InstallJammer::aliasmap($id) $alias
-            set ::InstallJammer::Properties($id,Alias) $alias
-	}
+    method active {args} {
+        if {[llength $args]} { my set Active [lindex $args 0] }
+        return [expr {[string is true [my get Active]] ? "Yes" : "No"}]
     }
 }
 
-::itcl::class InstallType {
-    inherit TreeObject
+::obj::class create InstallType {
+    superclass TreeObject
 
-    constructor { args } {
-        eval configure $args
-    } {
-        set type installtype
-        eval configure $args
-    }
-
-    method class {} {
-        return ::InstallType
-    }
-
-    method widget { args } {}
-    method setup  { args } { eval cfgvar setup $args }
-    method component {} {}
-
-    public variable setup  ""
-}
-
-itcl::class File {
-    inherit TreeObject
+    variable setup ""
 
     constructor {args} {
-	eval configure $args
-    } {
-        eval configure $args
+        next {*}$args
+        my type installtype
     }
 
-    method class {} {
-        return ::File
+    method component {} {
+    
+    }
+
+    method widget {args} {
+    
+    }
+}
+
+::obj::class create File {
+    superclass TreeObject
+
+    variable type               "file"
+    variable size               0
+    variable mtime              0
+    variable version            ""
+    variable srcfile            ""
+    variable location           ""
+    variable directory          ""
+    variable linktarget         ""
+    variable filemethod         ""
+    variable attributes         ""
+    variable permissions        ""
+    variable targetfilename     ""
+    variable compressionmethod  ""
+
+    constructor {args} {
+        next {*}$args
+        if {[info exists ::InstallJammer]} {
+            set ::InstallJammer::FileObjects([my parent],[my name]) [my id]
+        }
+    }
+
+    method component {} {
+    
+    }
+
+    method setup {} {
+        return "Install"
     }
 
     method srcfile {} {
-        if {$srcfile eq ""} { ::set srcfile [file join $::conf(vfs) $id] }
-        return $srcfile
+        set srcfile [my cget srcfile]
+        if {[file pathtype $srcfile] eq "absolute"} { return $srcfile }
+	return [file join $::conf(vfs) $srcfile]
     }
 
     method checkFileMethod { dest } {
-        ::set method [filemethod]
-        if {$method eq ""} { ::set method [$parent filemethod] }
+        set mtime   [my cget mtime]
+        set parent  [my cget parent]
+        set method  [my cget filemethod]
+        set version [my cget version]
 
-        ::set doInstall 1
+        if {$method eq ""} { set method [$parent filemethod] }
 
-        if {![info exists exists] && $method ne "Always overwrite"} {
-            ::set exists [file exists $dest]
-        }
+        set doInstall 1
+
+        if {$method ne "Always overwrite"} { set exists [file exists $dest] }
 
         switch -- $method {
             "Update files with more recent dates" {
                 ## We only want to overwrite if the file we have is newer
                 ## than the one already installed.  If the one we have is
                 ## older, skip it.
-                if {$exists && [file mtime $dest] >= $mtime} {
-                    ::set doInstall 0
-                }
+                if {$exists && [file mtime $dest] >= $mtime} { set doInstall 0 }
             }
 
             "Update files with a newer version" {
@@ -4435,8 +4822,8 @@ itcl::class File {
                 ## ahead and store ours.
                 global versions
                 if {$exists && [info exists versions($dest)]} {
-                    ::set c [package vcompare $version $versions($dest)]
-                    if {$c == 0 || $c == -1} { ::set doInstall 0 }
+                    set c [vercmp $version $versions($dest)]
+                    if {$c == 0 || $c == -1} { set doInstall 0 }
                 }
             }
 
@@ -4447,17 +4834,16 @@ itcl::class File {
 
             "Never overwrite files" {
                 ## We don't want to overwrite.  If the file exists, skip it.
-                if {$exists} { ::set doInstall 0 }
+                if {$exists} { set doInstall 0 }
             }
 
             "Prompt user" {
                 if {$exists} {
-                    ::set txt "<%FileOverwriteText%>"
-                    ::set msg [::InstallJammer::SubstText $txt]
-                    ::set ans [::InstallJammer::MessageBox -type yesno \
-                        -name FileOverwrite -title "File Exists" \
-                        -message $msg]
-                    ::set doInstall [expr {$ans eq "yes"}]
+                    set txt "<%FileOverwriteText%>"
+                    set msg [::InstallJammer::SubstText $txt]
+                    set ans [::InstallJammer::MessageBox -type yesno \
+                        -name FileOverwrite -title "File Exists" -message $msg]
+                    set doInstall [expr {$ans eq "yes"}]
                 }
             }
         }
@@ -4466,89 +4852,76 @@ itcl::class File {
     }
 
     method destdir {} {
-        ::set dir [::InstallJammer::SubstText [destdirname]]
+        set dir [sub [my destdirname]]
         if {[file pathtype $dir] eq "relative"} {
-            ::set dir [::InstallJammer::SubstText <%InstallDir%>/[destdirname]]
+            set dir [sub <%InstallDir%>/[my destdirname]]
         }
         return $dir
     }
 
     method destdirname {} {
-        return $directory
+        return [my directory]
     }
 
     method destfile {} {
-	return [file join [destdir] [destfilename]]
+	return [file join [my destdir] [my destfilename]]
     }
 
     method destfilename {} {
-	if {$targetfilename eq ""} {
-	    return [file tail $name]
-	} else {
-	    return [::InstallJammer::SubstText $targetfilename]
-	}
+	if {[my targetfilename] ne ""} { return [sub [my targetfilename]] }
+        return [file tail [my name]]
     }
 
     method srcfilename {} {
-    	return [file tail $name]
+    	return [file tail [my name]]
     }
 
     method createdir {} {
-	::InstallJammer::CreateDir [destdir]
+	::InstallJammer::CreateDir [my destdir]
     }
 
     method install {} {
-	global conf
-
 	if {![::InstallJammer::PauseCheck]} { return 0 }
-
-        ::set dest [install[type]]
-
-	if {![::InstallJammer::PauseCheck]} { return 0 }
-
-        if {$conf(windows)} {
-            ::InstallJammer::SetPermissions $dest $attributes
-        } else {
-            if {[type] eq "dir"} {
-		if {$permissions eq ""} {
-                    ::set permissions $::info(DefaultDirectoryPermission)
-                }
-
-		if {[info commands output] eq "output"} {
-		    output [list :DIR $dest $permissions]
-		}
-
-                ::InstallJammer::SetPermissions $dest 00777
-            }
-        }
-
+        my install[my type]
         return 1
     }
 
     method installdir {} {
-        createdir
+        my createdir
+
+        if {!$::conf(windows)} {
+            set dest        [my destdir]
+            set permissions [my permissions]
+            if {$permissions eq ""} {
+                set permissions $::info(DefaultDirectoryPermission)
+            }
+
+            if {[info commands output] eq "output"} {
+                output [list :DIR $dest $permissions]
+            }
+
+            ::InstallJammer::SetPermissions $dest 00777
+        }
     }
 
     method installlink {} {
-        ::set dest [destfile]
+        set dest    [my destfile]
+        set link    [my linktarget]
+        set version [sub [my version]]
 
-        if {![checkFileMethod $dest]} { return }
+        if {![my checkFileMethod $dest]} { return }
 
-        createdir
+        my createdir
 
         if {[file exists $dest] && [catch { file delete -force $dest } error]} {
             return -code error $error
         }
 
-        if {[catch { exec ln -s $linktarget $dest } error]} {
+        if {[catch { exec ln -s $link $dest } error]} {
             return -code error $error
         }
 
-        if {$version eq ""} {
-            ::set version $::info(InstallVersion)
-        } else {
-            ::set version [::InstallJammer::SubstText $version]
-        }
+        if {$version eq ""} { set version $::info(InstallVersion) }
 
         ::InstallJammer::LogFile $dest
         ::InstallJammer::SetVersionInfo $dest $version
@@ -4560,11 +4933,16 @@ itcl::class File {
 	global conf
 	global info
 
+        set size        [my size]
+        set mtime       [my mtime]
+        set version     [sub [my version]]
+        set permissions [my permissions]
+
         if {$createDir} {
-            createdir
+            my createdir
         }
 
-	::set src [srcfile]
+	set src [my srcfile]
         if {![file exists $src] && [info exists info(ArchiveFileList)]} {
             while {![file exists $src]} {
                 ::InstallJammer::PauseInstall
@@ -4573,31 +4951,24 @@ itcl::class File {
             }
         }
 
-        if {$dest eq ""} { ::set dest [destfile] }
+        if {$dest eq ""} { set dest [my destfile] }
+        if {$version eq ""} { set version $::info(InstallVersion) }
 
-        if {$version eq ""} {
-            ::set version $::info(InstallVersion)
-        } else {
-            ::set version [::InstallJammer::SubstText $version]
-        }
+        set doInstall 1
+        if {$checkMethod} { set doInstall [my checkFileMethod $dest] }
 
-        ::set doInstall 1
-        if {$checkMethod} {
-            ::set doInstall [checkFileMethod $dest]
-        }
-
-	::set info(FileSize) $size
+	set info(FileSize) [my size]
 	if {!$doInstall} {
-            ::set progress ::InstallJammer::IncrProgress
+            set progress ::InstallJammer::IncrProgress
             if {[::InstallJammer::CommandExists $progress]} { $progress $size }
 	    return $dest
 	}
 
         if {$permissions eq ""} {
             if {$conf(windows)} {
-                ::set permissions 0666
+                set permissions 0666
             } else {
-                ::set permissions $info(DefaultFilePermission)
+                set permissions $info(DefaultFilePermission)
             }
         }
 
@@ -4623,28 +4994,19 @@ itcl::class File {
             ::InstallJammer::SetVersionInfo $dest $version
         }
 
+        if {$conf(windows)} {
+            ::InstallJammer::SetPermissions $dest [my attributes]
+        }
+
 	return $dest
     }
 
     method group {} {
-        return [lindex [parent recursive] 1]
-    }
-
-    method set { args } {
-        return [eval ::InstallJammer::SetObjectProperties $id $args]
-    }
-
-    method get { property {varName ""} } {
-        if {[string length $varName]} {
-            upvar 1 $varName var
-            return [::InstallJammer::GetObjectProperty $id $property var]
-        } else {
-            return [::InstallJammer::GetObjectProperty $id $property]
-        }
+        return [lindex [my parent recursive] 1]
     }
 
     method isfile {} {
-        return [is file link]
+        return [my is file link]
     }
 
     method object {} {
@@ -4655,259 +5017,96 @@ itcl::class File {
         if {$newMethod ne ""} {
             if {![info exists ::InstallJammer]} {
                 variable ::InstallJammer::PropertyMap
-                ::set n [lsearch -exact $PropertyMap(FileUpdateMethod) \
-                    $newMethod]
+                set n [lsearch -exact $PropertyMap(FileUpdateMethod) $newMethod]
                 if {$n < 0} {
                     return -code error [BWidget::badOptionString method \
                         $newMethod $PropertyMap(FileUpdateMethod)]
                 }
-                ::set newMethod $n
+                set newMethod $n
             }
-            ::set filemethod $newMethod
+            my configure filemethod $newMethod
         }
 
+        set filemethod [my cget filemethod]
         if {[string is integer -strict $filemethod]} {
             return [lindex $::InstallJammer::PropertyMap(FileUpdateMethod) \
                 $filemethod]
         }
+
         return $filemethod
     }
+    
+    method data {args} {
+        if {[llength $args]} { my set Data [lindex $args 0] }
+        return [my get Data]
+    }
+    
+    method filesavemethod {args} {
+        if {[llength $args]} { my set FileSaveMethod [lindex $args 0] }
+        return [my get FileSaveMethod]
+    }
+}
 
-    method component {} {}
+::obj::class create InstallComponent {
+    superclass TreeObject
 
-    method name               { args } { eval cfgvar name              $args }
-    method size               { args } { eval cfgvar size              $args }
-    method mtime              { args } { eval cfgvar mtime             $args }
-    method version            { args } { eval cfgvar version           $args }
-    method location           { args } { eval cfgvar location          $args }
-    method directory          { args } { eval cfgvar directory         $args }
-    method savefiles          { args } { eval cfgvar savefiles         $args }
-    method linktarget         { args } { eval cfgvar linktarget        $args }
-    method attributes         { args } { eval cfgvar attributes        $args }
-    method permissions        { args } { eval cfgvar permissions       $args }
-    method targetfilename     { args } { eval cfgvar targetfilename    $args }
-    method compressionmethod  { args } { eval cfgvar compressionmethod $args }
-
-    public variable type               "file"
-    public variable name               ""
-    public variable size               0
-    public variable mtime              0
-    public variable srcfile            ""
-    public variable version            ""
-    public variable location           ""
-    public variable directory          ""
-    public variable savefiles          ""
-    public variable linktarget         ""
-    public variable filemethod         ""
-    public variable attributes         ""
-    public variable permissions        ""
-    public variable targetfilename     ""
-    public variable compressionmethod  ""
-
-    private variable exists
-
-} ; ## itcl::class File
-
-::itcl::class InstallComponent {
-    inherit TreeObject
+    variable setup       ""
+    variable title       ""
+    variable operator    "AND"
+    variable component   ""
 
     constructor { args } { 
-        eval configure $args
-    } {
-        ::set name [string tolower $id]
+        next {*}$args
 
-        eval configure $args
+        set name [my cget name]
+        if {$name eq ""} { my configure name [string tolower $self] }
 
-        ## If this is a temporary object, we don't want to append
-        ## it to the lists or do any further setup.
-        if {$temp} {
-            if {[string length $parent]} { $parent children remove $id }
-            return
-        }
+        if {[my cget temp]} { return }
 
-        if {![info exists ::InstallJammer] && [get Include incl]} {
+        if {![info exists ::InstallJammer] && [my get Include incl]} {
             if {$::info(Testing) && $incl eq "Include only when not testing"
                 || !$::info(Testing) && $incl eq "Include only when testing"} {
-                destroy
+                my destroy
                 return
-            }
-        }
-
-        if {[info exists ::InstallJammer::Properties($id,Alias)]
-            && [string length $::InstallJammer::Properties($id,Alias)]} {
-            $this set Alias $::InstallJammer::Properties($id,Alias)
-        }
-
-        ## Do some special setup if this is a pane, and we're
-        ## building it from within an installer.
-        if {![info exists ::InstallJammer] && [ispane]} {
-            ::set install $parent
-            ::set wizard  $::info(Wizard)
-
-            ::set node $parent
-            if {[$parent is installtype]} { ::set node root }
-
-            if {[string equal $install "Common"]} {
-                ::InstallJammer::CreateWindow $wizard $id
-            } elseif {[string equal $install $::info($::conf(mode))]} {
-                ::set create \
-                    [list ::InstallJammer::CreateWindow $wizard $id]
-
-                get WizardOptions stepopts
-                eval [list $wizard insert step end $node $id \
-                    -createcommand $create] $stepopts
-
-                if {[is window]} {
-                    $wizard itemconfigure $id -appendorder 0
-                }
             }
         }
     }
 
     destructor {
-        if {!$temp} {
-            array unset ::InstallJammer::Properties $id,*
+        next
 
-            foreach lang [::InstallJammer::GetLanguageCodes] {
-                ::msgcat::mcunset $lang $id,*
-            }
+        if {[my cget temp]} { return }
 
-            foreach condition $conditions {
-                catch { $condition destroy }
-            }
+        foreach condition [my conditions] {
+            catch { $condition destroy }
         }
-    }
-
-    method class {} {
-        return ::InstallComponent
-    }
-
-    method set { args } {
-        if {[llength $args] == 0} { return }
-        if {[llength $args] == 1} { ::set args [lindex $args 0] }
-        eval [list ::InstallJammer::SetObjectProperties $id] $args
-    }
-
-    method get { property {varName ""} } {
-        if {[string length $varName]} {
-            upvar 1 $varName var
-            return [::InstallJammer::GetObjectProperty $id $property var]
-        } else {
-            return [::InstallJammer::GetObjectProperty $id $property]
-        }
-    }
-
-    method getText { field args } {
-        eval [list ::InstallJammer::GetText $id $field] $args
-    }
-
-    method setText { languages args } {
-        if {[llength $args] == 0} { return }
-        if {[llength $args] == 1} { ::set args [lindex $args 0] }
-        eval [list ::InstallJammer::SetVirtualText $languages $id] $args
-    }
-
-    method properties { arrayName args } {
-        upvar 1 $arrayName array
-        return [eval ::InstallJammer::ObjectProperties $id array $args]
     }
 
     method ispane {} {
-        return [expr {[is "pane"] || [is "window"]}]
-    }
-
-    method object {} {
-        if {[ispane]} {
-            variable ::InstallJammer::panes
-            return $panes($component)
-        } elseif {[is action]} {
-            variable ::InstallJammer::actions
-            return $actions($component)
-        } elseif {[is actiongroup]} {
-            return ActionGroupObject
-        }
+        return 0
     }
 
     method initialize {} {
-        [object] initialize $id
+        [my object] initialize $self
     }
 
-    method widget { command widget args } {
-        switch -- $command {
-            "get" {
-                if {[info exists widgetData($widget,widget)]} {
-                    return $widgetData($widget,widget)
-                }
-            }
-
-            "set" {
-                if {[lsearch -exact $widgets $widget] < 0} {
-                    lappend widgets $widget
-                }
-
-                foreach [list opt val] $args {
-                    ::set widgetData($widget,[string range $opt 1 end]) $val
-                }
-            }
-            
-            "type" {
-                if {[info exists widgetData($widget,type)]} {
-                    return $widgetData($widget,type)
-                }
-                return text
-            }
-        }
-    }
-
-    method widgets {} {
-        return $widgets
-    }
-
-    method conditions { args } {
-        if {[lempty $args]} { return $conditions }
-
-        lassign $args command obj
-        switch -- $command {
-            "add" {
-                conditions insert end $obj
-            }
-
-            "index" {
-                return [lsearch -exact $conditions $obj]
-            }
-
-            "insert" {
-                lassign $args command index obj
-                if {[lsearch -exact $conditions $obj] > -1} { return }
-
-                if {$index eq "end"} {
-                    lappend conditions $obj
-                } else {
-                    ::set conditions [linsert $conditions $index $obj]
-                }
-            }
-
-            "remove" - "delete" {
-                ::set conditions [lremove $conditions $obj]
-            }
-
-            "reorder" {
-                ::set conditions $obj
-            }
-        }
-
-        return
+    method conditions {args} {
+        return [my Treecmd conditions {*}$args]
     }
 
     method checkConditions { {when ""} } {
-        if {[ispane]} {
+        set title      [my cget title]
+        set operator   [my cget operator]
+        set conditions [my conditions]
+
+        if {[my ispane]} {
             global info
-            ::set info(CurrentPane) $id
+            set info(CurrentPane) $self
         }
 
-        ::set return 1
+        set return 1
         if {[llength $conditions]} {
-            ::set conditionlist [list]
+            set conditionlist [list]
 
             foreach cid $conditions {
                 if {![::InstallJammer::ObjExists $cid]} { continue }
@@ -4918,31 +5117,52 @@ itcl::class File {
             }
 
             if {[llength $conditionlist]} {
-                ::set msg "Checking conditions for $id - $title"
-                if {$when ne ""} { append msg " - $when" }
-                debug $msg $id
+                if {[debugging ison]} {
+                    set msg "Checking conditions for"
+                    if {$title eq ""} {
+                        append msg " [my id]"
+                    } else {
+                        append msg " $title ([my id])"
+                    }
+                    if {$when ne ""} { append msg " [string tolower $when]" }
+                    debug $msg $self
+                }
 
                 foreach cid $conditionlist {
                     if {![$cid active]} {
-                        debug "Skipping condition $cid - [$cid title] -\
-                                condition is inactive" $cid
+                        if {[debugging ison]} {
+                            set msg "Skipping condition"
+                            if {[$cid title] eq ""} {
+                                append msg " $cid"
+                            } else {
+                                append msg " [$cid title] ($cid)"
+                            }
+                            append msg ". Condition is inactive."
+                            debug $msg $cid
+                        }
                         continue
                     }
 
-                    debug "Checking condition $cid - [$cid title]" $cid
-                    ::set result [$cid check 0]
+                    if {[debugging ison]} {
+                        set msg "Checking condition"
+                        if {[$cid title] eq ""} {
+                            append msg " $cid"
+                        } else {
+                            append msg " [$cid title] ($cid)"
+                        }
+                        debug $msg $cid
+                    }
+                    set result [$cid check 0]
 
                     if {!$result} {
-                        debug "Condition failed"
-                        ::set return 0
+                        debug "Condition failed."
+                        set return 0
                         lappend failures $cid
-                        if {$operator eq "AND"} {
-                            break
-                        }
+                        if {$operator eq "AND"} { break }
                     } else {
-                        debug "Condition passed"
+                        debug "Condition passed."
                         if {$operator eq "OR"} {
-                            ::set return 1
+                            set return 1
                             break
                         }
                     }
@@ -4957,106 +5177,209 @@ itcl::class File {
         return $return
     }
 
-    method execute {} {
-        if {$type eq "action"} {
-            debug "Executing action $id - [$id title]" $id
+    method widget {command widget args} {
+        upvar #0 ::InstallJammer::Obj_widgets($self) d
 
-            ::set ::info(CurrentAction) $id
-            ::InstallJammer::CurrentObject push $id
-
-            ## Remember our current directory.
-            if {[file exists .]} { ::set pwd [pwd] }
-
-            ::set err [catch {::InstallJammer::actions::$component $this} res]
-
-            ## Actions can sometimes change to a directory.  We want
-            ## to make sure to change back if the action didn't do
-            ## that itself.
-            if {[info exists pwd] && [file exists .]
-                && [file exists $pwd] && $pwd ne [pwd]} {
-                cd $pwd
+        switch -- $command {
+            "get" {
+                if {[info exists d] && [dict exists $d $widget widget]} {
+                    return [dict get $d $widget widget]
+                }
             }
 
-            ::InstallJammer::CurrentObject pop
-
-            if {$err && ![get IgnoreErrors]} {
-                ::set msg "Error in action $component\n\n$::errorInfo"
-                return -code error $msg
+            "set" {
+                foreach {opt val} $args {
+                    set opt [string range $opt 1 end]
+                    dict set d $widget $opt $val
+                }
+            }
+            
+            "type" {
+                if {[info exists d] && [dict exists $d $widget type]} {
+                    return [dict get $d $widget type]
+                }
+                return text
             }
 
-            return $res
+            default {
+                return -code error "invalid option \"$command\""
+            }
         }
     }
 
-    method setup       { args } { eval cfgvar setup       $args }
-    method title       { args } { eval cfgvar title       $args }
-    method window      { args } { eval cfgvar window      $args }
-    method created     { args } { eval cfgvar created     $args }
-    method command     { args } { eval cfgvar command     $args }
-    method operator    { args } { eval cfgvar operator    $args }
-    method component   { args } { eval cfgvar component   $args }
-    method arguments   { args } { eval cfgvar arguments   $args }
-    method description { args } { eval cfgvar description $args }
+    method widgets {} {
+        upvar #0 ::InstallJammer::Obj_widgets($self) d
+        if {[info exists d]} { return [dict keys $d] }
+    }
+}
 
-    public variable type        "installcomponent"
-    public variable setup       ""
-    public variable title       ""
-    public variable window      ""
-    public variable created     0
-    
-    public variable command     ""
-    public variable operator    "AND"
-    public variable component   ""
-    public variable arguments   ""
-    public variable conditions  [list]
-    public variable description ""
+::obj::class create Pane {
+    superclass InstallComponent
 
-    private variable widgets    [list]
-    private variable widgetData
-} ; ## ::itcl::class InstallComponent
+    variable window     ""
+    variable created    0
 
-::itcl::class FileGroup {
-    inherit InstallComponent
+    constructor {args} {
+        next {*}$args
 
-    constructor { args } {
-        eval configure $args
-    } {
-        eval configure $args
-        ::set setup Install
+        if {![info exists ::InstallJammer]} {
+            global conf
+            global info
+
+            set parent [my parent]
+
+            set install $parent
+            set wizard  $info(Wizard)
+
+            set node $parent
+            if {[$parent is installtype]} { set node root }
+
+            if {$install eq "Common"} {
+                ::InstallJammer::CreateWindow $wizard $self
+            } elseif {$install eq $info($conf(mode))} {
+                set create [list ::InstallJammer::CreateWindow $wizard $self]
+
+                my get WizardOptions wo
+                $wizard insert step end $node $self \
+                    -createcommand $create {*}$wo
+
+                if {[my is window]} {
+                    $wizard itemconfigure $self -appendorder 0
+                }
+            }
+        }
     }
 
-    method class {} {
-        return ::FileGroup
+    method object {} {
+        return $::InstallJammer::panes([my component])
+    }
+
+    method type {} {
+        return pane
+    }
+
+    method ispane {} {
+        return 1
+    }
+}
+
+::obj::class create ActionGroup {
+    superclass InstallComponent
+
+    method object {} {
+        return ActionGroupObject
+    }
+
+    method type {} {
+        return actiongroup
+    }
+}
+
+::obj::class create Action {
+    superclass InstallComponent
+
+    variable window ""
+
+    method object {} {
+        return $::InstallJammer::actions([my component])
+    }
+
+    method type {} {
+        return action
+    }
+
+    method execute {} {
+        global info
+
+        set component [my cget component]
+
+        if {[debugging ison]} {
+            set msg "Executing action"
+            if {[my title] eq ""} {
+                append msg " [my id]"
+            } else {
+                append msg " [my title] ([my id])"
+            }
+            debug $msg $self
+        }
+
+        set info(CurrentAction) $self
+        ::InstallJammer::CurrentObject push $self
+
+        ## Remember our current directory.
+        if {[file exists .]} { set pwd [pwd] }
+
+        set time [clock seconds]
+        set err [catch {::InstallJammer::actions::$component $self} res]
+        if {[debugging ison]} {
+            set time [expr {[clock seconds] - $time}]
+            set time [clock format $time -format "%Mm%Ss" -gmt 1]
+            if {[my title] eq ""} {
+                set msg "[my id]"
+            } else {
+                set msg "[my title] ([my id])"
+            }
+            append msg " action completed in $time"
+            debug $msg
+        }
+
+        ## Actions can sometimes change to a directory.  We want
+        ## to make sure to change back if the action didn't do
+        ## that itself.
+        if {[info exists pwd] && [file exists .]
+            && [file exists $pwd] && $pwd ne [pwd]} { cd $pwd }
+
+        ::InstallJammer::CurrentObject pop
+
+        if {$err && [string is false [my get IgnoreErrors]]} {
+            set msg "Error in action $component\n\n$::errorInfo"
+            return -code error $msg
+        }
+
+        return $res
+    }
+}
+
+::obj::class create FileGroup {
+    superclass InstallComponent
+
+    constructor { args } {
+        next {*}$args
+        my setup "Install"
+    }
+
+    method type {} {
+        return filegroup
     }
 
     method install {} {
         global conf
 
-        ::set dir [directory]
+        set dir [my directory]
 
         ::InstallJammer::CreateDir $dir
 
         if {$conf(windows)} {
-            ::InstallJammer::SetPermissions $dir [get Attributes]
+            ::InstallJammer::SetPermissions $dir [my get Attributes]
         } else {
-            ::InstallJammer::SetPermissions $dir [get Permissions]
+            ::InstallJammer::SetPermissions $dir [my get Permissions]
         }
     }
 
     method destdirname {} {
-        return [get Destination]
+        return [my get Destination]
     }
 
     method directory {} {
-        return [::InstallJammer::SubstText [destdirname]]
+        return [sub [my destdirname]]
     }
 
     method version {} {
-        return [get Version]
+        return [my get Version]
     }
 
     method filemethod {} {
-        return [get FileUpdateMethod]
+        return [my get FileUpdateMethod]
     }
 
     method object {} {
@@ -5064,143 +5387,89 @@ itcl::class File {
     }
 
     method compressionmethod {} {
-        return [get CompressionMethod]
+        return [my get CompressionMethod]
     }
 
-    public variable type "filegroup"
-} ; ## ::itcl::class FileGroup
+    method filesavemethod {args} {
+        if {[llength $args]} { my set FileSaveMethod [lindex $args 0] }
+        return [my get FileSaveMethod]
+    }
+}
 
-::itcl::class Component {
-    inherit InstallComponent
+::obj::class create Component {
+    superclass InstallComponent
 
     constructor { args } {
-        eval configure $args
-    } {
-        eval configure $args
-        ::set setup Install
-    }
-
-    method class {} {
-        return ::Component
+        next {*}$args
+        my setup "Install"
     }
 
     method object {} {
         return ::ComponentObject
     }
 
-    public variable type "component"
-} ; ## ::itcl::class Component
+    method type {} {
+        return "component"
+    }
+}
 
-::itcl::class SetupType {
-    inherit InstallComponent
+::obj::class create SetupType {
+    superclass InstallComponent
 
     constructor { args } {
-        eval configure $args
-    } {
-        eval configure $args
-        ::set setup Install
-    }
-
-    method class {} {
-        return ::SetupType
+        next {*}$args
+        my setup "Install"
     }
 
     method object {} {
         return ::SetupTypeObject
     }
 
-    public variable type "setuptype"
-} ; ## ::itcl::class SetupType
+    method type {} {
+        return "setuptype"
+    }
+}
 
-::itcl::class Condition {
-    inherit TreeObject
+::obj::class create Condition {
+    superclass InstallComponent
 
     constructor { args } {
-        ::set id [namespace tail $this]
-        eval configure $args
+        next {*}$args
 
-        if {[::InstallJammer::ObjExists $parent]} {
-            $parent conditions add $id
+        set parent [my cget parent]
+        if {$parent ne ""} {
+            $parent conditions add $self
+            $parent children remove $self
         }
     }
 
     destructor {
-        if {[::InstallJammer::ObjExists $parent]} {
-            $parent conditions remove $id
-        }
-    }
-
-    method class {} {
-        return ::Condition
-    }
-
-    method serialize {} {
-        ::set return [list]
-        foreach list [configure] {
-            ::set opt [lindex $list 0]
-            if {$opt eq "-id"} { continue }
-
-            ::set def [lindex $list end-1]
-            ::set val [lindex $list end]
-            if {$def == $val} { continue }
-            lappend return $opt $val
-        }
-        return $return
-    }
-
-    method set { args } {
-        return [eval ::InstallJammer::SetObjectProperties $id $args]
-    }
-
-    method get { property {varName ""} } {
-        if {[string length $varName]} {
-            upvar 1 $varName var
-            return [::InstallJammer::GetObjectProperty $id $property var]
-        } else {
-            return [::InstallJammer::GetObjectProperty $id $property]
-        }
-    }
-
-    method properties { arrayName args } {
-        upvar 1 $arrayName array
-        return [eval ::InstallJammer::ObjectProperties $id array $args]
+        next
     }
 
     method object {} {
-        return $::InstallJammer::conditions($component)
+        return $::InstallJammer::conditions([my component])
+    }
+
+    method type {} {
+        return "condition"
     }
 
     method check { {showError 1} } {
-        ::set ::info(CurrentCondition) $id
-        ::InstallJammer::CurrentObject push $id
+        global info
 
-        ::set res [string is true [::InstallJammer::conditions::$component $id]]
+        set component [my component]
+
+        set info(CurrentCondition) $self
+        ::InstallJammer::CurrentObject push $self
+
+        set res [string is true [::InstallJammer::conditions::$component $self]]
         if {!$res && $showError} {
-            ::InstallJammer::DisplayConditionFailure $id
+            ::InstallJammer::DisplayConditionFailure $self
         }
 
         ::InstallJammer::CurrentObject pop
 
         return $res
     }
-
-    method name {} {
-    }
-
-    method type {} {
-        return $type
-    }
-
-    method id        { args } { eval cfgvar id        $args }
-    method title     { args } { eval cfgvar title     $args }
-    method active    { args } { eval cfgvar active    $args }
-    method parent    { args } { eval cfgvar parent    $args }
-    method component { args } { eval cfgvar component $args }
-
-    public variable id        ""
-    public variable type      "condition"
-    public variable title     ""
-    public variable active    1
-    public variable parent    ""
-    public variable component ""
-} ; ## ::itcl::class Condition
+}

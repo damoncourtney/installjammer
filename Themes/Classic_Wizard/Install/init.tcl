@@ -25,7 +25,7 @@ proc ThemeInit {} {
     variable info
 
     ## Create the main wizard.
-    Wizard $info(Wizard) \
+    Wizard $info(Wizard) -transient 0 \
         -raisecommand [list RaiseStep %W %S] \
         -width [::InstallJammer::SubstText "<%WizardWidth%>"] \
         -height [::InstallJammer::SubstText "<%WizardHeight%>"]

@@ -65,7 +65,7 @@ proc ::InstallJammer::GetActions {} {
 proc ::InstallJammer::GetActionNames {} {
     set names [list]
     foreach action [::InstallJammer::GetActions] {
-        lappend names [$action action]
+        lappend names [$action name]
     }
     return $names
 }
@@ -153,8 +153,9 @@ proc ::InstallJammer::AddAction { setup action args } {
         }
 
 	set id  [::InstallJammer::uuid]
-        InstallComponent ::$id -parent $parent -index $index -setup $setup \
+        ::Action $id -parent $parent -setup $setup \
             -component $action -type action -title $data(-title)
+        if {$index ne "end"} { $parent children move $id $index }
     }
 
     $obj initialize $id
@@ -330,7 +331,7 @@ proc ::InstallJammer::AddActionGroup { setup args } {
         set new 1
 
 	set id [::InstallJammer::uuid]
-        InstallComponent ::$id -parent $parent \
+        ::ActionGroup $id -parent $parent \
             -setup $setup -type actiongroup -active 1
     }
 
@@ -443,6 +444,11 @@ proc ::InstallJammer::loadactions::Include { args } {
 proc ::InstallJammer::loadactions::Require { args } {
     variable action
     eval $action requires $args
+}
+
+proc ::InstallJammer::loadactions::Script { body } {
+    variable action
+    proc ::InstallJammer::actions::[$action name] {obj} $body
 }
 
 proc ::InstallJammer::loadactions::Group { groupName } {

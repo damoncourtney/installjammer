@@ -44,4 +44,6 @@ proc ::InstallJammer::actions::AddWindowsFileCommand { obj } {
             $props(FileType) $props(CommandName) $props(MenuName)]
         ::InstallJammer::LogRegistry $key
     }
+
+    ::InstallAPI::SendWindowsNotification -assocchanged 1
 }

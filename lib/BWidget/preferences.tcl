@@ -29,12 +29,13 @@ namespace eval Preferences {
     }
 
     Widget::declare Preferences::Node {
-        {-pagewindow      String    ""    1}
-        {-haspage         Boolean   1     1}
-        {-created         Boolean   0     1}
-        {-createpage      Boolean   0     1}
-        {-raisecommand    String    ""    0}
-        {-createcommand   String    ""    0}
+        {-state           Enum      "normal" 0 "disabled normal"}
+        {-pagewindow      String    ""       1}
+        {-haspage         Boolean   1        1}
+        {-created         Boolean   0        1}
+        {-createpage      Boolean   0        1}
+        {-raisecommand    String    ""       0}
+        {-createcommand   String    ""       0}
     }
 
     Widget::tkinclude Preferences frame :cmd \
@@ -57,6 +58,9 @@ namespace eval Preferences {
 
         {-pagewidth    Int        "200"      0 "%d > 0"}
         {-pagestretch  Enum       "always"   0 {always first last middle never}}
+
+        {-raisecommand  String    ""         0}
+        {-createcommand String    ""         0}
 
         {-bg           Synonym    -background}
     }
@@ -219,6 +223,16 @@ proc Preferences::itemconfigure { path node args } {
 
     if {[info exists maps(Preferences::Node)]} {
         Widget::configure $path.$node $maps(Preferences::Node)
+
+        if {[Widget::hasChanged $path.$node -state state]} {
+            if {$state eq "normal"} {
+                Tree::itemconfigure $pane1.t $node \
+                    -selectable 1 -fill SystemButtonText
+            } else {
+                Tree::itemconfigure $pane1.t $node \
+                    -selectable 0 -fill SystemDisabledText
+            }
+        }
     }
 }
 
@@ -334,6 +348,8 @@ proc Preferences::raise { path {node ""} } {
 
     if {![string length $node]} { return $data(select) }
 
+    if {[Widget::getoption $path.$node -state] eq "disabled"} { return }
+
     Tree::selection $pane1.t set $node
 
     if {![Widget::getoption $path.$node -haspage]} { return }
@@ -348,14 +364,20 @@ proc Preferences::raise { path {node ""} } {
 
     if {![winfo exists $window]} { _create_node $path $node }
 
+    set map [list %W $path %n $node]
     if {![info exists data($node,realized)]} {
         set data($node,realized) 1
+        set cmd [Widget::getoption $path -createcommand]
+        if {$cmd ne ""} { uplevel #0 [string map $map $cmd] }
         set cmd [Widget::getoption $path.$node -createcommand]
-        if {[string length $cmd]} { uplevel #0 $cmd }
+        if {$cmd ne ""} { uplevel #0 [string map $map $cmd] }
     }
 
+    set cmd [Widget::getoption $path -raisecommand]
+    if {$cmd ne ""} { uplevel #0 [string map $map $cmd] }
+
     set cmd [Widget::getoption $path.$node -raisecommand]
-    if {[string length $cmd]} { uplevel #0 $cmd }
+    if {$cmd ne ""} { uplevel #0 [string map $map $cmd] }
     
     if {![string equal $data(select) $old]} {
         set oldwindow ""

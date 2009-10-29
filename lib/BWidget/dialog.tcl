@@ -78,12 +78,12 @@ proc Dialog::create { path args } {
     }
     toplevel $path -relief $re -borderwidth $bd -class $class \
         -background $::BWidget::colors(SystemButtonFace)
+    wm withdraw $path
     wm protocol $path WM_DELETE_WINDOW [list Dialog::cancel $path]
 
     Widget::initFromODB Dialog $path $maps(Dialog)
 
     bindtags $path [list $path $class all]
-    wm overrideredirect $path 1
     wm title $path [Widget::cget $path -title]
 
     set parent [Widget::getoption $path -parent]
@@ -92,10 +92,10 @@ proc Dialog::create { path args } {
         if {$parent ne "."} { Widget::setoption $path -parent $parent }
     }
 
-    if {[Widget::getoption $path -transient]} {
-	wm transient $path [winfo toplevel $parent]
+    if {[Widget::getoption $path -transient]
+        && [wm state $parent] eq "normal"} {
+	wm transient $path $parent
     }
-    wm withdraw $path
 
     set side [Widget::cget $path -side]
     if {[string equal $side "left"] || [string equal $side "right"]} {
@@ -123,6 +123,17 @@ proc Dialog::create { path args } {
     }
     if {[Widget::getoption $path -separator]} {
         eval [list Separator::create $path.sep -orient $orient] $opts
+    }
+
+    if {[BWidget::using aqua]} {
+        $path configure -background systemSheetBackground
+        $path.frame configure -background systemSheetBackground
+        if {[winfo exists $path.label]} {
+            $path.label configure -background systemSheetBackground
+        }
+        if {[winfo exists $path.sep]} {
+            $path.sep configure -background systemSheetBackground
+        }
     }
 
     Widget::getVariable $path data
@@ -310,17 +321,7 @@ proc Dialog::draw { path {focus ""} {overrideredirect 0} {geometry ""} } {
     }
 
     update idletasks
-    wm overrideredirect $path $overrideredirect
     wm deiconify $path
-
-    # patch by Bastien Chevreux (bach@mwgdna.com)
-    # As seen on Windows systems *sigh*
-    # When the toplevel is withdrawn, the tkwait command will wait forever.
-    #  So, check that we are not withdrawn
-    if {![winfo exists $parent] || \
-        ([wm state [winfo toplevel $parent]] != "withdrawn")} {
-	tkwait visibility $path
-    }
 
     BWidget::focus set $path
     if {[winfo exists $focus]} {

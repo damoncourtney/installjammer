@@ -27,10 +27,9 @@ if {$::tcl_platform(platform) ne "unix"} { return }
 set consoleInterp [interp create]
 $consoleInterp eval [list set tk_library $tk_library]
 $consoleInterp alias exit exit
-load "" Tk $consoleInterp
+$consoleInterp eval {package require Tk}
 
-# 2. A command 'console' in the application interpreter
-;proc console { sub {optarg {}} } [subst -nocommands {
+proc console { sub {optarg {}} } [subst -nocommands {
     switch -exact -- \$sub {
        title {
 	   $consoleInterp eval wm title . [list \$optarg]
@@ -50,10 +49,7 @@ load "" Tk $consoleInterp
    }
 }]
 
-# 3. Alias a command 'consoleinterp' in the console window interpreter
-#       to cause evaluation of the command 'consoleinterp' in the
-#       application interpreter.
-;proc consoleinterp {sub cmd} {
+proc consoleinterp {sub cmd} {
    switch -exact -- $sub {
        eval {
 	   uplevel #0 $cmd
@@ -68,21 +64,13 @@ load "" Tk $consoleInterp
        }
    }
 }
-if {[package vsatisfies [package provide Tk] 4]} {
-   $consoleInterp alias interp consoleinterp
-} else {
-   $consoleInterp alias consoleinterp consoleinterp
-}
+$consoleInterp alias consoleinterp consoleinterp
 
-# 4. Bind the <Destroy> event of the application interpreter's main
-#    window to kill the console (via tkConsoleExit)
 bind . <Destroy> [list +if {[string match . %W]} [list catch \
        [list $consoleInterp eval tkConsoleExit]]]
 
-# 5. Redefine the Tcl command 'puts' in the application interpreter
-#    so that messages to stdout and stderr appear in the console.
 rename puts tcl_puts
-;proc puts {args} [subst -nocommands {
+proc puts {args} [subst -nocommands {
    switch -exact -- [llength \$args] {
        1 {
 	   if {[string match -nonewline \$args]} {
@@ -141,7 +129,6 @@ rename puts tcl_puts
 }]
 $consoleInterp alias puts puts
 
-# 6. No matter what Tk_Main says, insist that this is an interactive  shell
 set tcl_interactive 1
 
 ########################################################################
@@ -156,17 +143,13 @@ $consoleInterp eval {
        tk::unsupported::ExposePrivateCommand tkConsoleExit
    }
 }
+
 $consoleInterp eval {
    if {![llength [info commands tkConsoleOutput]]} {
        tk::unsupported::ExposePrivateCommand tkConsoleOutput
    }
 }
-if {[string match 8.3.4 $tk_patchLevel]} {
-   # Workaround bug in first draft of the tkcon enhancments
-   $consoleInterp eval {
-       bind Console <Control-Key-v> {}
-   }
-}
+
 # Restore normal [puts] if console widget goes away...
 proc Oc_RestorePuts {slave} {
     rename puts {}
@@ -180,4 +163,4 @@ $consoleInterp eval {
 
 unset consoleInterp
 
-console title "[wm title .] Console"
+console title "Debug Console"

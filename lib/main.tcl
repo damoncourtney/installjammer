@@ -28,7 +28,7 @@ namespace eval ::InstallJammer {}
 proc ::InstallJammer::DisplayUsageInformation { {message ""} } {
     global conf
 
-    uplevel #0 source [list [file join $conf(lib) common.tcl]]
+    include [file join $conf(lib) common.tcl]
 
     append message {
 Usage: installjammer ?options? ?--? ?projectFile?
@@ -40,6 +40,8 @@ Options:
     --build-for-release       build the installers for final release
     --build-log-file          path to the file to log build messages in
     --control-script <file>   load script file before building
+    --disable <obj, obj, ...> a comma-separated list of objects to disable
+    --enable <obj, obj, ...>  a comma-separated list of objects to enable
     --debug-log               run installjammer with a debug log
     --help                    display this information
     --output-dir <directory>  directory to store finished installers in
@@ -62,6 +64,7 @@ proc ParseCommandLineArgs {} {
     global argv
     global conf
     global info
+    global preferences
 
     set switches {
         --build
@@ -82,8 +85,14 @@ proc ParseCommandLineArgs {} {
 	--build-dir
         --build-log-file
         --control-script
+        --disable
+        --enable
 	--output-dir
         --platform
+    }
+
+    if {$conf(osx) && [string match "-psn_0_*" [lindex $argv 0]]} {
+        set argv [lreplace $argv 0 0]
     }
 
     set len  [llength $argv]
@@ -92,15 +101,14 @@ proc ParseCommandLineArgs {} {
     for {set i 0} {$i < $len} {incr i} {
 	set arg [lindex $argv $i]
 
-	if {[lsearch -exact $switches $arg] > -1} {
+        if {$arg in $switches} {
 	    if {[info exists val]} {
 	        lappend args [join $val]
 		unset val
 	    }
 
 	    lappend args $arg ""
-	} elseif {[lsearch -exact $options $arg] > -1
-	    	    || [string match "-D*" $arg]} {
+        } elseif {$arg in $options || [string match "-D*" $arg]} {
 	    if {[info exists val]} {
 	        lappend args [join $val]
 		unset val
@@ -151,8 +159,20 @@ proc ParseCommandLineArgs {} {
 		lappend conf(CommandLineOptionFiles) $val
 	    }
 
+            "--disable" {
+                foreach arg [split $val ,] {
+                    lappend conf(DisableObjects) [string trim $arg]
+                }
+            }
+
             "--debug-log" {
                 set conf(debugLogFile) $val
+            }
+
+            "--enable" {
+                foreach arg [split $val ,] {
+                    lappend conf(EnableObjects) [string trim $arg]
+                }
             }
 
             "--help" - "-help" {
@@ -226,6 +246,12 @@ proc ParseCommandLineArgs {} {
                 "\nNo project file specified.\n"
         }
 
+        if {![file exists $file] && [info exists preferences(ProjectDir)]} {
+            if {[file exists [file join $preferences(ProjectDir) $file]]} {
+                set file [file join $preferences(ProjectDir) $file]
+            }
+        }
+
         if {![file exists $file]} {
             ::InstallJammer::DisplayUsageInformation \
                 "\nProject file \"$file\" does not exist.\n"
@@ -248,6 +274,12 @@ proc ParseCommandLineArgs {} {
 
         set argv [list $file]
     }
+}
+
+proc include {file} {
+    if {[info exists ::includes($file)]} { return }
+    uplevel #0 [list source $file]
+    set ::includes($file) 1
 }
 
 proc ::InstallJammer::InstallJammerHome { {file ""} } {
@@ -307,6 +339,22 @@ proc ::InstallJammer::InstallJammerHome { {file ""} } {
     return $return
 }
 
+proc ::InstallJammer::InitPlugins {} {
+    global conf
+
+    ::InstallJammer::Debug "Initializing plugins..."
+    foreach file [glob -nocomplain -dir $conf(plugins) */plugin.tcl] {
+        set dir  [file dirname $file]
+        set name [file tail $dir]
+        namespace eval ::InstallJammer::plugins::${name} [list set dir $dir]
+        set ::InstallJammer::plugins::plugin $name
+        namespace eval ::InstallJammer::plugins [read_file $file]
+        if {[catch { ::InstallJammer::plugins::${name}::Init } error]} {
+            tk_messageBox -message "Plugin $name failed to load"
+        }
+    }
+}
+
 proc ::InstallJammer::GuiInit {} {
     global conf
 
@@ -336,13 +384,6 @@ proc ::InstallJammer::GuiInit {} {
     option add *Tree*highlightThickness                     0
     option add *ComboBox*Entry*background                   white
 
-    #option add *Installjammer*Panedwindow.borderWidth       0
-    #option add *Installjammer*Panedwindow.sashWidth         3
-    #option add *Installjammer*Panedwindow.showHandle        0
-    #option add *Installjammer*Panedwindow.sashPad           0
-    #option add *Installjammer*Panedwindow.sashRelief        flat
-    #option add *Installjammer*Panedwindow.relief            flat
-
     image create photo logo  -file [file join $conf(icons) logo.png]
 
     ## See if we have the tkdnd package for drag-and-drop support.  If not,
@@ -351,7 +392,7 @@ proc ::InstallJammer::GuiInit {} {
 
     InitializeBindings
 
-    Status "Creating images..."
+    ::InstallJammer::Debug "Creating images..."
     SetIconTheme
 }
 
@@ -377,12 +418,7 @@ proc ::InstallJammer::StatusPrefix { {prefix ""} } {
 proc Status { string {time ""} } {
     global conf
     if {![info exists ::tk_patchLevel]} { return }
-    if {[winfo exists .splash]} {
-	.splash.c itemconfigure $::widg(SplashText) -text $string
-        ::InstallJammer::Debug $string
-    } else {
-	set conf(status) $conf(statusPrefix)$string
-    }
+    set conf(status) $conf(statusPrefix)$string
     if {[info exists conf(statusTimer)]} { after cancel $conf(statusTimer) }
     if {$time ne ""} { set conf(statusTimer) [after $time ClearStatus] }
 
@@ -415,8 +451,9 @@ proc init {} {
     }
 
     array set conf {
-        Version                 1.2.13
-	InstallJammerVersion	1.2.13.8
+        MinorVersion            1.3
+        Version                 1.3.0
+	InstallJammerVersion	1.3.0.2
 	projectLoaded		0
 	silent			0
         verbose                 0
@@ -459,7 +496,13 @@ proc init {} {
         Archives                {}
         TreeFocus               ""
         clipboard               {}
+        EnableObjects           {}
+        DisableObjects          {}
+        history                 {}
+        historyIndex            -1
+        historyMoving           0
         debugLogFile            ""
+        packages                {}
 
         TestUninstallSilentMode         0
         TestUninstallConsoleMode        0
@@ -477,6 +520,7 @@ proc init {} {
         HomePage                "http://www.installjammer.com/"
         HelpURL                 "http://www.installjammer.com/docs/"
         ForumsURL               "http://www.installjammer.com/forums/"
+        DownloadURL             "http://www.installjammer.com/downloads"
         HelpTopic               "Welcome"
         DefaultHelpTopic        "Welcome"
 
@@ -493,12 +537,18 @@ proc init {} {
             "Before Action is Executed"
             "Before Next Action is Executed"
         }
+
+        FileSaveMethods {
+            "Save files and directories with modified properties"
+            "Save all files and directories"
+            "Do not save files and directories"
+        }
     }
 
-    set conf(BuildVersion) [file size [file join $conf(pwd) ChangeLog.1.2]]
+    set conf(BuildVersion) [file size [file join $conf(pwd) ChangeLog.1.3]]
     set conf(CompressionMethods) {lzma "lzma (solid)" none zlib "zlib (solid)"}
 
-    if {![catch { package require miniarc::crap::lzma }]} {
+    if {[catch { package require miniarc::crap::lzma }]} {
         set conf(CompressionMethods) {none zlib "zlib (solid)"}
     }
 
@@ -554,7 +604,7 @@ proc init {} {
         Copyright
         DefaultLanguage
         EnableResponseFiles
-        ExtractSolidArchivesOnStartup
+        ExtractSolidArchives
         Icon
         Image
 	IncludeDebugging
@@ -655,21 +705,26 @@ proc init {} {
     set conf(images)  [file join $conf(pwd) Images]
     set conf(winico)  [file join $conf(pwd) Images "Windows Icons"]
     set conf(bwidget) [file join $conf(lib) BWidget]
+    set conf(plugins) [file join $conf(pwd) plugins]
 
     if {$conf(osx)} { set conf(gui) "osx" }
 
+    ::InstallJammer::Debug "Loading common libraries..."
+    include [file join $conf(lib) common.tcl]
+    include [file join $conf(lib) utils.tcl]
+    include [file join $conf(lib) file.tcl]
+
+    ::InstallJammer::Debug "Loading user preferences..."
+    ::InstallJammer::LoadPreferences
+
+    ::InstallJammer::Debug "Parsing command-line arguments..."
     ::ParseCommandLineArgs
 
-    ::InstallJammer::Debug "Initializing InstallJammer..."
+    set conf(pfdir) [file join $conf(pwd) Binaries [::InstallJammer::Platform]]
+    set conf(pfbin) [file join $conf(pfdir) bin]
+    set conf(pflib) [file join $conf(pfdir) lib]
 
-    uplevel #0 source [list [file join $conf(lib) common.tcl]]
-    uplevel #0 source [list [file join $conf(lib) utils.tcl]]
-
-    set conf(bin) [file join $conf(pwd) Binaries [::InstallJammer::Platform]]
-
-    ## We want our directories in front incase the user has an older
-    ## version of the libraries we're using.
-    set ::auto_path [linsert $::auto_path 0 $conf(lib) $conf(bin)]
+    lappend ::auto_path $conf(pflib) $conf(lib) [file join $conf(lib) packages]
 
     set bindir [file dirname [info nameofexecutable]]
     if {!$conf(windows) && [lsearch -exact $::auto_path $bindir] < 0} {
@@ -685,20 +740,10 @@ proc init {} {
 	wm withdraw .
 
         ::InstallJammer::Debug "Loading generic GUI code..."
-        package require tile 0.5
 
 	if {[package vcompare $version 8.5.0]} {
 	    namespace import ::ttk::style
 	}
-
-	## Source in the common GUI code.
-	uplevel #0 [list source [file join $conf(lib) gui-common.tcl]]
-
-        ## Source in the platform-specific GUI code.
-        uplevel #0 [list source [file join $conf(lib) gui-$conf(gui).tcl]]
-
-        ## Display the splash screen.
-        source [file join $conf(lib) splash.tcl]
 
         wm title    . "InstallJammer"
         wm client   . [info hostname]
@@ -708,37 +753,29 @@ proc init {} {
             wm iconbitmap . -default [file join $conf(icons) InstallJammer.ico]
         }
 
-	Window.splash
-	grab set .splash
-	update idletasks
-
-        Status "Loading libraries..."
+        ::InstallJammer::Debug "Loading libraries..."
     }
 
     ## Source in all the library files.
+    ::InstallJammer::Debug "Loading other libraries..."
     foreach file [glob [file join $conf(lib) *.tcl]] {
-        if {[string match "*gui-*" $file]} { continue }
-        if {[string match "*common.tcl" $file]} { continue }
-	uplevel #0 source [list $file]
+        include $file
     }
 
     ::InstallJammer::CommonInit
 
-    Status "Loading user preferences..."
-
-    ::InstallJammer::LoadPreferences
-
-    Status "Loading actions..."
-
+    ::InstallJammer::Debug "Loading actions..."
     ::InstallJammer::LoadActions
 
-    Status "Loading conditions..."
-
+    ::InstallJammer::Debug "Loading conditions..."
     ::InstallJammer::LoadConditions
 
-    Status "Loading messages..."
-    ::InstallJammer::LoadMessages
+    ::InstallJammer::Debug "Loading messages..."
+    ::InstallJammer::LoadMessages -clear 1
     ::InstallJammer::LoadReservedVirtualText
+
+    set custom [GetPref CustomMessageDir]
+    if {$custom ne ""} { ::InstallJammer::LoadMessages -dir $custom }
 
     ## Establish a list of available install themes.
     ::InstallJammer::ThemeList
@@ -758,7 +795,7 @@ proc init {} {
     ## a display, we exit out.  CheckRunStatus figures all this out.
     CheckRunStatus
 
-    Status "Loading packages..."
+    ::InstallJammer::Debug "Loading packages..."
 
     package require Tktags
     package require BWidget 2.0
@@ -798,6 +835,8 @@ proc init {} {
         append env(PATH) ":[file join $conf(pwd) Binaries Linux-x86 xdg-utils]"
     }
 
+    ::InstallJammer::InitPlugins
+
     ::InstallJammer::GuiInit
 
     return
@@ -806,33 +845,23 @@ proc init {} {
 proc main {} {
     set base .installjammer
 
-    Status "Building windows..."
+    ::InstallJammer::Debug "Building windows..."
 
     ## Build the main window first.
     Window show $base
 
     tag configure project -state disabled
+    ::InstallJammer::DisableBuilder
 
     Window show $base
-
-    raise .splash
-
-    Status "InstallJammer loaded" 3000
-
-    ## Hold the splash image for half a second and then fade it out.
-    after 500 {
-        ::InstallJammer::FadeWindowOut .splash 1
-        image delete ::icon::splash
-    }
-
-    tkwait window .splash
-    grab release  .splash
 
     UpdateRecentProjects
 
     #if {[GetPref CheckForUpdates]} {
         #::InstallJammer::DownloadVersionInfo
     #}
+
+    # ::InstallJammer::CheckForPlatformUpgrades
 
     if {[llength $::argv]} {
         set file [lindex $::argv 0]

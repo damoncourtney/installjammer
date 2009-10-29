@@ -21,6 +21,9 @@
 ##
 ## END LICENSE BLOCK
 
+if {$conf(cmdline)} { return }
+if {!$conf(unix)} { return }
+
 proc PROPERTIES { path args } {
     eval [list ::Properties $path -expand 1 -padx [list 0 10]] $args
 
@@ -33,17 +36,17 @@ proc COMBOBOX { path args } {
     eval ComboBox $path -entrybg white -autocomplete 1 -hottrack 1 $args
 }
 
-tile::setTheme jammer
+ttk::setTheme jammer
 
 if {[::InstallJammer::GetDesktopEnvironment] eq "KDE"
-    && ![catch { tile::setTheme tileqt }]} { return }
+    && ![catch { ttk::setTheme tileqt }]} { return }
 
 option add *Installjammer*borderWidth        0
 option add *Installjammer*highlightThickness 0
 
-option add *Installjammer*background         [style default . -background]
-option add *Installjammer*selectForeground   [style default . -selectforeground]
-option add *Installjammer*selectBackground   [style default . -selectbackground]
+option add *Installjammer*background         [style lookup . -background]
+option add *Installjammer*selectForeground   [style lookup . -selectforeground]
+option add *Installjammer*selectBackground   [style lookup . -selectbackground]
 
 option add *Installjammer*Listbox.background           white
 
@@ -54,10 +57,10 @@ option add *Installjammer*Text.background              white
 
 option add *Installjammer*Menu.relief                  flat
 option add *Installjammer*Menu.activeBackground \
-    [style default . -selectbackground]
+    [style lookup . -selectbackground]
 option add *Installjammer*Menu.activeForeground \
-    [style default . -selectforeground]
+    [style lookup . -selectforeground]
 
 option add *Installjammer*Table.borderWidth            1
 
-tk_setPalette [style default . -background]
+tk_setPalette [style lookup . -background]

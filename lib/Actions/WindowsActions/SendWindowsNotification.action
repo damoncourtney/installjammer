@@ -1,0 +1,54 @@
+## $Id$
+##
+## BEGIN LICENSE BLOCK
+##
+## Copyright (C) 2002  Damon Courtney
+## 
+## This program is free software; you can redistribute it and/or
+## modify it under the terms of the GNU General Public License
+## version 2 as published by the Free Software Foundation.
+## 
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License version 2 for more details.
+## 
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, write to the
+##     Free Software Foundation, Inc.
+##     51 Franklin Street, Fifth Floor
+##     Boston, MA  02110-1301, USA.
+##
+## END LICENSE BLOCK
+
+Action SendWindowsNotification
+
+Property SendEnvironmentChange boolean "Send Environment Change" "Yes"
+Help SendEnvironmentChange "If this property is true, a notification will\
+    be sent to all running Windows applications telling them that the some\
+    environment variable has changed and to update"
+
+Property SendFileAssociationChange boolean "Send File Assocation Change" "Yes"
+Help SendFileAssociationChange "If this property is true, a notification will\
+    be sent to all running Windows applications telling them that some file
+    association has changed and to update"
+
+Property SendNow boolean "Send Now" "No"
+Help SendNow "If this property is true, the notification will be sent\
+    immediately instead of when the installer exits.  If this property is\
+    false, a single notice will be sent as the installer exits"
+
+proc ::InstallJammer::actions::SendWindowsNotification { obj } {
+    global conf
+
+    if {!$conf(windows)} { return }
+
+    $obj properties props -subst 1
+
+    set args {}
+    if {$props(SendNow)} { lappend args -force 1 }
+    if {$props(SendEnvironmentChange)} { lappend args -environment 1 }
+    if {$props(SendFileAssociationChange)} { lappend args -assocchanged 1 }
+
+    eval ::InstallAPI::SendWindowsNotification $args
+}

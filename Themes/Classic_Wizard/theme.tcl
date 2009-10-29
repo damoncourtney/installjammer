@@ -47,7 +47,7 @@ proc ::InstallJammer::theme::NewProject { arrayName } {
             $act set Type checkbutton X 150 Y $y Background system \
                 VirtualText ViewReadme
             $act title "View Readme Checkbutton"
-            ::InstallJammer::SetVirtualText en $act Text "<%ViewReadmeText%>"
+            ::InstallJammer::SetVirtualText all $act Text "<%ViewReadmeText%>"
 
             set con [::InstallJammer::AddCondition FileExistsCondition \
                 -parent $act]
@@ -66,7 +66,7 @@ proc ::InstallJammer::theme::NewProject { arrayName } {
             $act set Type checkbutton X 150 Y $y Background system \
                 VirtualText LaunchApplication
             $act title "Launch Application Checkbutton"
-            ::InstallJammer::SetVirtualText en $act \
+            ::InstallJammer::SetVirtualText all $act \
                 Text "<%LaunchApplicationText%>"
 
             set con [::InstallJammer::AddCondition FileExistsCondition \
@@ -85,7 +85,7 @@ proc ::InstallJammer::theme::NewProject { arrayName } {
                 -parent $pane -title "Desktop Shortcut Checkbutton"]
             $act set Type checkbutton X 150 Y $y Background system \
                 VirtualText CreateDesktopShortcut
-            ::InstallJammer::SetVirtualText en $act \
+            ::InstallJammer::SetVirtualText all $act \
                 Text "<%CreateDesktopShortcutText%>"
 
             set con [::InstallJammer::AddCondition FileExistsCondition \
@@ -104,7 +104,7 @@ proc ::InstallJammer::theme::NewProject { arrayName } {
                 -parent $pane -title "Quick Launch Shortcut Checkbutton"]
             $act set Type checkbutton X 150 Y $y Background system \
                 VirtualText CreateQuickLaunchShortcut
-            ::InstallJammer::SetVirtualText en $act Text \
+            ::InstallJammer::SetVirtualText all $act Text \
                 "<%CreateQuickLaunchShortcutText%>"
                 
             set con [::InstallJammer::AddCondition PlatformCondition \

@@ -86,6 +86,8 @@ proc Open { {filename ""} } {
     }
     set ::filesLoaded {}
 
+    uplevel #0 [list source [file join $conf(lib) convert.tcl]]
+
     if {[catch { eval [read_file $filename -encoding utf-8] } error]} {
         if {[vercmp $info(ProjectVersion) $conf(InstallJammerVersion)] == 1} {
             ::InstallJammer::Error -message "This project file was made with\
@@ -113,10 +115,6 @@ proc Open { {filename ""} } {
         eval ::File $file
     }
     unset -nocomplain ::filesLoaded
-
-    ## Rebuild the file map before project conversion.
-    Status "Rebuilding file map..."
-    ::InstallJammer::RebuildFileMap
 
     ## Rebuild a list of aliases.
     Status "Rebuilding aliases..."
@@ -173,22 +171,12 @@ proc Open { {filename ""} } {
                 AddToFileGroup -id $file
             }
 
-            ::FileGroupTree::SortNodes [::InstallJammer::NodeName $filegroup]
+            ::FileGroupTree::SortNodes $filegroup
         }
-    }
-
-    ## Now that everything is all in place, rebuild the file map
-    ## again, just incase anything changed in the conversion process.
-    if {$modified} {
-        Status "Rebuilding file map after conversion..."
-        ::InstallJammer::RebuildFileMap
     }
 
     Status "Adding Components..."
     ::InstallJammer::LoadInstallComponents
-
-    Status "Initializing conditions..."
-    ::InstallJammer::LoadInstallConditions
 
     if {!$conf(cmdline)} {
         Status "Loading Project Preferences..."
@@ -222,7 +210,7 @@ proc Open { {filename ""} } {
 
     if {!$conf(cmdline) && [llength $newplatforms]} {
         foreach class {FileGroup Component SetupType} {
-            foreach obj [itcl::find objects -class $class] {
+            foreach obj [::obj::object instances $class] {
                 $obj platforms [concat [$obj platforms] $newplatforms]
             }
         }
@@ -335,12 +323,16 @@ proc Save {} {
 
     ::InstallJammer::StatusPrefix "Saving $info(Project)...  "
 
+    if {[info exists info(ProjectVersion)]
+        && $info(ProjectVersion) ne $conf(InstallJammerVersion)} {
+        ## If we're moving to a new version, make a backup copy of
+        ## the previous project file before we save this new one.
+        ::InstallJammer::BackupProjectFile "<%Project%>-<%ProjectVersion%>.mpi"
+    }
+
     set info(ProjectVersion) $conf(InstallJammerVersion)
 
     ::InstallJammer::SaveActiveComponent
-
-    set dir [file dirname $info(ProjectFile)]
-    if {![file exists $dir]} { file mkdir $dir }
 
     ## Store a copy of all of the properties before we start
     ## saving because some of the save procedures might
@@ -348,9 +340,10 @@ proc Save {} {
     variable  ::InstallJammer::SaveProperties
     array set SaveProperties [array get ::InstallJammer::Properties]
 
-    set    data ""
+    set conf(SavedFiles) {}
 
     Status "Storing project info..."
+    set    data ""
     append data [::InstallJammer::SaveInfoArray]\n
 
     append data [::InstallJammer::GetCommandLineOptionData -setup Install]\n
@@ -367,6 +360,10 @@ proc Save {} {
 
     Status "Saving text properties..."
     append data [::InstallJammer::GetTextData]\n
+
+    Status "Writing project file..."
+    set dir [file dirname $info(ProjectFile)]
+    if {![file exists $dir]} { file mkdir $dir }
 
     set fp [open $info(ProjectFile) w]
     fconfigure $fp -translation lf -encoding utf-8
@@ -423,7 +420,7 @@ proc Close { {force 0} {message ""} } {
     Status "Closing $info(Project)..."
 
     if {!$conf(loading)} {
-        $widg(Main) tab $widg(InstallDesignerTab) -state disabled
+	::InstallJammer::DisableBuilder
     }
 
     ClearComponentTrees
@@ -451,7 +448,7 @@ proc Close { {force 0} {message ""} } {
 
     UpdateRecentProjects
 
-    ::InstallJammer::LoadMessages
+    ::InstallJammer::LoadMessages -clear 1
 
     ::InstallJammer::ClearBuildLog
 
@@ -471,12 +468,9 @@ proc Close { {force 0} {message ""} } {
 
     tag configure project -state disabled
 
-    $widg(Product) reset
     ::InstallJammer::SetHelp <default>
 
     set conf(projectLoaded) 0
-
-    if {!$conf(loading)} { $widg(Main) select $widg(InstallDesignerTab) }
 
     unset -nocomplain info
 
@@ -698,9 +692,9 @@ proc ::InstallJammer::SaveProperties { args } {
     variable ::InstallJammer::PropertyMap
 
     array set _args {
-        -build       0
-        -array       "Properties"
-        -activeonly  0
+        -build           0
+        -array           "Properties"
+        -activeonly      0
         -includecomments 1
     }
     set _args(-setup) $conf(ThemeDirs)
@@ -734,48 +728,94 @@ proc ::InstallJammer::SaveProperties { args } {
             if {$obj eq ""} { continue }
 
             foreach prop [$obj properties] {
-                ## Skip standard properties that are empty.
-                if {($prop eq "Comment" || $prop eq "Data" || $prop eq "Alias")
-                    && $Properties($id,$prop) eq ""} { continue }
+                if {$prop eq "Conditions"} { continue }
 
-                set value $Properties($id,$prop)
+                set val ""
+                if {[info exists Properties($id,$prop)]} {
+                    set val $Properties($id,$prop)
+                }
+
+                ## Skip standard properties that are empty.
+                if {$val eq "" && $prop in "Alias Comments Data"} { continue }
+
+                set value $val
                 if {$build && [info exist PropertyMap($prop)]} {
                     set value [lsearch -exact $PropertyMap($prop) $value]
                 }
 
-                if {$build || [$obj default $prop] ne $Properties($id,$prop)} {
+                if {$build || [$obj default $prop] ne $val} {
                     set props($id,$prop) $value
                 }
             }
 
             foreach field [$obj textfields] {
-                set props($id,$field,subst) $Properties($id,$field,subst)
+                set val ""
+                if {[info exists Properties($id,$field)]} {
+                    set val $Properties($id,$field)
+                }
+
+                if {$val ne [gettext $id $field -default 1]} {
+                    set props($id,$field) $val
+                }
+
+                set var $id,$field,subst
+                if {$_args(-build)} { set props($var) 1 }
+                if {[info exists Properties($var)] && $Properties($var) != 1} {
+                    set props($var) $Properties($var)
+                }
             }
 
             foreach cid [$id conditions] {
                 set condobj [$cid object]
 
                 foreach prop [$condobj properties] {
-                    ## Skip standard properties that are empty.
-                    if {($prop eq "Comment" || $prop eq "Data"
-                        || $prop eq "Alias") && $Properties($cid,$prop) eq ""} {
-                        continue
+                    set val ""
+                    if {[info exists Properties($cid,$prop)]} {
+                        set val $Properties($cid,$prop)
                     }
 
-                    set value $Properties($cid,$prop)
+                    set value $val
+
+                    ## Skip standard properties that are empty.
+                    if {($prop eq "Comment" || $prop eq "Data"
+                        || $prop eq "Alias") && $val eq ""} { continue }
+
                     if {$build && [info exist PropertyMap($prop)]} {
                         set value [lsearch -exact $PropertyMap($prop) $value]
                     }
 
                     set default [$condobj default $prop]
-                    if {$build || $Properties($cid,$prop) ne $default} {
+                    if {$build || $val ne $default} {
                         set props($cid,$prop) $value
                     }
                 }
 
                 foreach field [$condobj textfields] {
-                    set props($cid,$field,subst) $Properties($cid,$field,subst)
+                    set val ""
+                    if {[info exists Properties($cid,$field)]} {
+                        set val $Properties($cid,$field)
+                    }
+                    
+                    if {$val ne [gettext $cid $field -default 1]} {
+                        set props($cid,$field) $val
+                    }
+
+                    set var $cid,$field,subst
+                    if {$_args(-build)} { set props($var) 1 }
+                    if {[info exists Properties($var)]
+                        && $Properties($var) != 1} {
+                        set props($var) $Properties($var)
+                    }
                 }
+            }
+        }
+    }
+
+    if {[info exists conf(SavedFiles)]} {
+        foreach id $conf(SavedFiles) {
+            foreach prop [$id properties p] {
+                if {$prop eq "Active" || $p($prop) eq ""} { continue }
+                set props($id,$prop) $Properties($id,$prop)
             }
         }
     }
@@ -813,17 +853,19 @@ proc ::InstallJammer::SavePlatforms { args } {
     set data ""
 
     foreach platform [AllPlatforms] {
-        append data "Platform ::$platform [$platform serialize]\n"
+        append data [$platform serialize] \n
     }
 
     foreach archive $conf(Archives) {
-        append data "Platform ::$archive [$archive serialize]\n"
+        append data [$archive serialize] \n
     }
 
     return $data
 }
 
 proc ::InstallJammer::SaveFileGroups { args } {
+    global conf
+
     variable save
 
     array set _args {
@@ -831,6 +873,8 @@ proc ::InstallJammer::SaveFileGroups { args } {
         -savefiles 1
     }
     array set _args $args
+
+    set conf(SavedFiles) {}
 
     set data ""
 
@@ -844,7 +888,7 @@ proc ::InstallJammer::SaveFileGroups { args } {
 
         set save($id) 1
 
-        append data "FileGroup ::$id [$id serialize]\n"
+        append data [$id serialize] \n
         if {!$_args(-build) && $_args(-savefiles)} {
             append data [::InstallJammer::SaveSetupFiles $id]
         }
@@ -854,20 +898,31 @@ proc ::InstallJammer::SaveFileGroups { args } {
 }
 
 proc ::InstallJammer::SaveSetupFiles { id } {
+    global conf
     global info
 
+    set method [::InstallJammer::GetFileSaveMethod $id]
+    if {[$id is filegroup]} { set method 1 }
+
+    ## Do not save any files.
+    if {$method == 2} { return }
+
     set data ""
-
-    set parent [$id parent]
-    if {[$parent is filegroup] && ($info(SaveOnlyToplevelDirs)
-        || [string is false -strict [$parent get SaveFiles]])} { return }
-
     foreach id [$id children] {
-        append data "File ::$id [$id serialize]\n"
-        if {[$id is dir] && [string is false -strict [$id savefiles]]} {
-            continue
+        if {$method == 0} {
+            ## Save only modified files
+            unset -nocomplain tmp
+            array set tmp [$id options]
+            unset -nocomplain tmp(-type) tmp(-active) tmp(-name) tmp(-parent)
+
+            $id properties tmp
+            unset -nocomplain tmp(Active)
+
+            if {![llength [array names tmp]]} { continue }
         }
-        append data [::InstallJammer::SaveSetupFiles $id]
+        lappend conf(SavedFiles) $id
+        append data [$id serialize]\n
+        if {[$id is dir]} { append data [::InstallJammer::SaveSetupFiles $id] }
     }
 
     return $data
@@ -905,7 +960,7 @@ proc ::InstallJammer::SaveComponents { args } {
             }
         }
 
-        append data "Component ::$id [$id serialize]\n"
+        append data [$id serialize] \n
     }
 
     return $data
@@ -943,7 +998,7 @@ proc ::InstallJammer::SaveSetupTypes { args } {
             }
         }
 
-        append data "SetupType ::$id [$id serialize]\n"
+        append data [$id serialize] \n
     }
 
     return $data
@@ -985,8 +1040,7 @@ proc ::InstallJammer::IgnoreFile {file} {
     return 0
 }
 
-proc ::InstallJammer::RecursiveGetFiles { parent {followLinks 1}
-                                            {linkParent ""} } {
+proc ::InstallJammer::RecursiveGetFiles { parent {follow 1} {linkParent ""} } {
     global conf
     variable LinkDirs
 
@@ -994,18 +1048,26 @@ proc ::InstallJammer::RecursiveGetFiles { parent {followLinks 1}
     if {$linkParent eq ""} {
         set first 1
         set linkParent $parent
-        set LinkDirs($linkParent) ""
     }
 
     set ids [list $parent]
     set dir [::InstallJammer::GetFileSource $parent]
+
+    foreach child [$parent children] {
+        set have([$child name]) $child
+    }
 
     set files [glob -type f -nocomplain -directory $dir *]
     eval lappend files [glob -type {f hidden} -nocomplain -directory $dir *]
 
     foreach file [lsort -dict $files] {
         if {[::InstallJammer::IgnoreFile $file]} { continue }
-        set id [::InstallJammer::FileObj $parent $file -type file]
+        set name [file tail $file]
+        if {[info exists have($name)]} {
+            set id $have($name)
+        } else {
+            set id [::InstallJammer::FileObj $parent $file -type file]
+        }
         if {[$id active]} { lappend ids $id }
     }
 
@@ -1019,11 +1081,10 @@ proc ::InstallJammer::RecursiveGetFiles { parent {followLinks 1}
         if {$tail eq "." || $tail eq ".."} { continue }
 
         if {[file type $dir] eq "link"} {
-            if {$followLinks} {
+            if {$follow} {
                 set link $tail,[file normalize [file readlink $dir]]
-                if {[lsearch -exact $LinkDirs($linkParent) $link] > -1} {
-                    continue
-                }
+                if {[info exists LinkDirs($linkParent)]
+                    && $link in $LinkDirs($linkParent)} { continue }
                 lappend LinkDirs($linkParent) $link
             } else {
                 set id [::InstallJammer::FileObj $parent $dir -type file]
@@ -1032,10 +1093,15 @@ proc ::InstallJammer::RecursiveGetFiles { parent {followLinks 1}
             }
         }
 
-        set id [::InstallJammer::FileObj $parent $dir -type dir]
+        if {[info exists have($tail)]} {
+            set id $have($tail)
+        } else {
+            set id [::InstallJammer::FileObj $parent $dir -type dir]
+        }
+
         if {[$id active]} {
-            eval lappend ids [::InstallJammer::RecursiveGetFiles \
-                $id $followLinks $linkParent]
+            lappend ids {*}[::InstallJammer::RecursiveGetFiles \
+                $id $follow $linkParent]
         }
     }
 
@@ -1103,7 +1169,7 @@ proc ::InstallJammer::RefreshFileGroups {} {
 
     unset conf(SortTreeNodes)
 
-    ClearStatus
+    Status "${msg}done" 3000
 }
 
 proc ::InstallJammer::GetSetupFileList { args } {
@@ -1119,6 +1185,7 @@ proc ::InstallJammer::GetSetupFileList { args } {
         -listvar     ""
         -errorvar    ""
         -procvar     ""
+        -forarchive  0
     }
     array set _args $args
 
@@ -1167,8 +1234,7 @@ proc ::InstallJammer::GetSetupFileList { args } {
 
     set files {}
     foreach group $groups {
-        if {$platform ne ""
-            && [lsearch -exact [$group platforms] $platform] < 0} { continue }
+        if {$platform ne "" && $platform ni [$group platforms]} { continue }
 
         if {![$group active]
             || ($_args(-checksave) && ![info exists save($group)])} { continue }
@@ -1200,8 +1266,9 @@ proc ::InstallJammer::GetSetupFileList { args } {
                 continue
             }
             
-            set type $s(type)
             set doappend $append
+            set isdir [$id is dir]
+            set type $s(type)
             if {$type eq "link" && $platform ne "Windows"} {
                 file stat $file s
                 set type $s(type)
@@ -1212,15 +1279,29 @@ proc ::InstallJammer::GetSetupFileList { args } {
                 }
             }
 
+            if {[info exists done($file)]} {
+                set doappend 0
+                set srcid $done($file)
+            } else {
+                set srcid file[incr fileCount]
+                set done($file) $srcid
+            }
+
             if {$type eq "directory"} {
                 set parents($id) 1
                 if {!$_args(-includedirs)} { set doappend 0 }
+            }
+
+            set permissions [$id permissions]
+            if {$permissions eq "" && $preservePermissions} {
+                set permissions [file attributes $file -permissions]
             }
 
             if {$doproc} {
                 append procData "    File ::$id"
                 append procData " -name [list [$id destfilename]]"
                 append procData " -parent [list $group]"
+                append procData " -srcfile $srcid"
 
                 set alias [$id alias]
                 if {$alias ne ""} {
@@ -1257,11 +1338,6 @@ proc ::InstallJammer::GetSetupFileList { args } {
                     append procData " -attributes $attributes"
                 }
 
-                set permissions [$id permissions]
-                if {$permissions eq "" && $preservePermissions} {
-                    set permissions [file attributes $file -permissions]
-                }
-
                 if {$permissions ne ""} {
                     append procData " -permissions $permissions"
                 }
@@ -1275,7 +1351,14 @@ proc ::InstallJammer::GetSetupFileList { args } {
             }
 
             if {$doappend} {
-                lappend filelist [list $id $file $group $s(size) $s(mtime)]
+                if {$_args(-forarchive)} {
+                    set dest [::InstallJammer::GetFileDestination $id]
+                    lappend filelist [list $file $dest $permissions]
+                } else {
+                    set method [::InstallJammer::GetFileCompressionMethod $id]
+                    lappend filelist \
+                        [list $srcid $file $group $s(size) $s(mtime) $method]
+                }
             }
 
             incr groupsize $s(size)
@@ -1285,8 +1368,6 @@ proc ::InstallJammer::GetSetupFileList { args } {
     }
 
     if {$doproc} { append procData "\n\}" }
-
-    return
 }
 
 proc ::InstallJammer::ClearInstallComponents {} {
@@ -1378,18 +1459,18 @@ proc ::InstallJammer::SaveComponentData { args } {
         if {$_args(-activeonly) && ![ComponentIsActive $id]} { continue }
         if {[string length $setup] && [$id setup] ne $setup} { continue }
 
-        set opts [$id serialize]
+        set opts [$id options]
 
-        if {$_args(-build) && [[$id parent] isa InstallType]} {
+        if {$_args(-build) && [[$id parent] is installtype]} {
             set x [lsearch -exact $opts "-parent"]
             set opts [lreplace $opts $x [incr x] -parent $storetype]
         }
 
-        append data "InstallComponent $id $opts\n"
+        append data "[$id class] $id $opts\n"
 
         foreach cid [$id conditions] {
             if {$_args(-activeonly) && ![$cid active]} { continue }
-            append data "Condition $cid [$cid serialize]\n"
+            append data [$cid serialize] \n
         }
 
         append data [eval ::InstallJammer:::SaveComponentData $args -object $id]
@@ -1403,7 +1484,7 @@ proc ::InstallJammer::LoadInstallComponents {} {
     global widg
 
     if {$conf(cmdline)} {
-        foreach object [::itcl::find object -isa ::InstallComponent] {
+        foreach object [::obj::class instances InstallComponent] {
             $object initialize
         }
     } else {
@@ -1424,6 +1505,11 @@ proc ::InstallJammer::LoadInstallComponents {} {
                 }
             }
         }
+
+        Status "Initializing conditions..."
+        foreach id [::obj::object instances Condition] {
+            [$id object] initialize $id
+        }
     }
 
     foreach platform [concat [AllPlatforms] $conf(Archives)] {
@@ -1432,12 +1518,6 @@ proc ::InstallJammer::LoadInstallComponents {} {
 
     if {!$conf(cmdline)} {
         ::InstallJammer::RefreshComponentTitles
-    }
-}
-
-proc ::InstallJammer::LoadInstallConditions {} {
-    foreach id [::itcl::find objects -class ::Condition] {
-        [$id object] initialize $id
     }
 }
 
@@ -1453,8 +1533,7 @@ proc BuildInstall {} {
 
     ::InstallJammer::SetMainWindowTitle
 
-    $widg(Main) tab $widg(InstallDesignerTab) -state normal
-    pack $widg(Product) -expand 1 -fill both -pady 2
+    ::InstallJammer::EnableBuilder
 
     tag configure project -state normal
 
@@ -1468,31 +1547,35 @@ proc BuildInstall {} {
         $widg(BuildTree) insert end root #auto -type checkbutton \
             -variable ::conf(build,$pf) -text $text
     }
-
-    $widg(Main) select $widg(InstallDesignerTab)
-    $widg(Product) raise general
 }
 
-proc ::InstallJammer::RebuildFileMap {} {
-    global conf
+proc ::InstallJammer::DisableBuilder {} {
+    global widg
 
-    variable ::InstallJammer::FileMap
-
-    unset -nocomplain FileMap
-    set conf(locations) [list]
-
-    ## Walk through all of the children in each file group
-    ## and make sure that we've properly setup the file map.
-    foreach obj [itcl::find objects -class ::File] {
-        set key [::InstallJammer::FileKey [$obj parent] [$obj name]]
-        set FileMap($key) [$obj id]
-
-        set location [$obj location]
-        if {$location ne ""} { lappend conf(locations) $location }
+    foreach root [$widg(Product) nodes root] {
+	if {$root eq "projects"} { continue }
+	foreach node [$widg(Product) nodes $root] {
+	    if {$node eq "installProjects"} { continue }
+	    $widg(Product) itemconfigure $node -state disabled
+	}
     }
 
-    set conf(locations) [lsort -unique $conf(locations)]
-    return
+    catch { $widg(Product) raise installProjects }
+}
+
+proc ::InstallJammer::EnableBuilder {} {
+    global widg
+
+    foreach root [$widg(Product) nodes root] {
+	if {$root eq "projects"} { continue }
+	foreach node [$widg(Product) nodes $root] {
+	    if {$node eq "installProjects"} { continue }
+	    $widg(Product) itemconfigure $node -state normal
+	}
+    }
+
+    $widg(Product) raise applicationInformation
+    $widg(ApplicationInformationPref) open standard
 }
 
 proc ::InstallJammer::RebuildLocations {} {
@@ -1502,7 +1585,7 @@ proc ::InstallJammer::RebuildLocations {} {
 
     set conf(locations) [list]
 
-    foreach id [itcl::find objects -class ::File] {
+    foreach obj [::obj::object instances File] {
         set location [$id location]
         if {$location ne ""} { lappend conf(locations) $location }
     }
@@ -1520,12 +1603,13 @@ proc ::InstallJammer::RebuildAliases {} {
     unset -nocomplain ::InstallJammer::aliases
     unset -nocomplain ::InstallJammer::aliasmap
 
-    foreach object [::itcl::find object -isa ::InstallComponent] {
-        set id    [$object id]
+    foreach object [::obj::class instances InstallComponent] {
         set alias [$object get Alias]
         if {$alias ne ""} {
-            set ::InstallJammer::aliases($alias) $id
-            set ::InstallJammer::aliasmap($id) $alias
+            set id    [$object id]
+            set setup [$object setup]
+            set ::InstallJammer::aliases($setup:$alias) $id
+            set ::InstallJammer::aliasmap($id) $setup:$alias
         }
     }
 }
@@ -1583,7 +1667,7 @@ proc ::InstallJammer::CleanupObjects {} {
         if {[::InstallJammer::ObjExists ::$obj]} { ::$obj destroy }
     }
 
-    eval ::itcl::delete obj [::itcl::find object -class ::InstallJammer::Pane]
+    ::obj::object destroy {*}[::obj::object instances ::InstallJammer::Pane]
 }
 
 proc ::InstallJammer::SavePreferences {} {

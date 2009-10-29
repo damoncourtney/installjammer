@@ -463,7 +463,7 @@ proc ComboBox::_create_popup { path } {
             -foreground [Widget::cget $path -foreground] \
             -variable [Widget::widgetVar $path tableData]]
 
-        BWidget::bindMouseWheel $shell.listb
+        # BWidget::bindMouseWheel $shell.listb
 
         _update_table_values $path
 

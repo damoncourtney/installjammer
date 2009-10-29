@@ -36,8 +36,8 @@ for {set i 0} {$i < $len} {incr i} {
 unset -nocomplain tmp
 installkit::ParseWrapArgs tmp $args
 
+set conf(pwd)   [file dirname [file dirname [info script]]]
 set pwd         [file dirname $tmp(executable)]
-set conf(pwd)   [file dirname [info script]]
 set conf(stop)  [file join $pwd .stop]
 set conf(pause) [file join $pwd .pause]
 
@@ -49,13 +49,15 @@ if {[info exists ::parentThread]} {
         return
     }
 } else {
+    lappend ::auto_path [file dirname [info nameofexecutable]]
+
     proc echo { string } {
         puts  stdout $string
         flush stdout
     }
 
-    foreach file {common.tcl installkit.tcl} {
-        set file [file join $conf(pwd) $file]
+    foreach file {common.tcl} {
+        set file [file join $conf(pwd) lib $file]
         if {[catch { source $file } error]} {
             echo $::errorInfo
         }
@@ -126,21 +128,6 @@ catch {
     set totalSize     0
     set lastfiletotal 0
 
-    ## FIXME: Remove this once the SHA1 code is fixed for large installers.
-    if {[info commands ::sha1_real] eq ""} {
-        rename ::sha1 ::sha1_real
-        proc ::sha1 {args} {
-            if {[lindex $args 0] eq "-string"} {
-                return [eval ::sha1_real $args]
-            }
-
-            if {[lindex $args 0] eq "-update"} {
-                array set _args $args
-                while {[set data [read $_args(-chan) 4096]] ne ""} {}
-            }
-        }
-    }
-
     if {[info exists tmp(wrapFiles)] && [llength $tmp(wrapFiles)]} {
         unset -nocomplain sizes
         foreach file $tmp(wrapFiles) {
@@ -160,19 +147,14 @@ catch {
         foreach {id file group size mtime method} $manifest {
             set sizes($file) $size
             iincr totalSize $size
+            lappend files($group) [list $file -name $id -method $method]
         }
 
-        foreach {id file group size mtime method} $manifest {
-            if {![info exists fp($group)]} {
-                set archive [file join $outputDir setup[incr i].ijc]
-                set fp($group) [miniarc::open crap $archive w]
-            }
-            Progress $file
-            miniarc::addfile $fp($group) $file -name $id -method $method
-        }
-
-        foreach f [array names fp] {
-            miniarc::close $fp($f)
+        foreach group [array names files] {
+            set archive [file join $outputDir setup[incr i].ijc]
+            set fp [miniarc::open crap $archive w -flatheaders 1]
+            miniarc::addfilelist $fp $files($group) -progress Progress
+            miniarc::close $fp
         }
     }
 

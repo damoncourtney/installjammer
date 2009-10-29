@@ -64,6 +64,10 @@ proc BWidget::use { args } {
             }
 
             "ttk" {
+                if {[package vcompare [package require Tk] 8.5.0]} {
+                    namespace import ::ttk::style
+                }
+
                 Widget::theme 1
 
                 variable ::BWidget::colors
@@ -853,6 +857,25 @@ proc BWidget::bindMouseWheel { widgetOrClass } {
 
     bind $widgetOrClass <Button-4> {event generate %W <MouseWheel> -delta  120}
     bind $widgetOrClass <Button-5> {event generate %W <MouseWheel> -delta -120}
+}
+
+
+proc BWidget::scroll {w x y d} {
+    set widg [winfo containing $x $y]
+    if {$widg eq "" || [catch {$widg cget -xscrollcommand} xs] || $xs eq ""} {
+        set widg $w
+    }
+
+    set delta $d
+    if {[tk windowingsystem] eq "aqua"} {
+        set delta [expr {-$d}]
+    } elseif {[tk windowingsystem] eq "win32"} {
+        set delta [expr {($d / 120) * -3}]
+    }
+
+    if {[catch {$widg yview scroll $delta units}]} {
+        catch {$w yview scroll $delta units}
+    }
 }
 
 

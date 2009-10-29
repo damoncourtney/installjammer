@@ -138,7 +138,7 @@ namespace eval Tree {
 
     bind TreeFocus <Button-1> [list focus %W]
 
-    BWidget::bindMouseWheel TreeCanvas
+    # BWidget::bindMouseWheel TreeCanvas
 
     variable _edit
     set _edit(editing) 0
@@ -990,6 +990,8 @@ proc Tree::edit { path node text {verifycmd ""} {clickres 0} {select 1}} {
     variable _edit
     Widget::getVariable $path data
     Widget::getVariable $path items
+
+    if {$_edit(editing)} { return }
 
     set node [_node_name $path $node]
     if { [Widget::getoption $path -redraw] && $data(upd,afterid) != "" } {

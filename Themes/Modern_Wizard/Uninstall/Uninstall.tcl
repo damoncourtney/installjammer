@@ -29,13 +29,13 @@ proc CreateWindow.Uninstall { wizard id } {
     grid rowconfigure    $base 0 -weight 1
     grid columnconfigure $base 0 -weight 1
 
-    set frame [frame $base.frame]
+    set frame [ttk::frame $base.frame]
     grid $frame -row 0 -column 0 -sticky new
 
     grid rowconfigure    $frame 1 -weight 1
     grid columnconfigure $frame 0 -weight 1
 
-    label $frame.file -anchor w
+    ttk::label $frame.file -anchor w
     grid  $frame.file -row 0 -column 0 -sticky new
     $id widget set FileValue -widget $frame.file
 

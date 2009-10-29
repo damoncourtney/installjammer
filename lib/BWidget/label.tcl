@@ -71,6 +71,12 @@ proc Label::create { path args } {
 
     set data(width) 0
 
+    if {[BWidget::using ttk]
+        && [dict exists $maps(.l) -background]
+        && [dict get $maps(.l) -background] eq "White"} {
+        dict set maps(.l) -background systemSheetBackground
+    }
+
     eval [list label $path.l] $maps(.l)
 
     if {[string equal [Widget::cget $path -state] "normal"]} {

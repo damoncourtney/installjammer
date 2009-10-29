@@ -33,8 +33,8 @@ Property Buttons buttons "Buttons" "Back/Next/Cancel"
 
 Text Title
 Text Caption
-Text NameLabel    "Name Label"    0
-Text CompanyLabel "Company Label" 0
-Text NextButton   "Next Button"   1
-Text BackButton   "Back Button"   1
-Text CancelButton "Cancel Button" 1
+Text NameLabel    "Name Label"
+Text CompanyLabel "Company Label"
+Text NextButton   "Next Button"
+Text BackButton   "Back Button"
+Text CancelButton "Cancel Button"

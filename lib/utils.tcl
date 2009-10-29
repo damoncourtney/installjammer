@@ -99,37 +99,24 @@ proc TestInstall {} {
     }
 
     if {$conf(modified)} {
-	set msg "This project has been modified.  "
-	append msg "Do you want to save and rebuild before testing?"
-	set res [::InstallJammer::MessageBox -type user -buttonwidth 16 \
-            -buttons {"Save & Build" "Save & Quick Build" "Cancel"} \
+	set res [::InstallJammer::MessageBox -type user -buttonwidth 12 \
+            -buttons {"Continue" "Build" "Quick Build" "Cancel"} \
             -title "Project Modified" -message "This project has been\
-                modified.  Do you want to save and rebuild before testing?"]
+                modified.  Do you want to rebuild before testing?"]
 
-        if {$res == 2} { return }
+        if {$res == 3} { return }
 
         update
 
-        Save
-
-        if {$res == 0} {
+        if {$res == 1} {
             Build [::InstallJammer::Platform]
             vwait ::conf(building)
-        } else {
+        } elseif {$res == 2} {
             ::InstallJammer::QuickBuild [::InstallJammer::Platform]
         }
     }
 
     set args $conf(TestCommandLineOptions)
-
-    if {!$info(IncludeDebugging)} {
-	foreach opt [list -T -D -C] {
-	    if {[lsearch -exact $args $opt] < 0} { continue }
-	    ::InstallJammer::MessageBox -title "Debugging Not Included" \
-		-message "This install was not built with debugging options."
-	    break
-	}
-    }
 
     set info(Platform) [::InstallJammer::Platform]
     set info(Ext)      [expr {$info(Platform) eq "Windows" ? ".exe" : ""}]
@@ -152,10 +139,12 @@ proc TestInstall {} {
     if {$conf(TestConsole)} {
         ::InstallJammer::ExecuteInTerminal $file $args
     } else {
-        if {$conf(windows)} {
+        if {$conf(osx) && [file exists $file.app] && ![llength $args]} {
+            exec open $file.app &
+        } elseif {$conf(windows)} {
             installkit::Windows::shellExecute open $file $args
         } else {
-            eval exec [list $file] $args &
+            exec $file {*}$args &
         }
     }
 }
@@ -257,17 +246,12 @@ proc AdjustTestUninstallOptions {} {
     }
 }
 
-proc InstallKitBinary { {type ""} } {
-    return [InstallKitStub [::InstallJammer::Platform] $type]
-}
-
 proc BuildBinary {} {
     return [InstallKitStub [::InstallJammer::Platform]]
 }
 
-proc InstallKitStub { platform {type ""} } {
+proc InstallKitStub { platform } {
     global conf
-    global info
 
     set exe installkit
     if {$platform eq "Windows"} {
@@ -275,16 +259,12 @@ proc InstallKitStub { platform {type ""} } {
         if {[$platform get RequireAdministrator]} { append exe "A" }
         append exe .exe
     }
+    set stub [file join $conf(pwd) Binaries $platform bin $exe]
+    if {[file exists $stub]} { return $stub }
+}
 
-    set stub [file join $conf(pwd) Binaries $platform $exe]
-
-    if {![file exists $stub]} {
-        ::InstallJammer::Error -message \
-	    "Could not find the appropriate installkit binary for $platform!"
-	::exit
-    }
-
-    return $stub
+proc ::InstallJammer::PlatformBinaryExists { platform } {
+    return [expr {[InstallKitStub $platform] ne ""}]
 }
 
 proc InstallDir { {file ""} } {
@@ -308,25 +288,9 @@ proc InstallDir { {file ""} } {
 proc AllPlatforms {} {
     global conf
 
-    if {$conf(demo)} {
-    	return [list Linux-x86 Windows]
-    }
-
     if {![info exists conf(platforms)]} {
-        set bindir [file join $::conf(pwd) Binaries]
-
-        set conf(platforms) [list]
-        set platformlist [glob -nocomplain -type d -dir $bindir *]
-        foreach dir [lsort $platformlist] {
-            set platform [file tail $dir]
-
-            set exe installkit
-            if {$platform eq "Windows"} { append exe .exe }
-
-            if {[file exists [file join $dir $exe]]} {
-                lappend conf(platforms) $platform
-            }
-        }
+        set file [file join $::conf(pwd) Binaries platforms.txt]
+        set conf(platforms) [lsort [read_file $file]]
     }
 
     return $conf(platforms)
@@ -337,6 +301,7 @@ proc ActivePlatforms {} {
 
     set platforms [list]
     foreach platform [AllPlatforms] {
+        if {![::InstallJammer::PlatformBinaryExists $platform]} { continue }
         if {[$platform active]} { lappend platforms $platform }
     }
     return $platforms
@@ -401,18 +366,123 @@ proc SetPlatform {} {
     unset ::TMP
 }
 
-proc ::InstallJammer::NodeName { obj } {
-    if {[info exists ::InstallJammer::ObjMap($obj)]} {
-        return $::InstallJammer::ObjMap($obj)
-    }
-    return $obj
+proc ::InstallJammer::DownloadProgress { tok total current } {
+    global conf
+    if {$total == 0} { return }
+    set conf(downloadProgress) [expr {($current * 100.0) / $total}]
 }
 
-proc ::InstallJammer::FileKey { parent name } {
-    set name [file normalize $name]
-    if {$::conf(windows)} { set name [string tolower $name] }
-    if {![$parent is filegroup]} { set name [file tail $name] }
-    return $parent,$name
+proc ::InstallJammer::DownloadComplete { tok } {
+    global conf
+    set conf(downloadComplete) 1
+}
+
+proc ::InstallJammer::DownloadPlatform { platform {error 1} } {
+    global conf
+
+    package require http
+
+    foreach ver [list $conf(Version) $conf(MinorVersion)] {
+        set url  $conf(DownloadURL)/installkit/$ver/$platform.zip
+        set code 400
+        if {[catch {http::geturl $url -validate 1} tok]} {
+            set code [http::ncode $tok]
+            http::cleanup $tok
+        }
+        if {$code == 200} { break }
+    }
+
+    if {$code != 200} {
+        if {$error} {
+            ::InstallAPI::ErrorMessage -message \
+                "No binaries could be located for $platform."
+        }
+        return
+    }
+
+    set top [::InstallJammer::TopName .__download]
+    destroy $top
+
+    toplevel    $top
+    wm withdraw $top
+    wm title    $top "Downloading $platform"
+    wm protocol $top WM_DELETE_WINDOW "#"
+    ::InstallJammer::PlaceToplevel $top -width 300 -height 100 -anchor center
+
+    ::InstallJammer::Grab $top
+
+    grid rowconfigure $top    1 -weight 1
+    grid columnconfigure $top 0 -weight 1
+
+    ttk::label $top.l -text "Downloading $platform binaries..."
+    grid $top.l -row 0 -column 0 -padx 10 -sticky w
+
+    ttk::progressbar $top.p -variable ::conf(downloadProgress)
+    grid $top.p -row 1 -column 0 -padx 10 -pady 5 -sticky ew
+
+    wm deiconify $top
+    update
+
+    set fp [::InstallJammer::OpenTempFile file]
+
+    set tok [http::geturl $url -binary 1 -channel $fp \
+        -progress ::InstallJammer::DownloadProgress]
+    set code   [http::ncode $tok]
+    set status [http::status $tok]
+    http::cleanup $tok
+
+    if {$code != 200 || $status ne "ok"} {
+        ::InstallAPI::ErrorMessage -message \
+            "Failed to download binaries for $platform."
+        close $fp
+        file delete $file
+        destroy $top
+        return
+    }
+
+    close $fp
+    $top.l configure -text "Installing $platform binaries..."
+
+    if {[catch { ::InstallAPI::UnpackArchive -file $file -format zip \
+        -destination [file join $conf(pwd) Binaries] } error]} {
+        ::InstallAPI::ErrorMessage -message "An error occurred while\
+            unpacking the $platform binaries."
+    } else {
+        set installkit [file join $conf(pwd) Binaries $platform bin installkit]
+        if {$platform eq "Windows"} { append installkit ".exe" }
+        if {![file exists $installkit]} {
+            ::InstallAPI::ErrorMessage -message "The installkit binary for\
+                $platform could not be found in the platform archive."
+        } else {
+            if {!$conf(windows)} {
+                file attributes $installkit -permissions 00755
+            }
+            catch {::InstallJammer::CreatePlatformFrame $platform}
+        }
+    }
+    file delete $file
+    destroy $top
+}
+
+proc ::InstallJammer::GetPlatformVersion {platform} {
+    global conf
+    set version 1.2
+    set verfile [file join $conf(pwd) Binaries $platform version]
+    if {[file exists $verfile]} {set version [string trim [read_file $verfile]]}
+    return $version
+}
+
+proc ::InstallJammer::CheckForPlatformUpgrades {} {
+    global conf
+
+    foreach platform [AllPlatforms] {
+        set version [::InstallJammer::GetPlatformVersion $platform]
+        if {[vercmp $version $conf(Version)] < 0} {
+            ::InstallJammer::DownloadPlatform $platform 0
+        }
+    }
+
+    ClearStatus
 }
 
 proc ::InstallJammer::FileObj { parent name args } {
@@ -420,34 +490,49 @@ proc ::InstallJammer::FileObj { parent name args } {
 
     if {$::conf(windows)} { set name [file normalize $name] }
 
-    set key [::InstallJammer::FileKey $parent $name]
-    if {[info exists ::InstallJammer::FileMap($key)]} {
-        set id $::InstallJammer::FileMap($key)
-    } else {
-        set id [::InstallJammer::uuid]
+    set tail [file tail $name]
+    if {![$parent is filegroup]} { set name $tail }
 
-        if {![$parent is filegroup]} { set name [file tail $name] }
-        eval [list ::File ::$id -name $name -parent $parent] $args
-        set ::InstallJammer::FileMap($key)  $id
-        set ::InstallJammer::NewFiles($key) 1
+    if {[::InstallJammer::FileObjExists $parent $name]} {
+        return $::InstallJammer::FileObjects($parent,$name)
+    }
 
-	if {[info exists widg(FileGroupTree)]} {
-	    set pnode [::InstallJammer::NodeName $parent]
-	    if {[$widg(FileGroupTree) visible $pnode]} {
-		::InstallJammer::AddToFileTree $id -text [file tail $name]
-	    }
-	}
+    set id [::InstallJammer::uuid]
+    ::File $id -name $name -parent $parent {*}$args
+    set ::InstallJammer::NewFiles($id) 1
 
+    if {[info exists widg(FileGroupTree)]} {
+        if {[$widg(FileGroupTree) visible $parent]} {
+            ::InstallJammer::AddToFileTree $id -text $tail
+        }
+    }
+
+    if {[::InstallJammer::GetFileSaveMethod $parent] == 1} {
         Modified
         ::InstallJammer::FilesModified
     }
-
     return $id
 }
 
-proc ::InstallJammer::FileIsNew { parent name } {
-    set key [::InstallJammer::FileKey $parent $name]
-    return [info exists ::InstallJammer::NewFiles($key)]
+proc ::InstallJammer::FileObjExists {parent name} {
+    if {[file pathtype $name] eq "absolute" && ![$parent is filegroup]} {
+        set name [file tail $name]
+    }
+    if {![info exists ::InstallJammer::FileObjects($parent,$name)]} { return 0 }
+    set obj $::InstallJammer::FileObjects($parent,$name)
+    if {![::InstallJammer::ObjExists $obj]} {
+        unset ::InstallJammer::FileObjects($parent,$name)
+        return 0
+    }
+    return 1
+}
+
+proc ::InstallJammer::FileIsNew { id } {
+    return [info exists ::InstallJammer::NewFiles($id)]
+}
+
+proc ::InstallJammer::ResetNewFiles {} {
+    unset -nocomplain ::InstallJammer::NewFiles
 }
 
 ## Add directories and files to the selected file group.
@@ -468,17 +553,13 @@ proc AddFiles { args } {
     set tree $widg(FileGroupTree)
     set pref $widg(FileGroupPref)
 
-    set n [::InstallJammer::NodeName $data(-group)]
-    if {![string length $data(-group)]} { set n [$tree selection get] }
-
-    if {[lempty $n]} { return }
-
-    set group [$tree itemcget $n -data]
-    set node  [::InstallJammer::NodeName $group]
+    set group $data(-group)
+    if {$group eq ""} { set group [$tree selection get] }
+    if {$group eq ""} { return }
 
     set files $data(-files)
 
-    if {[lempty $files]} {
+    if {![llength $files]} {
 	if {$data(-isdir)} {
 	    set files [list [mpi_chooseDirectory]]
 	} else {
@@ -498,9 +579,7 @@ proc AddFiles { args } {
             set file [string range $file 5 end]
         }
 
-        if {[string equal $::tcl_platform(platform) "windows"]} {
-            set file [file attributes $file -longname]
-        }
+        if {$conf(windows)} { set file [file attributes $file -longname] }
 
         if {[file isdirectory $file]} {
             lappend dirList $file
@@ -509,33 +588,25 @@ proc AddFiles { args } {
         }
     }
 
+    set follow [$group get FollowDirLinks]
+    set method [::InstallJammer::GetFileSaveMethod $group]
     foreach dir $dirList {
-        if {[string equal $::tcl_platform(platform) "windows"]} {
-            set dir [file attributes $dir -longname]
-        }
+        if {$conf(windows)} { set dir [file attributes $dir -longname] }
 
         set dirid [AddToFileGroup -type dir -group $group \
                 -parent $group -name $dir]
 
-        ## Scan through the directory recursively so we
-        ## can create a file object for every file.
-        ::InstallJammer::RecursiveGetFiles $dirid [$group get FollowDirLinks]
+        if {$method == 1} {
+            ## Scan through the directory recursively so we
+            ## can create a file object for every file.
+            ::InstallJammer::RecursiveGetFiles $dirid $follow
+        }
     }
 
-    ::FileGroupTree::SortNodes $node
+    ::FileGroupTree::SortNodes $group
 
     $tree configure -cursor {}
     ClearStatus
-
-    ## Make sure the selected file group is visible by opening
-    ## its parents up the tree.
-    if {![$tree visible $node]} {
-	set node [$tree parent $node]
-	while {![string equal $node "root"]} {
-	    $tree opentree $node 0
-	    set node [$tree parent $node]
-	}
-    }
 }
 
 proc AddToFileGroup { args } {
@@ -543,72 +614,30 @@ proc AddToFileGroup { args } {
     global conf
     global widg
 
-    array set data {
+    array set _args {
         -id       ""
         -name     ""
         -text     ""
         -type     ""
-        -group    ""
         -parent   ""
         -modify   1
     }
-    array set data $args
+    array set _args $args
 
-    set tree   $widg(FileGroupTree)
-    set pref   $widg(FileGroupPref)
-    set name   $data(-name)
-    set text   $data(-text)
-    set type   $data(-type)
-    set group  $data(-group)
-    set parent $data(-parent)
-
-    set node   [::InstallJammer::NodeName $parent]
-
-    set id $data(-id)
-    if {![string length $id]} {
-        set id [::InstallJammer::FileObj $parent $name -type $type]
-    } else {
-        set name   [$id name]
-        set type   [$id type]
-        set group  [$id group]
-        set node   [::InstallJammer::NodeName [$id parent]]
-        set parent [$id parent]
+    set id     $_args(-id)
+    set parent $_args(-parent)
+    if {$id eq ""} {
+        set name $_args(-name)
+        if {[::InstallJammer::FileObjExists $parent $name]} { return }
+        set id [::InstallJammer::FileObj $parent $name -type $_args(-type)]
     }
 
-    set file [::InstallJammer::GetFileSource $id]
+    set text $_args(-text)
+    if {$text eq ""} { set text [file tail [$id name]] }
+    ::InstallJammer::AddToFileTree $id -text $text
 
-    set new     [::InstallJammer::FileIsNew $parent $file]
-    set subnode [::InstallJammer::NodeName $id]
-
-    if {[$tree exists $subnode]} { return $id }
-
-    set treeopts [list -data $id -pagewindow $widg(FileGroupDetails)]
-
-    ## Highlight newly-added items in blue.
-    if {$new} { lappend treeopts -fill blue }
-
-    ## If a file cannot be found, show it as disabled.
-    if {![file exists $file]} { lappend treeopts -fill SystemDisabledText }
-
-    switch -- $type {
-        "dir"  {
-            set img folder16
-            lappend treeopts -drawcross allways
-        }
-        "file" {
-            set img filedocument16
-            lappend treeopts -drawcross auto
-        }
-    }
-
-    if {[$id active]} { set img check$img }
-    if {$text eq ""} { set text [file tail $name] }
-
-    lappend treeopts -text $text -image [GetImage $img]
-
-    eval [list $pref insert end $node $subnode] $treeopts
-
-    if {$new && $data(-modify)} {
+    if {$_args(-modify) && [::InstallJammer::FileIsNew $id]
+        && [::InstallJammer::GetFileSaveMethod [$id parent]] == 1} {
         Modified
         ::InstallJammer::FilesModified
     }
@@ -622,30 +651,26 @@ proc ::InstallJammer::AddToFileTree { id args } {
 
     set tree   $widg(FileGroupTree)
     set pref   $widg(FileGroupPref)
-    set node   [::InstallJammer::NodeName $id]
     set parent [$id parent]
 
-    if {[$tree exists $node]} { return $id }
+    if {[$tree exists $id]} { return $id }
 
     set file [::InstallJammer::GetFileSource $id]
 
-    set opts [list -data $id -pagewindow $widg(FileGroupDetails)]
+    set opts [list -pagewindow $widg(FileGroupDetails)]
 
     ## Highlight newly-added items in blue.
-    if {[::InstallJammer::FileIsNew $parent $file]} {
-        lappend opts -fill blue
-    }
+    if {[::InstallJammer::FileIsNew $id]} { lappend opts -fill blue }
 
     ## If a file cannot be found, show it as disabled.
-    if {![file exists $file]} {
-        lappend opts -fill SystemDisabledText
-    }
+    if {![file exists $file]} { lappend opts -fill SystemDisabledText }
 
     switch -- [$id type] {
         "dir"  {
             set img folder16
             lappend opts -drawcross allways
         }
+
         "file" {
             set img filedocument16
             lappend opts -drawcross auto
@@ -656,9 +681,7 @@ proc ::InstallJammer::AddToFileTree { id args } {
 
     lappend opts -image [GetImage $img]
 
-    set parent [::InstallJammer::NodeName $parent]
-
-    eval [list $pref insert end $parent $node] $opts $args
+    $pref insert end $parent $id {*}$opts {*}$args
 
     if {[info exists conf(SortTreeNodes)]} {
         lappend conf(SortTreeNodes) $parent
@@ -718,7 +741,8 @@ proc UpdateRecentProjects {} {
     foreach project [lsort -dict [array names sort]] {
         foreach filename $sort($project) {
             set file [file tail $filename]
-            set i [$w create text $x $y -text $file -anchor nw -font $header \
+            set name [file root $file]
+            set i [$w create text $x $y -text $name -anchor nw -font $header \
                 -fill blue -tags [list text project]]
             DynamicHelp::add $w -item $i -text "Location $filename"
             set size [font measure $font $file]
@@ -782,7 +806,7 @@ proc ::InstallJammer::LeaveProjectItem { w } {
 proc LastSaved { filename } {
     global conf
     if {![file exists $filename]} { return 0 }
-    return [clock format [file mtime $filename] -format "%D %r"]
+    return [clock format [file mtime $filename] -format "%D %H:%M:%S"]
 }
 
 proc LastBuilt { filename } {
@@ -791,7 +815,7 @@ proc LastBuilt { filename } {
     if {![file exists $file]} {
 	return "Never Built"
     } else {
-	return [clock format [file mtime $file] -format "%D %r"]
+	return [clock format [file mtime $file] -format "%D %H:%M:%S"]
     }
 }
 
@@ -1030,14 +1054,14 @@ proc ::InstallJammer::BackupProjectFile { args } {
         set oldFile $info(ProjectFile)
     }
 
-    set oldFile [::InstallJammer::SubstText $oldFile]
-    set newFile [::InstallJammer::SubstText $newFile]
+    set oldFile [sub $oldFile]
+    set newFile [sub $newFile]
 
     if {[file pathtype $newFile] eq "relative"} {
         set newFile [file join $info(ProjectDir) $newFile]
     }
 
-    file copy -force $oldFile $newFile
+    if {![file exists $newFile]} { file copy -force $oldFile $newFile }
 }
 
 proc ::InstallJammer::ExploreTestInstall {} {
@@ -1346,7 +1370,7 @@ proc ::InstallJammer::RestorePaneProc { id } {
     }
 }
 
-proc EditTextField { id field title varName {multilang 1} args } {
+proc EditTextField { id field title varName args } {
     global conf
     upvar #0 $varName var
 
@@ -1367,86 +1391,9 @@ proc EditTextField { id field title varName {multilang 1} args } {
 
     set args [linsert $args 0 -title $title -variable $varName]
 
-    if {$multilang} {
-        set args [linsert $args 0 -languages 1 \
-            -languagecommand ::InstallJammer::EditorLanguageChanged]
-    }
-
     set res [eval ::editor::new $args]
 
-    if {$multilang} {
-        if {$res} {
-            if {[string index $var end] eq "\n"} {
-                set var [string range $var 0 end-1]
-            }
-
-            if {$var ne $conf(editOldText)} {
-                set lang [list [::editor::language]]
-                ::InstallJammer::SetVirtualText $lang $id $field $var
-            }
-        }
-
-        set var [::InstallJammer::GetText $id $field -subst 0]
-    }
-
     if {$var ne $conf(editOldText)} { Modified }
-}
-
-proc ::InstallJammer::EditorLanguageChanged {} {
-    global conf
-
-    variable languages
-
-    lassign $conf(editTextField) id field
-
-    if {[::editor::modified]} {
-        set ans [::InstallJammer::Message \
-            -type yesnocancel -title "Text Modified" \
-            -message "Text has been modified.  Do you want to save changes?"]
-
-        if {$ans eq "cancel"} { return }
-        if {$ans eq "yes"} {
-            set lang [list [::editor::lastlanguage]]
-            set text [::editor::gettext]
-            if {[string index $text end] eq "\n"} {
-                set text [string range $text 0 end-1]
-            }
-            ::InstallJammer::SetVirtualText $lang $id $field $text
-            Modified
-        }
-    }
-
-    set lang [list [::editor::language]]
-    set text [::InstallJammer::GetText $id $field -language $lang -subst 0]
-
-    ::editor::settext $text
-
-    set conf(editOldText) $text
-}
-
-proc BindMouseWheel { w {cmd WheelScroll} } {
-    set top [winfo toplevel $w]
-    switch -- $::tcl_platform(platform) {
-	"windows" {
-	    bind $top <MouseWheel> "$cmd $w 5 units %D"
-	    bind $top <Control-MouseWheel> "$cmd $w 1 units %D"
-	    bind $top <Shift-MouseWheel> "$cmd $w 1 pages %D"
-	}
-
-	"unix" {
-	    bind $top <4> "$cmd $w -5 units"
-	    bind $top <5> "$cmd $w  5 units"
-	    bind $top <Control-4> "$cmd $w -1 units"
-	    bind $top <Control-5> "$cmd $w  1 units"
-	    bind $top <Shift-4> "$cmd $w -1 pages"
-	    bind $top <Shift-5> "$cmd $w  1 pages"
-	}
-    }
-}
-
-proc WheelScroll {w num type {delta 0}} {
-    if {$delta > 0} { set num -$num }
-    $w yview scroll $num $type
 }
 
 proc Modified { {status 1} } {
@@ -1538,6 +1485,10 @@ proc AddComponent { setup args } {
             set command ::InstallJammer::AddActionGroup
             set result [eval [list $command $setup] $args -edit 0]
         }
+
+        default {
+            return
+        }
     }
 
     return $result
@@ -1585,8 +1536,9 @@ proc ::InstallJammer::AddPane { setup pane args } {
         set id   [::InstallJammer::uuid]
         set type pane
         if {[$obj get Toplevel value toplevel] && $toplevel} { set type window }
-        InstallComponent ::$id -parent $parent -setup $setup -index $index \
+        ::Pane $id -parent $parent -setup $setup \
             -component $pane -type $type -title $data(-title)
+        if {$index ne "end"} { $parent children move $id $index }
 
         if {[lsearch -exact [$panes($pane) installtypes] "Common"] < 0} {
             $id set Active Yes
@@ -1594,13 +1546,6 @@ proc ::InstallJammer::AddPane { setup pane args } {
     }
 
     $obj initialize $id
-
-    foreach field [$obj textfields] {
-        $obj get $field subst subst
-        $id set -safe $field \
-            [::InstallJammer::GetText $id $field -label 1 -subst 0]
-        $id set -safe $field,subst $subst
-    }
 
     $pref insert $index $parent $id -text $data(-title) -image $image \
         -data pane -createcommand [list CreatePaneFrame $id] \
@@ -1787,18 +1732,18 @@ proc AddProperty { prop index parent id name varName args } {
     lappend opts -editfinishcommand [list $fcmd $prop $id $name $type $varName]
 
     switch -- $data(-type) {
-        "text" {
+        "text" - "longtext" {
             set title "Edit [::InstallJammer::StringToTitle $name]"
             lappend opts -browsebutton 1
             lappend opts -browsecommand
-            lappend opts [list EditTextField $id $name $title $varName 0]
+            lappend opts [list EditTextField $id $name $title $varName]
         }
 
         "code" {
             set title "Edit [::InstallJammer::StringToTitle $name]"
             lappend opts -browsebutton 1
             lappend opts -browsecommand
-            lappend opts [list EditTextField $id $name $title $varName 0 \
+            lappend opts [list EditTextField $id $name $title $varName \
                                 -font "Courier 10"]
         }
 
@@ -1913,7 +1858,7 @@ proc AddProperty { prop index parent id name varName args } {
             set title "Edit [::InstallJammer::StringToTitle $name]"
             lappend opts -browsebutton 1
             lappend opts -browsecommand
-            lappend opts [list EditTextField $id $name $title $varName 0]
+            lappend opts [list EditTextField $id $name $title $varName]
         }
 
         "addwidgettype" {
@@ -1931,18 +1876,21 @@ proc AddProperty { prop index parent id name varName args } {
     eval $prop insert $index $parent $data(-node) $opts
 }
 
-proc ::InstallJammer::CheckAlias { id alias } {
+proc ::InstallJammer::CheckAlias { id aliasName } {
     variable aliases
 
-    if {$alias eq "all"} {
+    if {$aliasName eq "all"} {
         ::InstallJammer::Error -message \
-            "The word '$alias' is reserved and cannot be used as an alias"
+            "The word '$aliasName' is reserved and cannot be used as an alias"
         return 0
     }
 
+    set setup [$id setup]
+    set alias "$setup:$aliasName"
+
     if {[info exists aliases($alias)] && $aliases($alias) ne $id} {
         ::InstallJammer::Error -message \
-            "The alias '$alias' is being used by another object"
+            "The alias '$aliasName' is being used by another object"
         return 0
     }
 
@@ -2027,6 +1975,16 @@ proc ::InstallJammer::FinishEditPropertyNode { path id property type varName } {
                         "Destination creates an infinite loop."
                     after idle [list focus [$path edit entrypath]]
                     return 0
+                }
+            }
+
+            "FileSaveMethod" {
+                if {$var eq "Save all files"} {
+                    Status "Getting list of files..."
+                    set group  [::FileGroupTree::GetFileGroup $id]
+                    set follow [$group get FollowDirLinks]
+                    ::InstallJammer::RecursiveGetFiles $id $follow
+                    ClearStatus
                 }
             }
         }
@@ -2116,7 +2074,7 @@ proc ::InstallJammer::FinishEditTextFieldNode { path id field varName
     if {$subst && ![::InstallJammer::CheckVirtualText $newtext]} { return 0 }
 
     if {$newtext ne [::InstallJammer::GetText $id $field -subst 0]} {
-        ::InstallJammer::SetVirtualText en $id [list $field $newtext]
+        ::InstallJammer::SetVirtualText all $id [list $field $newtext]
         Modified
     }
     return 1
@@ -2171,7 +2129,7 @@ proc GetComponentList { {setup ""} {activeOnly 0} } {
 
     set list [list]
 
-    foreach id [::itcl::find objects -isa InstallComponent] {
+    foreach id [::obj::class instances InstallComponent] {
         if {$setup ne "" && [$id setup] ne $setup} { continue }
         if {$activeOnly && ![$id active]} { continue }
         lappend list $id
@@ -2277,6 +2235,18 @@ proc ShrinkCode { string } {
 proc ShrinkFile {file} {
     if {[file exists $file]} {
         return [ShrinkCode [read_file $file]]
+    }
+}
+
+proc ::InstallJammer::OpenExternalFile {file} {
+    global conf
+
+    if {$conf(windows)} {
+        exec $::env(COMSPEC) /c start $file &
+    } elseif {$conf(osx)} {
+        exec open $file &
+    } else {
+        exec xdg-open $file &
     }
 }
 
@@ -2607,7 +2577,7 @@ proc ::InstallJammer::UpdateActiveComponent {} {
     }
 
     foreach prop [$obj textfields] {
-        set active($prop) [::InstallJammer::GetText $id $prop -subst 0 -label 1]
+        set active($prop) [::InstallJammer::GetText $id $prop -subst 0]
         set active($prop,subst) $Properties($id,$prop,subst)
     }
 
@@ -2631,18 +2601,9 @@ proc ::InstallJammer::SetActiveComponent { {id ""} } {
 
     if {![::InstallJammer::ObjExists $id]} { return }
 
-    set ::InstallJammer::ActiveComponent $id
-    
-    ::InstallJammer::UpdateActiveComponent
-
     switch -- [$id type] {
         "filegroup" {
             ::InstallJammer::SetHelp GroupsAndFiles
-            set ::InstallJammer::ActiveComponents(filegroup) $id
-        }
-
-        "file" - "dir" {
-            ::InstallJammer::SetHelp FilesAndDirectories
             set ::InstallJammer::ActiveComponents(filegroup) $id
         }
 
@@ -2666,10 +2627,17 @@ proc ::InstallJammer::SetActiveComponent { {id ""} } {
         }
 
         default {
-            ::InstallJammer::SetHelp TheUserInterfaceTree
-            set ::InstallJammer::ActiveComponents([$id setup]) $id
+            return
         }
     }
+
+    if {$id ne [::InstallJammer::GetActiveComponent]} {
+        ::InstallJammer::HistoryAppend $id
+    }
+
+    set ::InstallJammer::ActiveComponent $id
+    
+    ::InstallJammer::UpdateActiveComponent
 }
 
 proc ::InstallJammer::GetActiveComponent {} {
@@ -2685,7 +2653,6 @@ proc ::InstallJammer::RenameComponent { id name } {
 
     switch -- [$id type] {
         "filegroup" {
-            set node [::InstallJammer::NodeName $id]
             ::InstallJammer::Tree::DoRename $widg(FileGroupTree) $node $name
         }
 
@@ -2895,19 +2862,11 @@ proc ::InstallJammer::LoadMessages { args } {
     array set _args {
         -dir   ""
         -clear 0
+        -force 1
     }
     array set _args $args
 
-    if {![string length $_args(-dir)]} {
-        set _args(-dir)   [file join $conf(lib) msgs]
-        set _args(-clear) 1
-    }
-    
-    set list [list]
-    foreach id [itcl::find object -isa ::InstallJammer::ComponentDetails] {
-        lappend list [$id name]
-    }
-    set list [lsort -unique $list]
+    if {$_args(-dir) eq ""} { set _args(-dir) [file join $conf(lib) msgs] }
 
     foreach file [recursive_glob $_args(-dir) *.msg] {
         set lang [file root [file tail $file]]
@@ -2939,20 +2898,18 @@ proc ::InstallJammer::LoadMessages { args } {
             break
         }
 
+        if {![info exists second]} { continue }
         if {![string match {"*"} $second] && ![string match "*\{" $first]} {
             continue
         }
+
         if {[catch {array set msg $data}]} { continue }
+
         foreach text [array names msg] {
-            if {[lsearch -exact $list $text] > -1} {
-                ## This is an action or something, so it has
-                ## multiple text definitions.
-                foreach {name value} $msg($text) {
-                    set messages($text,$name) $value
-                    ::msgcat::mcset $lang $text,$name $value
-                }
-            } else {
+            if {$_args(-force) || ![info exists messages($text)]} {
                 set messages($text) $msg($text)
+            }
+            if {$_args(-force) || ![::msgcat::mcexists $text $lang]} {
                 ::msgcat::mcset $lang $text $msg($text)
             }
         }
@@ -3007,13 +2964,9 @@ proc ::InstallJammer::DumpObject { obj } {
 
     set textprops {}
     foreach prop [[$obj object] textfields] {
-        foreach lang [::InstallJammer::GetLanguageCodes] {
-            lappend textprops $prop
-            lappend textprops $lang
-            lappend textprops [::InstallJammer::GetText $obj $prop -subst 0 \
-                -language $lang -forcelang 1]
-            lappend textprops [$obj get $prop,subst]
-        }
+        lappend textprops $prop
+        lappend textprops [::InstallJammer::GetText $obj $prop -subst 0]
+        lappend textprops [$obj get $prop,subst]
     }
 
     lappend list $textprops
@@ -3182,6 +3135,136 @@ proc ::InstallJammer::LaunchExternalEditor { value command } {
     ::InstallJammer::WatchExternalFile $pid $file $command 0
 }
 
+proc ::InstallJammer::JumpTo { place } {
+    global conf
+    global widg
+
+    set conf(historyMoving) 1
+
+    set w [lindex $place 0]
+    if {[winfo exists $w]} {
+        $w raise [lindex $place 1]
+    } elseif {[::InstallJammer::ObjExists $w]} {
+        set obj $w
+
+        switch -- [$obj type] {
+            "dir" - "file" - "filegroup" {
+                $widg(Product) raise groupsAndFiles
+                ::FileGroupTree::select $obj
+                $widg(FileGroupTree) see $obj
+            }
+
+            "component" {
+                $widg(Product) raise components
+                $widg(ComponentTree) selection set $obj
+                $widg(ComponentTree) see $obj
+            }
+                
+            "setuptype" {
+                $widg(Product) raise setupTypes
+                $widg(SetupTypeTree) selection set $obj
+                $widg(SetupTypeTree) see $obj
+            }
+
+            "pane" - "action" - "actiongroup" {
+                set setup [$obj setup]
+                $widg(Product) raise [string tolower $setup]
+                $widg($setup) selection set $obj
+                $widg($setup) see $obj
+            }
+
+            default {
+                return -code error "CANNOT JUMP TO $obj"
+            }
+        }
+
+        ::InstallJammer::SetActiveComponent $obj
+    }
+
+    ::InstallJammer::HistoryUpdateButtons
+
+    set conf(historyMoving) 0
+}
+
+proc ::InstallJammer::HistoryAppend {place} {
+    global conf
+
+    if {$conf(historyMoving)} { return }
+
+    set last [expr {[llength $conf(history)] - 1}]
+    if {$conf(historyIndex) == $last} {
+        incr conf(historyIndex)
+    } else {
+        set conf(history) [lreplace $conf(history) $conf(historyIndex)+1 end]
+        set conf(historyIndex) [llength $conf(history)]
+    }
+    set prev [lindex $conf(history) end]
+    if {$place eq $prev} { return }
+
+    if {[llength $place] == 1 && [llength $prev] == 2} {
+        set sect [lindex $prev 1]
+        set remove 0
+        if {[::InstallJammer::ObjExists $place]} {
+            set type [$place type]
+
+            if {$type in {dir file filegroup} && $sect eq "groupsAndFiles"} {
+                set remove 1
+            } elseif {$type eq "component" && $sect eq "components"} {
+                set remove 1
+            } elseif {$type eq "setuptype" && $sect eq "setupTypes"} {
+
+            } elseif {$type in {pane action actiongroup}
+                && $sect eq [string tolower [$place setup]]} {
+                set remove 1
+            }
+        }
+
+        if {$remove} {
+            set conf(history) [lreplace $conf(history) end end]
+            incr conf(historyIndex) -1
+        }
+    }
+    lappend conf(history) $place
+
+    ::InstallJammer::HistoryUpdateButtons
+}
+
+proc ::InstallJammer::HistoryUpdateButtons {} {
+    global conf
+    global widg
+
+    set last [expr {[llength $conf(history)] - 1}]
+    if {$conf(historyIndex) == $last} {
+        $widg(ForwardButton) configure -state disabled
+    } else {
+        $widg(ForwardButton) configure -state normal
+    }
+
+    if {$conf(historyIndex) <= 0} {
+        $widg(BackButton) configure -state disabled
+    } else {
+        $widg(BackButton) configure -state normal
+    }
+}
+
+proc ::InstallJammer::HistoryBack {} {
+    global conf
+
+    incr conf(historyIndex) -1
+    if {$conf(historyIndex) < 0} { set conf(historyIndex) 0 }
+    ::InstallJammer::JumpTo [lindex $conf(history) $conf(historyIndex)]
+}
+
+proc ::InstallJammer::HistoryForward {} {
+    global conf
+
+    incr conf(historyIndex)
+    if {$conf(historyIndex) >= [llength $conf(history)]} {
+        set conf(historyIndex) [expr {[llength $conf(history)] - 1}]
+    }
+    ::InstallJammer::JumpTo [lindex $conf(history) $conf(historyIndex)]
+}
+
 proc ::InstallJammer::FindFile {file args} {
     if {$file eq ""} { return }
     if {[file pathtype $file] eq "absolute"} { return $file }
@@ -3193,6 +3276,97 @@ proc ::InstallJammer::FindFile {file args} {
     }
 
     return $file
+}
+
+proc ::InstallJammer::ReadPackageDescription {file} {
+    set fp [open $file]
+
+    set d [dict create package "" tclpackage "" \
+        version "" description "" platform ""]
+    while {[gets $fp line] != -1} {
+        set line [string trim $line]
+        if {$line eq ""} { break }
+
+        if {[regexp {^([a-zA-Z0-9]+):(.*)} $line -> var val]} {
+            set var [string tolower $var]
+            set val [string trim $val]
+            if {![dict exists $d $var]} { break }
+            dict set d $var $val
+        }
+    }
+
+    dict set d description [string trim [read $fp]]
+    close $fp
+    return $d
+}
+
+proc ::InstallJammer::FindPackagesInDir {dir} {
+    if {![file exists $dir]} { return }
+
+    set platforms [AllPlatforms]
+
+    set d [dict create]
+    foreach dir [glob -nocomplain -type d -dir $dir *] {
+        if {[file tail $dir] in $platforms} { continue }
+
+        set file [file join $dir ijpkg.desc]
+        if {![file exists $file]} { continue }
+
+        set pkgd [::InstallJammer::ReadPackageDescription $file]
+        set key  [dict get $pkgd package]|$dir
+        if {[file tail [file dirname $dir]] in $platforms} {
+            dict set pkgd platform [file tail [file dirname $dir]]
+        }
+        dict set d $key $pkgd
+    }
+
+    return $d
+}
+
+proc ::InstallJammer::GetExternalPackages {} {
+    global conf
+
+    ## Build a list of directories to search for packages.  We
+    ## always want to look in the platform-specific directories
+    ## first as binary packages of the same name can override
+    ## a pure-Tcl one if we have it.
+    set dirs {}
+    foreach platform [AllPlatforms] {
+        lappend dirs [InstallDir packages/$platform]
+        lappend dirs [file join $conf(pwd) Binaries $platform lib]
+        lappend dirs [file join $conf(lib) packages $platform]
+    }
+    lappend dirs [InstallDir packages]
+    lappend dirs [file join $conf(lib) packages]
+
+    set d [dict create]
+    foreach dir $dirs {
+        set d [dict merge $d [::InstallJammer::FindPackagesInDir $dir]]
+    }
+
+    set conf(packages) $d
+}
+
+proc ::InstallJammer::PopulateExternalPackages {} {
+    global conf
+    global widg
+
+    ::InstallJammer::GetExternalPackages
+
+    if {![info exists widg(ExternalPackageTree)]} { return }
+
+    set tree $widg(ExternalPackageTree)
+
+    $tree clear
+    dict for {key d} $conf(packages) {
+        lassign [split $key |] package dir
+        if {[info exists done($package)]} { continue }
+        set done($package) 1
+
+        $tree insert end root #auto -text $package -type checkbutton \
+            -helptext [dict get $d description] \
+            -variable ::info(Include${package}Package)
+    }
 }
 
 proc ::InstallJammer::GetWindowGeometry {window default} {

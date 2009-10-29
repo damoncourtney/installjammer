@@ -60,4 +60,6 @@ proc ::InstallJammer::actions::AddWindowsFileType { obj } {
     }
 
     ::InstallJammer::LogRegistry "HKEY_CLASSES_ROOT\\$props(FileType)"
+
+    ::InstallAPI::SendWindowsNotification -assocchanged 1
 }

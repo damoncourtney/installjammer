@@ -22,6 +22,9 @@ CleanupInstallText
 Close
 "Chiudi"
 
+ConsolePause,Message
+"<%ConsolePauseText%>"
+
 ConsolePauseQuitText
 "-- Premere spazio per proseguire o 'q' per uscire --"
 
@@ -97,6 +100,12 @@ InstallTitleText
 LaunchApplicationText
 "Eseguire <%AppName%>"
 
+LocateJavaRuntime,PromptMessage
+"Si prega di comunicare dove si trova la Java Runtime"
+
+LocateJavaRuntime,StatusMessage
+"Individuazione della Java Runtime in corso..."
+
 Next
 "Avanti"
 
@@ -127,37 +136,50 @@ RequireRootText
 SeparatorText
 "InstallJammer"
 
+TextWindow,Caption
+"Didascalia"
+
+TextWindow,CloseButton
+"<%Close%>"
+
+TextWindow,Message
+"Il messaggio va qui."
+
+TextWindow,Title
+"Titolo della finestra"
+
 TypicalInstallDescription
 "Installazione tipica."
 
 UninstallApplicationText
 "Disinstalla <%AppName%>"
 
-UninstallPrepareText
-"Preparazione della disinstallazione..."
-
-UpdateRegistryText
-"Aggiornamento del Registro di Windows..."
+UninstallCompleteText
+"Disinstallazione completata."
 
 UninstallingApplicationText
 "Disinstallazione di <%AppName%>..."
 
-UninstallCompleteText
-"Disinstallazione completata."
+UninstallLeftoverText
+"Alcune parti non possono essere rimosse. Si desidera cancellarle comunque (sconsigliato)?"
+
+UninstallPrepareText
+"Preparazione della disinstallazione..."
 
 UninstallStartupText
-"<%AppName%> sarà rimosso completamente dal sistema. Si è sicuri di voler\
- procedere?"
-
-UninstallLeftoverText
-"Alcune parti non possono essere rimosse. Si desidera cancellarle comunque\
- (sconsigliato)?"
+"<%AppName%> sarà rimosso completamente dal sistema. Si è sicuri di voler procedere?"
 
 UninstallTitleText
 "Disinstalla <%AppName%>"
 
 UnpackingFilesText
 "Decompressione dei file..."
+
+UnzipFile,StatusText
+"<%FileBeingInstalledText%>"
+
+UpdateRegistryText
+"Aggiornamento del Registro di Windows..."
 
 VersionHelpText
 "Il programma sta per installare <%AppName%> nella versione <%Version%>."
@@ -167,35 +189,3 @@ ViewReadmeText
 
 Yes
 "Sì"
-
-ConsolePause {
-    Message
-    "<%ConsolePauseText%>"
-}
-
-LocateJavaRuntime {
-    PromptMessage
-    "Si prega di comunicare dove si trova la Java Runtime"
-
-    StatusMessage
-    "Individuazione della Java Runtime in corso..."
-}
-
-TextWindow {
-    Title
-    "Titolo della finestra"
-
-    Caption
-    "Didascalia"
-
-    Message
-    "Il messaggio va qui."
-
-    CloseButton
-    "<%Close%>"
-}
-
-UnzipFile {
-    StatusText
-    "<%FileBeingInstalledText%>"
-}

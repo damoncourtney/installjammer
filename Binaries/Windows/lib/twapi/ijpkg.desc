@@ -1,0 +1,9 @@
+Package: Twapi
+Version: 1.1.5
+
+The Tcl Windows API (TWAPI) package provides access to the Windows API
+through a high-level interface that is made available to the installer.
+This interface is used in many of the Windows actions and can be used in
+scripts to gain access to a wider range of information on Windows.
+
+The TWAPI package is only available on Windows.

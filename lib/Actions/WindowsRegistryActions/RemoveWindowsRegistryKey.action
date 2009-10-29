@@ -37,7 +37,7 @@ proc ::InstallJammer::actions::RemoveWindowsRegistryKey { obj } {
 
     $obj properties props -subst 1
 
-    set conf(UpdateWindowsRegistry) 1
+    ::InstallAPI::SendWindowsNotification -environment 1
 
     set key $props(Key)
     if {![string match "HKEY*" $key]} { set key $props(RootKey)\\$key }

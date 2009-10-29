@@ -62,6 +62,34 @@ proc ::InstallJammer::CommandLineBuild {} {
     global conf
     global info
 
+    foreach obj $conf(EnableObjects) {
+        set id $obj
+        if {![string match "Install:*" $obj]
+            && ![string match "Uninstall:*" $obj]} { set id "Install:$obj" }
+        set id [::InstallAPI::FindObjects -alias $id]
+        if {$id eq ""} {
+            BuildLog "error enabling object: object \"$obj\" does not exist" \
+                -tags error
+        } else {
+            BuildLog "object \"$obj\" enabled"
+            $id active 1
+        }
+    }
+
+    foreach obj $conf(DisableObjects) {
+        set id $obj
+        if {![string match "Install:*" $obj]
+            && ![string match "Uninstall:*" $obj]} { set id "Install:$obj" }
+        set id [::InstallAPI::FindObjects -alias $id]
+        if {$id eq ""} {
+            BuildLog "error disabling object: object \"$obj\" does not exist" \
+                -tags error
+        } else {
+            BuildLog "object \"$obj\" disabled"
+            $id active 0
+        }
+    }
+
     ::Build
 
     if {$conf(buildAndTest)} {

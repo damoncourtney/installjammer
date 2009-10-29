@@ -44,7 +44,8 @@ proc ::InstallJammer::SetProjectDefaults { {force 0} } {
         DefaultLanguage                 "English"
         DefaultToSystemLanguage         "Yes"
         EnableResponseFiles             "Yes"
-        ExtractSolidArchivesOnStartup   "No"
+        ExtractSolidArchives            "Before installation"
+        FileSaveMethod "Save files and directories with modified properties"
         IgnoreDirectories               ""
         IgnoreFiles                     ""
 	IncludeDebugging	        "Yes"
@@ -62,7 +63,6 @@ proc ::InstallJammer::SetProjectDefaults { {force 0} } {
         PackageVersion                  "<%MajorVersion%>.<%MinorVersion%>"
         PreserveFileAttributes          "Yes"
         PreserveFilePermissions         "Yes"
-        SaveOnlyToplevelDirs            "No"
         ShortAppName                    ""
 	SkipUnusedFileGroups	        "Yes"
         UpgradeApplicationID            ""
@@ -775,7 +775,7 @@ proc Done {} {
 
     InitComponentTrees
 
-    ::InstallJammer::LoadMessages
+    ::InstallJammer::LoadMessages -clear 1
 
     ::InstallJammer::LoadVirtualText
 
@@ -788,19 +788,19 @@ proc Done {} {
     $compid platforms  [AllPlatforms]
     $compid set FileGroups [list $groupid]
     $compid set RequiredComponent Yes
-    ::InstallJammer::SetVirtualText en $compid \
+    ::InstallJammer::SetVirtualText all $compid \
         Description "<%ProgramFilesDescription%>"
 
     set id [::SetupTypeTree::New -text "Typical"]
     $id platforms  [AllPlatforms]
     $id set Components [list $compid]
-    ::InstallJammer::SetVirtualText en $id \
+    ::InstallJammer::SetVirtualText all $id \
         Description "<%TypicalInstallDescription%>"
 
     set id [::SetupTypeTree::New -text "Custom"]
     $id platforms [AllPlatforms]
     $id set Components [list $compid]
-    ::InstallJammer::SetVirtualText en $id \
+    ::InstallJammer::SetVirtualText all $id \
         Description "<%CustomInstallDescription%>"
 
     Status "Loading [::InstallJammer::StringToTitle $info(Theme)] Theme..."
@@ -849,22 +849,6 @@ proc Done {} {
     set id [::InstallJammer::AddActionGroup Install \
         -parent ActionGroupsInstall -title "Cancel Actions" -edit 0 -open 1]
     $id set Alias "Cancel Actions"
-
-
-    ## Add a popup to the Startup Actions that asks the user if
-    ## they want to continue the install.
-    set act [::InstallJammer::AddAction Install Exit -parent "Startup Actions"]
-    $act set Comment "Ask the user if they want to proceed with the install."
-
-    set con [::InstallJammer::AddCondition StringIsCondition -parent $act]
-    $con set String   "<%GuiMode%>"
-    $con set Operator "true"
-
-    set id [::InstallJammer::AddCondition AskYesOrNo -parent $act]
-    $id set TrueValue "No"
-    ::InstallJammer::SetVirtualText en $id {
-        Title "<%InstallApplicationText%>" Message "<%InstallStartupText%>"
-    }
 
     ## If the theme didn't already add a CreateInstallPanes action,
     ## add it to the Startup Actions.
@@ -917,9 +901,9 @@ proc Done {} {
 
     set id [::InstallJammer::AddCondition AskYesOrNo -parent $act]
     $id set TrueValue "No"
-    ::InstallJammer::SetVirtualText en $id {
-        Title "<%UninstallApplicationText%>" Message "<%UninstallStartupText%>"
-    }
+    ::InstallJammer::SetVirtualText all $id \
+        Title "<%UninstallApplicationText%>" \
+        Message "<%UninstallStartupText%>"
 
     ## Add items to the Uninstall Actions.
     ::InstallJammer::AddAction Uninstall UninstallSelectedFiles \
@@ -1041,7 +1025,7 @@ proc Done {} {
         set act [::InstallJammer::AddAction Install TextWindow \
                 -parent $installFinishActions -title "View Readme Window"]
         $act set TextFile "<%ProgramReadme%>"
-        ::InstallJammer::SetVirtualText en $act \
+        ::InstallJammer::SetVirtualText all $act \
             Message "" \
             Title   "<%ApplicationReadmeText%>" \
             Caption "<%ApplicationReadmeText%>"

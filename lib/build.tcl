@@ -47,7 +47,7 @@ proc BuildLog { text args } {
 
     Status [lindex [split $text \n] 0]
 
-    set date "[clock format [clock seconds] -format "%D %r"]"
+    set date "[clock format [clock seconds] -format "%D %H:%M:%S"]"
 
     set string "$date - $text"
     if {$conf(logBuild) && $_args(-logtofile)} {
@@ -97,7 +97,7 @@ proc ::InstallJammer::BuildOutput { line {errorInfo ""} } {
 
     switch -- $cmd {
         ":FILE" {
-            BuildLog "Packing [lindex $line 1]..." -logtofile 0
+            ::InstallJammer::LogPackedFile [lindex $line 1]
             FileProgress 0
         }
 
@@ -125,6 +125,10 @@ proc ::InstallJammer::BuildOutput { line {errorInfo ""} } {
             BuildLog $line -tags error
         }
     }
+}
+
+proc ::InstallJammer::LogPackedFile { file } {
+    BuildLog "Packing $file..." -logtofile 0
 }
 
 proc ::InstallJammer::ReadBuild { fp } {
@@ -161,31 +165,41 @@ proc ::InstallJammer::FinishBuild { {errors 0} } {
         return
     }
 
-    if {!$errors && [info exists solid]} {
+    if {$errors} {
+        BuildLog "$pretty build completed with errors" -tags error
+        Status "$pretty build errored." 3000
+        ::InstallJammer::CallHook OnBuildFailure $platform
+        BuildNext
+        return
+    }
+
+    if {[info exists solid]} {
         foreach methodName [lsort [array names solid]] {
             set method [lindex $methodName 0]
             BuildLog "Building $method solid archive..."
 
-            set file [::InstallJammer::BuildDir solid.$method]
+            set archive [::InstallJammer::BuildDir solid.$method]
 
-            set fp [miniarc::open crap $file w -method none]
-            foreach fileid $solid($methodName) {
-                set src [::InstallJammer::GetFileSource $fileid]
-                BuildLog "Packing $src..." -logtofile 0
-                miniarc::addfile $fp $src -name $fileid
+            set files {}
+            foreach {fileid file} $solid($methodName) {
+                lappend files [list $file -name $fileid]
             }
+            set fp [miniarc::open crap $archive w -method none -flatheaders 1]
+            miniarc::addfilelist $fp $files \
+                -progress ::InstallJammer::LogPackedFile
             miniarc::close $fp
 
             BuildLog "Storing $method solid archive..."
             set fp [miniarc::open crap $conf(tmpExecutable) a -method $method]
-            miniarc::addfile $fp $file -name solid.$method
+            miniarc::addfile $fp $archive -name solid.$method
             miniarc::close $fp
 
-            file delete -force $file
+            file delete -force $archive
         }
     }
 
-    if {!$errors && [file exists $conf(tmpExecutable)] && [catch {
+    if {[info exists conf(tmpExecutable)] && [file exists $conf(tmpExecutable)]
+        && [catch {
             file rename -force $conf(tmpExecutable) $conf(executable)
         }]} {
         set errors 1
@@ -196,7 +210,11 @@ proc ::InstallJammer::FinishBuild { {errors 0} } {
     if {$errors} {
         BuildLog "$pretty build completed with errors" -tags error
         Status "$pretty build errored." 3000
+        ::InstallJammer::CallHook OnBuildFailure $platform
     } else {
+        if {$platform eq "MacOS-X"
+            && [$platform get BuildType] eq ".app bundle"} { BuildAppBundle }
+
         set secs  [expr [clock seconds] - $conf(buildForPlatformStart)]
         set fmt "%Mm%Ss"
         set time [clock format $secs -format $fmt -gmt 1]
@@ -206,13 +224,14 @@ proc ::InstallJammer::FinishBuild { {errors 0} } {
 
         if {[info exists widg(BuildLog)]} {
             set auto [expr {[lindex [$widg(BuildLog) yview] 1] == 1}]
-            set date "[clock format [clock seconds] -format "%D %r"]"
+            set date "[clock format [clock seconds] -format "%D %H:%M:%S"]"
             $widg(BuildLog):cmd insert end "$date - Installer located at "
             $widg(BuildLog):cmd insert end [file tail $conf(executable)] link
             $widg(BuildLog):cmd insert end \n
             if {$auto} { $widg(BuildLog) see end }
         }
 
+        ::InstallJammer::CallHook OnBuildSuccess $platform $conf(executable)
         Status "$pretty build complete." 3000
     }
 
@@ -390,13 +409,12 @@ proc BuildConditionsData { setup } {
 }
 
 proc ::InstallJammer::GetComponentProcDefinition { component } {
-    variable ::InstallJammer::components
+    variable ::InstallJammer::actions
+    variable ::InstallJammer::conditions
 
-    set obj $components($component)
-
-    if {[$obj isa ::InstallJammer::Action]} {
+    if {[info exists actions($component)]} {
         return [ProcDefinition ::InstallJammer::actions::$component 0]
-    } elseif {[$obj isa ::InstallJammer::Condition]} {
+    } elseif {[info exists conditions($component)]} {
         return [ProcDefinition ::InstallJammer::conditions::$component 0]
     }
 }
@@ -437,11 +455,14 @@ proc BuildGuiData {} {
     set data "proc ::InitGui {} \{"
 
     append data {
-        if {[info exists ::conf(initGui)]} { return }
-        set ::conf(initGui) 1
+        global conf
+        global info
 
-	set ::conf(x11)  0
-	set ::conf(aqua) 0
+        if {[info exists ::conf(initGui)]} { return }
+        set conf(initGui) 1
+
+	set conf(x11)  0
+	set conf(aqua) 0
 
         if {[catch { package require Tk } error]} {
             if {!$::info(FallBackToConsole)} {
@@ -450,11 +471,11 @@ proc BuildGuiData {} {
                 ::InstallJammer::ShowUsageAndExit
             }
 
-            set ::info(GuiMode)       0
-            set ::info(SilentMode)    0
-            set ::info(DefaultMode)   0
-            set ::info(ConsoleMode)   1
-            set ::info($::conf(mode)) "Console"
+            set info(GuiMode)       0
+            set info(SilentMode)    0
+            set info(DefaultMode)   0
+            set info(ConsoleMode)   1
+            set info($::conf(mode)) "Console"
 
             if {![catch { exec stty size } result]
                 && [scan $result "%d %d" height width] == 2} {
@@ -465,25 +486,35 @@ proc BuildGuiData {} {
             return
         }
 
-        set ::info(GuiMode) 1
+        set info(GuiMode) 1
 
-	set ::conf(wm)   [tk windowingsystem]
-	set ::conf(x11)  [string equal $::conf(wm) "x11"]
-	set ::conf(aqua) [string equal $::conf(wm) "aqua"]
+	set conf(wm)   [tk windowingsystem]
+	set conf(x11)  [string equal $::conf(wm) "x11"]
+	set conf(aqua) [string equal $::conf(wm) "aqua"]
+
+        if {$conf(aqua)} {
+            menu .m
+            menu .m.apple
+            . configure -menu .m
+            .m add cascade -label "Apple" -menu .m.apple
+            .m.apple insert end command -label "About this installer" \
+                -command ::InstallJammer::DisplayVersionInfo
+        }
 
         wm withdraw .
-
+        if {$conf(windows)} {
+            wm iconbitmap . -default [file join $conf(vfs) installkit.ico]
+        }
+        
 	if {[package vcompare [package require Tk] 8.5] >= 0} {
 	    namespace eval :: { namespace import ::ttk::style }
 	} else {
 	    package require tile
 	}
 
-        package require tkpng
+        if {$conf(x11)} { ttk::setTheme jammer }
 
-        if {$::conf(x11)} {
-            tile::setTheme jammer
-        }
+        package require tkpng
 
         bind TButton <Return> "%W invoke; break"
     }
@@ -569,17 +600,25 @@ proc ::InstallJammer::BuildAPIData { varName } {
     return $data
 }
 
+proc ::InstallJammer::IncludeFfidl { code } {
+    global info
+    if {[info exists info(IncludeFfidlPackage)]
+        && $info(IncludeFfidlPackage)} { return 1 }
+    set pattern {ffidl::[a-zA-Z0-9_-]+}
+    return [regexp $pattern $code]
+}
+
 proc ::InstallJammer::IncludeTWAPI { code } {
-    if {[Windows get IncludeTWAPI]} { return 1 }
+    global info
+    if {[info exists info(IncludeTwapiPackage)]
+        && $info(IncludeTwapiPackage)} { return 1 }
     set pattern {twapi::[a-zA-Z0-9_-]+}
-    foreach proc [lsort -unique [regexp -all -inline $pattern $code]] {
-        if {$proc eq "twapi::get_shell_folder"} { continue }
-        return 1
-    }
+    return [regexp $pattern $code]
 }
 
 proc ::InstallJammer::BuildPackageData { platform } {
     global conf
+    global info
 
     set bin 0
     set cmd [list]
@@ -590,33 +629,51 @@ proc ::InstallJammer::BuildPackageData { platform } {
         if {[info exists done($pkg)]} { continue }
         set done($pkg) 1
 
-        set file [file join $conf(pwd) Binaries $platform $pkg]
-
-        if {![file exists $file]} {
-            set file [file join $conf(lib) packages $pkg]
+        ## Look for the package as a platform-specific package first.
+        set path [file join $conf(pwd) Binaries $platform lib $pkg]
+        if {![file exists $path]} {
+            set path [file join $conf(lib) packages $pkg]
         }
 
-        if {![file exists $file]} {
-            continue
-        }
+        ## Look for the package in lib/packages.
+        if {![file exists $path]} { continue }
 
         ## If the required package is a directory, just add
         ## it to our list of packages.  Otherwise, it's a
         ## script, and we want to copy it to a bin directory
         ## that we'll include as a package.
-        if {[file isdirectory $file]} {
-            lappend cmd -package $file
+        if {[file isdirectory $path]} {
+            set desc [file join $path ijdesc.pkg]
+            if {[file exists $desc]} {
+                set d [::InstallJammer::ReadPackageDescription $desc]
+                set pkg [dict get $d package]
+                if {[info exist done($package)]} { continue }
+                set done($package) 1
+            }
+            lappend cmd -package $path
         } else {
             set dir [file join $conf(buildDir) bin]
 
             file mkdir $dir
-            file copy -force $file $dir
+            file copy -force $path $dir
 
             if {!$bin} {
                 set bin 1
                 lappend cmd -package $dir
             }
         }
+    }
+
+    if {![llength $conf(packages)]} { ::InstallJammer::GetExternalPackages }
+    dict for {key d} $conf(packages) {
+        lassign [split $key |] package dir
+        if {![info exists info(Include${package}Package)]
+            || !$info(Include${package}Package)} { continue }
+        if {[dict get $d platform] ne ""
+            && [dict get $d platform] ne $platform} { continue }
+        if {[info exists done($package)]} { continue }
+        set done($package) 1
+        lappend cmd -package $dir
     }
 
     foreach dir [list [file join $conf(lib) packages] [InstallDir packages]] {
@@ -629,6 +686,8 @@ proc ::InstallJammer::BuildPackageData { platform } {
             if {[info exists done($pkg)]} { continue }
             set done($pkg) 1
 
+            if {[file exists [file join $dir $pkg ijpkg.desc]]} { continue }
+
             lappend cmd -package [file join $dir $pkg]
         }
 
@@ -639,6 +698,7 @@ proc ::InstallJammer::BuildPackageData { platform } {
             if {[info exists done($pkg)]} { continue }
             set done($pkg) 1
 
+            if {[file exists [file join $dir $pkg ijpkg.desc]]} { continue }
             if {[lsearch -exact $platforms $pkg] > -1} { continue }
 
             lappend cmd -package [file join $dir $pkg]
@@ -667,18 +727,17 @@ proc ::InstallJammer::BuildFileManifest {filelist} {
     set nFiles 0
     foreach list $filelist {
         incr nFiles
-        lassign $list id file group
-        set method [::InstallJammer::GetFileCompressionMethod $id]
+        lassign $list srcid file group size mtime method
 
         if {[string match "*(solid)*" $method]} {
-            lappend solid($method) $id
+            lappend solid($method) $srcid $file
         } elseif {$conf(buildArchives)} {
-            puts $ffp [concat $list [list $method]]
+            puts $ffp $list
             if {![info exists archives($group)]} {
                 set archives($group) setup[incr i].ijc
             }
         } else {
-            puts $fp [list $file $id $method]
+            puts $fp [list $file $srcid $method]
         }
     }
 
@@ -760,6 +819,32 @@ proc PlatformProgress { amt } {
 	$widg(ProgressBuildPlatform) configure -value $amt
 	#update idletasks
     }
+}
+
+proc BuildAppBundle {} {
+    global conf
+
+    variable ::InstallJammer::buildInfo
+
+    BuildLog "Building .app bundle..."
+
+    set defdir [file join $conf(pwd) Binaries MacOS-X Default.app]
+    set appdir [::InstallJammer::BuildDir $conf(executable).app]
+    if {![file exists $appdir]} {
+        file copy $defdir $appdir
+    }
+    file copy -force $conf(executable) \
+        [file join $appdir Contents MacOS installer]
+
+    set map [list @VersionDescription@ [sub [MacOS-X get VersionDescription]]]
+    foreach {var val} [array get buildInfo] {
+        lappend map @$var@ [sub $val]
+    }
+
+    set pinfo [read_file [file join $defdir Contents Info.plist]]
+    set fp [open [file join $appdir Contents Info.plist] w]
+    puts -nonewline $fp [string map $map $pinfo]
+    close $fp
 }
 
 proc BuildProgress { amt } {
@@ -902,20 +987,6 @@ proc Build { {platforms {}} } {
 	return
     }
 
-    if {$conf(modified)} {
-	set msg "This project has been modified.  "
-	append msg "Do you want to save before building?"
-	set res [::InstallJammer::MessageBox \
-	    -title "Project Modified" -type yesnocancel -message $msg]
-
-	switch -- $res {
-	    "yes"    {
-	    	Save
-	    }
-	    "cancel" { return }
-	}
-    }
-
     set conf(buildErrors) 0
     set conf(totalBuildErrors) 0
 
@@ -1051,6 +1122,9 @@ proc BuildForPlatform { platform } {
     global info
     global widg
 
+    variable ::InstallJammer::buildInfo
+    unset -nocomplain buildInfo
+
     variable ::InstallJammer::solid
     unset -nocomplain solid
 
@@ -1153,8 +1227,7 @@ proc BuildForPlatform { platform } {
     }
 
     if {$info(InstallPassword) ne ""} {
-        set buildInfo(InstallPasswordEncrypted) \
-            [sha1 -string $info(InstallPassword)]
+        set buildInfo(InstallPasswordEncrypted) [sha1hex $info(InstallPassword)]
     }
 
     puts $fp [ReadableArrayGet buildInfo info]
@@ -1267,9 +1340,6 @@ proc BuildForPlatform { platform } {
 
     upvar 0 filedata(common.tcl) commonTcl
 
-    ## Add the build system file by appending it to the common.tcl file.
-    append commonTcl "\n[read_file [::InstallJammer::LibDir installkit.tcl]]"
-
     set filedata(files.tcl)      $fileData
     set filedata(setup.tcl)      $setupData
     set filedata(gui.tcl)        [BuildGuiData]
@@ -1279,6 +1349,11 @@ proc BuildForPlatform { platform } {
     set actions [::InstallJammer::GetActionList Install 1]
     if {[lsearch -exact $actions "InstallUninstaller"] > -1} {
 	set filedata(uninstall.tcl) [BuildUninstallData buildInfo]
+    }
+
+    if {"InstallInstallTool" in $actions} {
+        set file "installtool.tcl"
+	set filedata($file) [read_file [::InstallJammer::LibDir $file]]
     }
 
     ::InstallJammer::CheckForBuildStop
@@ -1381,8 +1456,6 @@ proc BuildForPlatform { platform } {
     eval lappend cmd $cmdargs
     lappend cmd --output $conf(outputDir)
 
-    lappend cmd -temp [::InstallJammer::BuildDir]
-
     lappend cmd -level $info(CompressionLevel)
 
     lappend cmd -catalog [::InstallJammer::BuildDir messages]
@@ -1404,7 +1477,14 @@ proc BuildForPlatform { platform } {
         if {[lsearch -glob $cmd "*twapi"] < 0
             && [::InstallJammer::IncludeTWAPI $apiCheckData]} {
             ## Add the TWAPI extension.
-            lappend cmd -package [file join $conf(pwd) Binaries Windows twapi]
+            set dir [file join $conf(pwd) Binaries $platform lib twapi]
+            if {[file exists $dir]} { lappend cmd -package $dir }
+        }
+
+        if {[lsearch -glob $cmd "*ffidl"] < 0
+            && [::InstallJammer::IncludeFfidl $apiCheckData]} {
+            set dir [file join $conf(pwd) Binaries $platform lib ffidl]
+            if {[file exists $dir]} { lappend cmd -package $dir }
         }
 
         if {[$platform get WindowsIcon icon]} {
@@ -1449,9 +1529,8 @@ proc BuildForPlatform { platform } {
         thread::errorproc ::InstallJammer::BuildOutput
         set tid [installkit::newThread thread::wait]
         thread::send $tid [list set ::argv [lrange $cmd 2 end]]
-        thread::send $tid [list lappend ::auto_path $conf(bin)]
+        thread::send $tid [list lappend ::auto_path $conf(pflib)]
         thread::send $tid [list source $conf(lib)/common.tcl]
-        thread::send $tid [list source $conf(lib)/installkit.tcl]
         thread::send -async $tid [list source $buildScript]
     } else {
 	set fp [open "|$cmd"]
@@ -1481,7 +1560,7 @@ proc ::InstallJammer::BuildZipArchive {} {
     BuildLog "Getting file list..."
     set filelist {}
     ::InstallJammer::GetSetupFileList -platform $archive \
-        -checksave 0 -listvar filelist -includedirs 0
+        -checksave 0 -listvar filelist -includedirs 0 -forarchive 1
 
     if {![llength $filelist]} {
         BuildLog "No files to archive..." -tags error
@@ -1514,12 +1593,11 @@ proc ::InstallJammer::BuildZipArchive {} {
     set totalpercent 100
 
     foreach list $filelist {
-        lassign $list id file group
-        set file [::InstallJammer::GetFileSource $id]
-        set dest [string map $map [::InstallJammer::GetFileDestination $id]]
+        lassign $list file dest permissions
+        set dest [string map $map $dest]
 
         if {![info exists done($dest)]} {
-            BuildLog "Packing $file..." -logtofile 0
+            ::InstallJammer::LogPackedFile $file
 
             if {[catch { ::miniarc::addfile $fp $file -name $dest } error]} {
                 BuildLog "Error archiving file '$file': $error" -tags error
@@ -1558,7 +1636,7 @@ proc ::InstallJammer::BuildTarArchive {} {
     BuildLog "Getting file list..."
     set filelist {}
     ::InstallJammer::GetSetupFileList -platform $archive \
-        -checksave 0 -listvar filelist -includedirs 1
+        -checksave 0 -listvar filelist -includedirs 1 -forarchive 1
 
     set output [::InstallJammer::SubstText [$archive get OutputFileName]]
     set output [::InstallJammer::OutputDir $output]
@@ -1599,24 +1677,22 @@ proc ::InstallJammer::BuildTarArchive {} {
     set defdirmode  [$archive get DefaultDirectoryPermission]
     set deffilemode [$archive get DefaultFilePermission]
     foreach list $filelist {
-        lassign $list id file group
-        set file [::InstallJammer::GetFileSource $id]
-        set dest [string map $map [::InstallJammer::GetFileDestination $id]]
+        lassign $list file dest permissions
+        set dest [string map $map $dest]
 
-        set mode [$id permissions]
-        if {$mode eq ""} {
-            if {[$id is file]} {
-                set mode $deffilemode
+        if {$permissions eq ""} {
+            if {[file isdirectory $file]} {
+                set permissions $defdirmode
             } else {
-                set mode $defdirmode
+                set permissions $deffilemode
             }
         }
 
         if {![info exists done($dest)]} {
-            BuildLog "Packing $file..." -logtofile 0
+            ::InstallJammer::LogPackedFile $file
 
             if {[catch { ::miniarc::addfile $fp $file \
-                        -name $dest -permissions $mode } error]} {
+                        -name $dest -permissions $permissions } error]} {
                 BuildLog "Error archiving file '$file': $error" -tags error
                 return
             }

@@ -91,13 +91,13 @@ proc ::InstallJammer::actions::UninstallSelectedFiles {obj {forceUninstall 0}} {
             ::InstallJammer::UpdateUninstallProgress
 
             if {$checkRemove && [regexp $pattern $file]} {
-                if {$::verbose} {
+                if {[debugging ison] >= 2} {
                     debug "$file removed from uninstall by action."
                 }
                 continue
             }
 
-            if {$::verbose} {
+            if {[debugging ison] >= 2} {
                 debug "Uninstalling file $file."
             }
 
@@ -130,7 +130,7 @@ proc ::InstallJammer::actions::UninstallSelectedFiles {obj {forceUninstall 0}} {
             lassign $list dir force
 
             if {$checkRemove && [regexp $pattern $dir]} {
-                if {$::verbose} {
+                if {[debugging ison] >= 2} {
                     debug "$dir removed from uninstall by action."
                 }
                 continue
@@ -161,7 +161,7 @@ proc ::InstallJammer::actions::UninstallSelectedFiles {obj {forceUninstall 0}} {
                 continue
             }
 
-            if {$::verbose} {
+            if {[debugging ison] >= 2} {
                 if {$forceDelete} {
                     debug "Forcefully deleting directory $dir."
                 } else {
@@ -183,7 +183,7 @@ proc ::InstallJammer::actions::UninstallSelectedFiles {obj {forceUninstall 0}} {
 
         if {$conf(windows)} {
             foreach list [lreverse $array(:ENV)] {
-                set conf(UpdateWindowsRegistry) 1
+                ::InstallAPI::SendWindowsNotification -environment 1
 
                 lassign $list var level
                 set key "<%REG_[string toupper $level]_ENV%>"
@@ -253,7 +253,7 @@ proc ::InstallJammer::actions::UninstallSelectedFiles {obj {forceUninstall 0}} {
         ::InstallJammer::UpdateWidgets -update 1
 
         foreach list [lreverse $array(:PATH)] {
-            set conf(UpdateWindowsRegistry) 1
+            ::InstallAPI::SendWindowsNotification -environment 1
 
             lassign $list var dirs level sep
             if {$sep eq ""} { set sep \; }

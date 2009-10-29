@@ -70,6 +70,12 @@ InstallStartupText
 LaunchApplicationText
 "Lancer <%AppName%>"
 
+LocateJavaRuntime,PromptMessage
+"Merci de préciser la localisation de votre Runtime Java"
+
+LocateJavaRuntime,StatusMessage
+"Localisation du Runtime Java..."
+
 Next
 "Suivant"
 
@@ -88,59 +94,45 @@ RequireRootText
 SeparatorText
 "InstallJammer"
 
+TextWindow,Caption
+"Légende"
+
+TextWindow,CloseButton
+"<%Close%>"
+
+TextWindow,Message
+"Saisir le message ici."
+
+TextWindow,Title
+"Titre de la fenêtre"
+
 TypicalInstallDescription
 "Une installation typique."
 
 UninstallApplicationText
 "Désinstaller <%AppName%>"
 
+UninstallLeftoverText
+"Certain composants n'ont pu être supprimés. Souhairez vous quand même les effacer (non recommandé)?"
+
 UninstallPrepareText
 "Préparation de la désinstallation..."
-
-UpdateRegistryText
-"Mise à jour de la base de registre Windows..."
 
 UninstallStartupText
 "Ceci supprimera complètement <%AppName%> de votre ordinateur.  Etes-vous\
  certain de vouloir faire cela?"
 
-UninstallLeftoverText
-"Certain composants n'ont pu être supprimés. Souhairez vous quand même les\
- effacer (non recommandé)?"
+UnzipFile,StatusText
+"<%FileBeingInstalledText%>"
 
-ViewReadmeText
-"Lire le fichier Readme"
+UpdateRegistryText
+"Mise à jour de la base de registre Windows..."
 
 VersionHelpText
 "Ce programme va installer <%AppName%> version <%Version%>."
 
+ViewReadmeText
+"Lire le fichier Readme"
+
 Yes
 "Oui"
-
-
-LocateJavaRuntime {
-    PromptMessage
-    "Merci de préciser la localisation de votre Runtime Java"
-
-    StatusMessage
-    "Localisation du Runtime Java..."
-}
-
-TextWindow {
-    Title
-    "Titre de la fenêtre"
-
-    Caption
-    "Légende"
-
-    Message
-    "Saisir le message ici."
-
-    CloseButton
-    "<%Close%>"
-}
-
-UnzipFile {
-    StatusText
-    "<%FileBeingInstalledText%>"
-}

@@ -33,7 +33,7 @@ proc CreateWindow.SelectDestination { wizard id } {
     grid rowconfigure    $base 0 -weight 1
     grid columnconfigure $base 0 -weight 1
 
-    labelframe $base.frame -relief groove -bd 2
+    ttk::labelframe $base.frame -relief groove -borderwidth 2
     grid $base.frame -row 0 -column 0 -sticky sew
     $id widget set DestinationLabel -widget $base.frame
 

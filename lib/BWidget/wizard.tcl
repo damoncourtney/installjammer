@@ -202,10 +202,18 @@ proc Wizard::create { path args } {
 
     wm title $top [Widget::getoption $path -title]
 
+    if {[BWidget::using aqua]} {
+        $path configure -background systemSheetBackground
+    }
+
     grid rowconfigure    $top 0 -weight 1
     grid columnconfigure $top 0 -weight 1
 
-    frame $path.steps
+    if {[BWidget::using ttk]} {
+        ttk::frame $path.steps
+    } else {
+        frame $path.steps
+    }
     grid  $path.steps -row 0 -column 0 -sticky news
 
     grid rowconfigure    $path.steps 0 -weight 1
@@ -214,7 +222,11 @@ proc Wizard::create { path args } {
     widget $path set steps -widget $path.steps
 
     if {[Widget::getoption $path -separator]} {
-        frame $path.separator
+        if {[BWidget::using ttk]} {
+            ttk::frame $path.separator
+        } else {
+            frame $path.separator
+        }
         grid  $path.separator -row 1 -column 0 -sticky ew -pady [list 5 0]
 
         grid columnconfigure $path.separator 1 -weight 1
@@ -1116,7 +1128,11 @@ proc Wizard::_insert_step { path idx branch node args } {
     set bgcolor [Wizard::getoption $path $node -background]
 
     set widgets($node) $path.steps.f$node
-    ttk::label $widgets($node) -background $bgcolor -style ImageFrame
+    if {$bgcolor eq "white"} {
+        frame $widgets($node) -background $bgcolor
+    } else {
+        ttk::label $widgets($node) -background $bgcolor -style ImageFrame
+    }
 
     if {[getoption $path $node -createstep]} { Wizard::createstep $path $node }
 

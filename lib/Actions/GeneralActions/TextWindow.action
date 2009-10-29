@@ -98,9 +98,7 @@ proc ::InstallJammer::actions::TextWindow { obj } {
 
     set file [::InstallJammer::SubstText $props(TextFile)]
     if {[file exists $file]} {
-        $id set Message,subst 0
-        ::InstallJammer::SetVirtualText $info(Language) \
-            $id Message [read_file $file]
+        $id set Message [read_file $file] Message,subst 0
     }
 
     ::InstallJammer::UpdateWidgets -step $id -updateidletasks 1

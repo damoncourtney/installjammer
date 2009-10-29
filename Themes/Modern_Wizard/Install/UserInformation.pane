@@ -30,13 +30,15 @@ Include CustomBlankPane2
 Property Active boolean "Active" No
 Property Buttons buttons "Buttons" "Back/Next/Cancel"
 Property Icon image "Icon" "<%Icon%>"
+Property UserNameVirtualText short "User Name Virtual Text" "UserInfoName"
+Property CompanyVirtualText short "Company Virtual Text" "UserInfoCompany"
 
 Text Title
 Text Subtitle
 Text Caption
 Text Message
-Text UserNameLabel "User Name Label" 0
-Text CompanyLabel  "Company Label"   0
-Text NextButton    "Next Button"     1
-Text BackButton    "Back Button"     1
-Text CancelButton  "Cancel Button"   1
+Text UserNameLabel "User Name Label"
+Text CompanyLabel  "Company Label"
+Text NextButton    "Next Button"
+Text BackButton    "Back Button"
+Text CancelButton  "Cancel Button"

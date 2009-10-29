@@ -65,7 +65,7 @@ proc ::InstallJammer::actions::AddWindowsRegistryKey { obj } {
 	default		    { set type none }
     }
 
-    set conf(UpdateWindowsRegistry) 1
+    ::InstallAPI::SendWindowsNotification -environment 1
 
     if {$props(RestoreOnUninstall) && ![catch { registry get $key }]} {
         if {[catch { registry get $key $name } oldval]} {

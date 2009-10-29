@@ -31,6 +31,7 @@ proc BWidgetInit {} {
     set ::BWidget::imageDir $::BWIDGET::LIBRARY
     set ::BWidget::iconLibraryFile [file join $::BWIDGET::LIBRARY icons.tkico]
 
+    BWidget::use
     BWidget::use ttk
     BWidget::use png
 }

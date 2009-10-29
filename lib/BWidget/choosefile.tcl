@@ -112,12 +112,16 @@ proc ChooseFile::create { path args } {
             -textvariable [Widget::widgetVar $dialog data(dirtail)]
 
         set popdown ::tile::combobox::PopdownShell
-        if {![string length [info commands $popdown]]} {
+        if {[info commands $popdown] eq ""} {
             set popdown ::ttk::combobox::PopdownShell
+            if {[info commands $popdown] eq ""} {
+                set popdown ::ttk::combobox::PopdownWindow
+            }
         }
         set shell [$popdown $data(FolderCombo)]
         set listbox $shell.l
-        destroy $listbox $shell.sb
+        destroy $listbox
+        grid remove $shell.sb
 
         bind $shell <Unmap> [list after idle [list focus $frame.listbox]]
 

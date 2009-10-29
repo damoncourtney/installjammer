@@ -37,4 +37,6 @@ proc ::InstallJammer::actions::AddWindowsFileExtension { obj } {
         $props(FileExtension) $props(FileType)
 
     ::InstallJammer::LogRegistry "HKEY_CLASSES_ROOT\\$props(FileExtension)"
+
+    ::InstallAPI::SendWindowsNotification -assocchanged 1
 }

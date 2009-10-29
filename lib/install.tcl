@@ -87,72 +87,20 @@ proc ::InstallJammer::SelectComponent { paneId } {
 
     ::InstallJammer::SetText $text $desc
 
-    ::InstallJammer::SetVirtualText $info(Language) $id \
-        [list DescriptionText $desc]
+    $id set DescriptionText $desc
 
     ::InstallJammer::UpdateInstallInfo
 }
 
 proc ::InstallJammer::ToggleComponent { tree id node } {
-    global info
-
     if {![$node get Selectable]} { return }
     if {[$node get RequiredComponent]} { return }
 
-    set type $info(InstallTypeID)
-
     if {[$node active]} {
-        $node active 0
-
-        foreach component [$node children recursive] {
-            if {[$component get RequiredComponent]} { continue }
-
-            $component active 0
-            if {[$tree exists $component]} {
-                $tree itemconfigure $component -on 0
-                
-                ## If this child is a radiobutton, we need to grab its
-                ## group and set the whole group to an empty string so
-                ## that all of the radiobuttons turn off.
-                if {[$tree itemcget $component -type] eq "radiobutton"} {
-                    set group [$component get ComponentGroup]
-                    set ::InstallJammer::Components($type,$group) ""
-                }
-            }
-        }
+        ::InstallAPI::ComponentAPI -components $node -active 0
     } else {
-        $node active 1
-
-        foreach component [$node children recursive] {
-            $component active 1
-            if {[$tree exists $component]} {
-                $tree itemconfigure $component -on 1
-
-                ## If this child is a radiobutton, we need to grab its
-                ## group and check the Checked status of it to see if
-                ## it's supposed to default on or off.
-                if {[$tree itemcget $component -type] eq "radiobutton"} {
-                    set group [$component get ComponentGroup]
-                    if {[$component get Checked]} {
-                        set ::InstallJammer::Components($type,$group) $component
-                    } else {
-                        $component active 0
-                    }
-                }
-            }
-        }
+        ::InstallAPI::ComponentAPI -components $node -active 1
     }
-
-    if {[$tree itemcget $node -type] eq "radiobutton"} {
-        ## If this is a radiobutton, we need to deactivate
-        ## all of the others in this group.
-        set group [$node get ComponentGroup]
-        foreach comp $::InstallJammer::Components($type,$group,ids) {
-            if {$comp ne $node} { $comp active 0 }
-        }
-    }
-
-    ::InstallJammer::UpdateInstallInfo
 }
 
 proc ::InstallJammer::SelectSetupType { {node ""} } {
@@ -173,9 +121,7 @@ proc ::InstallJammer::SelectSetupType { {node ""} } {
             if {$text eq "" || $list eq ""} { return }
 
             set desc [::InstallJammer::GetText $node Description]
-            ::InstallJammer::SetText $text $desc
-            ::InstallJammer::SetVirtualText $info(Language) $id \
-                [list DescriptionText $desc]
+            $id set DescriptionText $desc
 
             $list selection set $node
         }
@@ -356,7 +302,7 @@ proc ::InstallJammer::UnpackOutput { line } {
     global conf
     global info
 
-    if {$::verbose >= 2} {
+    if {[debugging ison] >= 3} {
         debug "Unpack Output: $line"
     }
 
@@ -412,7 +358,7 @@ proc ::InstallJammer::UnpackOutput { line } {
                 ::InstallJammer::UpdateWidgets -buttons 0 -updateidletasks 1
             }
 
-            if {$::verbose == 1} {
+            if {[debugging ison] >= 2} {
                 debug "Installing $file..."
             }
 	}
@@ -561,12 +507,12 @@ proc ::InstallJammer::CleanupCancelledInstall {} {
     foreach file $files {
         set roll [::InstallJammer::RollbackName $file]
         if {[file exists $roll]} {
-            if {$::verbose == 1} {
+            if {[debugging ison] >= 2} {
                 debug "Rolling back file $file"
             }
             file rename -force $roll $file
         } else {
-            if {$::verbose == 1} {
+            if {[debugging ison] >= 2} {
                 debug "Cleaning up file $file"
             }
             ::InstallJammer::UninstallFile $file
@@ -578,14 +524,14 @@ proc ::InstallJammer::CleanupCancelledInstall {} {
     }
 
     foreach dir $dirs {
-        if {$::verbose == 1} {
+        if {[debugging ison] >= 2} {
             debug "Cleaning up directory $dir"
         }
         eval ::InstallJammer::UninstallDirectory $dir
     }
 
     foreach regkey $regkeys {
-        if {$::verbose == 1} {
+        if {[debugging ison] >= 2} {
             debug "Cleaning up registry key $regkey"
         }
         eval ::InstallJammer::UninstallRegistryKey $regkey
@@ -885,21 +831,17 @@ proc ::InstallJammer::ReadVersionInfo {} {
     }
 }
 
-proc ::InstallJammer::UnpackSolidProgress { in out showGui bytes {error ""} } {
+proc ::InstallJammer::UnpackSolidProgress { in out showGui total } {
     global conf
     global info
 
     set top .__solidExtract
 
-    if {$error ne "" || [eof $in]} {
-        set conf(solidUnpackDone) 1
-    } else {
-        set conf(solidDone) [expr {$conf(solidDone) + double($bytes)}]
-        if {$conf(solidTotal) > 0} {
-            set conf(solidLeft) [expr {wide($conf(solidTotal))
-                                       - $conf(solidDone)}]
-            set x [expr {round(($conf(solidDone) * wide(100))
-                         / $conf(solidTotal))}]
+    set done 0
+    set left 0
+    while {1} {
+        if {$total > 0} {
+            set x [expr {round(($done * wide(100)) / $total)}]
             if {$showGui} {
                 $top.p configure -value $x
                 wm title $top "$x% Extracting"
@@ -910,17 +852,14 @@ proc ::InstallJammer::UnpackSolidProgress { in out showGui bytes {error ""} } {
             }
         }
 
-        if {$conf(solidLeft) == 0} {
-            set conf(solidUnpackDone) 1
-            return
-        }
+        if {$done >= $total} { break }
 
         set size [expr {64 * 1024}]
-        if {$size > $conf(solidLeft)} {
-            set size [expr {round($conf(solidLeft))}]
-        }
+        set left [expr {$total - $done}]
+        if {$size > $left} { set size $left }
 
-        ::fcopy $in $out -size $size -command [lrange [info level 0] 0 3]
+        puts -nonewline $out [read $in $size]
+        set done [expr {wide($done) + $size}]
     }
 }
 
@@ -928,17 +867,15 @@ proc ::InstallJammer::UnpackSolidArchives { {showGui 0} } {
     global conf
     global info
 
-    if {!$info(InstallHasSolidArchives) || $info(SolidArchivesExtracted)} {
-        return
-    }
+    if {!$info(InstallHasSolidArchives)
+        || $info(SolidArchivesExtracted)
+        || $info(ExtractSolidArchives) eq "Never"} { return }
 
     set files [list]
-    set conf(solidDone)  0
-    set conf(solidTotal) 0
+    set total 0
     foreach file [glob -nocomplain -dir $conf(vfs) solid.*] {
         lappend files $file
-        set conf(solidTotal) [expr {wide($conf(solidTotal))
-                                    + [file size $file]}]
+        set total [expr {wide($total) + [file size $file]}]
     }
 
     if {![llength $files]} { return }
@@ -980,14 +917,12 @@ proc ::InstallJammer::UnpackSolidArchives { {showGui 0} } {
         set ofp [open $temp w]
         fconfigure $ofp -translation binary
 
-        ::InstallJammer::UnpackSolidProgress $ifp $ofp $showGui 0
-
-        vwait ::conf(solidUnpackDone)
+        ::InstallJammer::UnpackSolidProgress $ifp $ofp $showGui $total
 
         close $ifp
         close $ofp
 
-        installkit::Mount $temp $conf(vfs)
+        ::InstallJammer::Mount $temp $conf(vfs)
     }
 
     if {$showGui} {
@@ -1015,11 +950,11 @@ proc ::InstallJammer::AskUserLanguage {} {
     set f [$top getframe]
 
     ttk::label $f.l -text [::InstallJammer::SubstText <%SelectLanguageText%>]
-    pack $f.l -pady 10
+    pack $f.l -padx 10 -pady 10
 
     ttk::combobox $f.cb -state readonly \
         -textvariable ::conf(Language) -values $list
-    pack $f.cb
+    pack $f.cb -padx 10
 
     $top add -name ok     -text "OK"
     $top add -name cancel -text "Cancel"
@@ -1078,7 +1013,6 @@ proc ::InstallJammer::InitInstall {} {
     ## Check and load the TWAPI extension.
     ::InstallJammer::LoadTwapi
 
-    SourceCachedFile gui.tcl
     SourceCachedFile setup.tcl
     SourceCachedFile files.tcl
     SourceCachedFile components.tcl
@@ -1125,6 +1059,11 @@ proc ::InstallJammer::InitInstall {} {
 
     if {[llength [glob -nocomplain -dir $conf(vfs) solid.*]]} {
         set info(InstallHasSolidArchives) 1
+        if {$info(ExtractSolidArchives) eq "Never"} {
+            foreach file [glob -nocomplain -dir $conf(vfs) solid.*] {
+                ::InstallJammer::Mount $file $conf(vfs)
+            }
+        }
     }
 
     SafeSet info(UpgradeInstall) \
@@ -1134,16 +1073,13 @@ proc ::InstallJammer::InitInstall {} {
 
     ::InstallJammer::ParseCommandLineArguments $::argv
 
-    if {$info(GuiMode)} {
-        SourceCachedFile gui.tcl
-        InitGui
-    }
+    if {$info(GuiMode)} { ::InstallJammer::InitializeGui }
 
     ::InstallJammer::CommonPostInit
 
     ::InstallJammer::MountSetupArchives
 
-    if {$info(ExtractSolidArchivesOnStartup)} {
+    if {$info(ExtractSolidArchives) eq "On startup"} {
         ::InstallJammer::UnpackSolidArchives 1
     }
 
@@ -1167,10 +1103,7 @@ proc ::InstallJammer::InitInstall {} {
             }
 
             if {$info(PromptForRoot)} {
-                set msg [::InstallJammer::SubstText "<%PromptForRootText%>"]
-                set cmd [concat [list [info nameofexecutable]] $::argv]
-                ::InstallJammer::ExecAsRoot $cmd -message $msg
-                ::exit 0
+                ::InstallAPI::RestartAsRoot
             }
         }
 
@@ -1201,7 +1134,7 @@ proc ::InstallJammer::InitInstall {} {
     }
 
     ## Normalize some of the install variables.
-    foreach var [list InstallDir ProgramFolderName] {
+    foreach var [list ApplicationID InstallDir ProgramFolderName] {
         set info($var) [::InstallJammer::SubstText <%$var%>]
         set info(Original$var) $info($var)
     }

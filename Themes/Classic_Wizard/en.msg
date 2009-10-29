@@ -1,400 +1,351 @@
-Background {
-    Title
-    "<%AppName%> Setup"
+Background,Text
+"<%AppName%>"
 
-    Text
-    "<%AppName%>"
-}
+Background,Title
+"<%AppName%> Setup"
 
-ChooseComponents {
-    Title
-    "Custom Setup"
+ChooseComponents,BackButton
+"< <%Back%>"
 
-    Caption
-    "Select the components you want to install and deselect the components\
-     you do not want to install."
+ChooseComponents,CancelButton
+"<%Cancel%>"
 
-    ComponentLabel
-    "Components"
+ChooseComponents,Caption
+"Select the components you want to install and deselect the components you do not want to install."
 
-    DescriptionLabel
-    "Description"
+ChooseComponents,ComponentLabel
+"Components"
 
-    SpaceRequiredLabel
-    "Space Required: <%SpaceRequiredText%>"
+ChooseComponents,DescriptionLabel
+"Description"
 
-    NextButton
-    "<%Next%> >"
+ChooseComponents,NextButton
+"<%Next%> >"
 
-    BackButton
-    "< <%Back%>"
+ChooseComponents,SpaceRequiredLabel
+"Space Required: <%SpaceRequiredText%>"
 
-    CancelButton
-    "<%Cancel%>"
-}
+ChooseComponents,Title
+"Custom Setup"
 
-CopyFiles {
-    Title
-    "Copying Files"
+CopyFiles,CancelButton
+"<%Cancel%>"
 
-    Caption
-    "<%GroupBeingInstalledText%>"
+CopyFiles,Caption
+"<%GroupBeingInstalledText%>"
 
-    Message
-    "<%Status%>"
+CopyFiles,Message
+"<%Status%>"
 
-    ProgressValue
-    "<%InstallPercentComplete%>"
+CopyFiles,ProgressValue
+"<%InstallPercentComplete%>"
 
-    CancelButton
-    "<%Cancel%>"
-}
+CopyFiles,Title
+"Copying Files"
 
-CustomBlankPane1 {
-    Title
-    "<%AppName%> Setup"
+CustomBlankPane1,BackButton
+"< <%Back%>"
 
-    NextButton
-    "<%Next%> >"
+CustomBlankPane1,CancelButton
+"<%Cancel%>"
 
-    BackButton
-    "< <%Back%>"
+CustomBlankPane1,NextButton
+"<%Next%> >"
 
-    CancelButton
-    "<%Cancel%>"
-}
+CustomBlankPane1,Title
+"<%AppName%> Setup"
 
+CustomTextPane1,BackButton
+"< <%Back%>"
 
-CustomTextPane1 {
-    Title
-    "Title"
+CustomTextPane1,CancelButton
+"<%Cancel%>"
 
-    Caption
-    "Caption"
+CustomTextPane1,Caption
+"Caption"
 
-    Message
-    "Message"
+CustomTextPane1,Message
+"Message"
 
-    NextButton
-    "<%Next%> >"
+CustomTextPane1,NextButton
+"<%Next%> >"
 
-    BackButton
-    "< <%Back%>"
+CustomTextPane1,Title
+"Title"
 
-    CancelButton
-    "<%Cancel%>"
-}
+CustomTextPane2,BackButton
+"< <%Back%>"
 
-CustomTextPane2 {
-    Title
-    "<%AppName%> Setup"
+CustomTextPane2,CancelButton
+"<%Cancel%>"
 
-    Caption
-    "Caption"
+CustomTextPane2,Caption
+"Caption"
 
-    Text
-    "Text goes here."
+CustomTextPane2,NextButton
+"<%Next%> >"
 
-    NextButton
-    "<%Next%> >"
+CustomTextPane2,Text
+"Text goes here."
 
-    BackButton
-    "< <%Back%>"
+CustomTextPane2,Title
+"<%AppName%> Setup"
 
-    CancelButton
-    "<%Cancel%>"
-}
+CustomTextPane3,BackButton
+"< <%Back%>"
 
-CustomTextPane3 {
-    Title
-    "Title"
+CustomTextPane3,CancelButton
+"<%No%>"
 
-    Caption
-    "Caption"
+CustomTextPane3,Caption
+"Caption"
 
-    Message
-    "Message"
+CustomTextPane3,Message
+"Message"
 
-    Text
-    "Text goes here."
+CustomTextPane3,NextButton
+"<%Yes%>"
 
-    NextButton
-    "<%Yes%>"
+CustomTextPane3,Text
+"Text goes here."
 
-    BackButton
-    "< <%Back%>"
+CustomTextPane3,Title
+"Title"
 
-    CancelButton
-    "<%No%>"
-}
+License,AcceptCheck
+"I accept the terms of this license agreement."
 
-License {
-    Title
-    "License Agreement"
+License,BackButton
+"< <%Back%>"
 
-    Caption
-    "Please read the following License Agreement.  Press the PAGE DOWN key\
-     to see the rest of the agreement."
+License,CancelButton
+"No"
 
-    Message
-    "Do you accept all the terms of the preceding License Agreement?  If\
-     you choose No, Setup will close.  To install <%AppName%>, you must\
-     accept this agreement."
+License,Caption
+"Please read the following License Agreement.  Press the PAGE DOWN key to see the rest of the agreement."
 
-    Text
-    "Put your license agreement here."
+License,Message
+"Do you accept all the terms of the preceding License Agreement?  If you choose No, Setup will close.  To install <%AppName%>, you must accept this agreement."
 
-    AcceptCheck
-    "I accept the terms of this license agreement."
+License,NextButton
+"Yes"
 
-    NextButton
-    "Yes"
+License,Text
+"Put your license agreement here."
 
-    BackButton
-    "< <%Back%>"
+License,Title
+"License Agreement"
 
-    CancelButton
-    "No"
-}
+Readme,BackButton
+"< <%Back%>"
 
-Readme {
-    Title
-    "Readme Information"
+Readme,CancelButton
+"<%Cancel%>"
 
-    Text
-    "Put your readme information here."
+Readme,NextButton
+"<%Next%> >"
 
-    NextButton
-    "<%Next%> >"
+Readme,Text
+"Put your readme information here."
 
-    BackButton
-    "< <%Back%>"
+Readme,Title
+"Readme Information"
 
-    CancelButton
-    "<%Cancel%>"
-}
+SelectDestination,BackButton
+"< <%Back%>"
 
-SelectDestination {
-    Title
-    "Select Destination Location"
+SelectDestination,BrowseButton
+"<%Browse%>"
 
-    Caption
-    "Setup will install <%AppName%> in the following folder.\n\nTo install\
-     to this folder, click Next.\n\nTo install to a different folder, click\
-     Browse and select another folder.\n\nYou can choose not to install\
-     <%AppName%> by clicking Cancel to exit Setup."
+SelectDestination,CancelButton
+"<%Cancel%>"
 
-    NextButton
-    "<%Next%> >"
+SelectDestination,Caption
+"Setup will install <%AppName%> in the following folder.
 
-    BackButton
-    "< <%Back%>"
+To install to this folder, click Next.
 
-    CancelButton
-    "<%Cancel%>"
+To install to a different folder, click Browse and select another folder.
 
-    BrowseButton
-    "<%Browse%>"
+You can choose not to install <%AppName%> by clicking Cancel to exit Setup."
 
-    DestinationLabel
-    "Destination Folder"
-}
+SelectDestination,DestinationLabel
+"Destination Folder"
 
-SelectProgramFolder {
-    Title
-    "Select Program Folder"
+SelectDestination,NextButton
+"<%Next%> >"
 
-    Caption
-    "Setup will add the program icons to the Program Folder listed below. \
-     You may type a new folder name or select from the existing folders list. \
-     Click Next to continue."
+SelectDestination,Title
+"Select Destination Location"
 
-    ProgramFolderLabel
-    "Program Folder:"
+SelectProgramFolder,AllUsersCheckbutton
+"Create program folder for all users"
 
-    FolderListLabel
-    "Exising Folders:"
+SelectProgramFolder,BackButton
+"< <%Back%>"
 
-    NextButton
-    "<%Next%> >"
+SelectProgramFolder,CancelButton
+"<%Cancel%>"
 
-    BackButton
-    "< <%Back%>"
+SelectProgramFolder,Caption
+"Setup will add the program icons to the Program Folder listed below.  You may type a new folder name or select from the existing folders list.  Click Next to continue."
 
-    CancelButton
-    "<%Cancel%>"
+SelectProgramFolder,FolderListLabel
+"Exising Folders:"
 
-    AllUsersCheckbutton
-    "Create program folder for all users"
-}
+SelectProgramFolder,NextButton
+"<%Next%> >"
 
-Setup {
-    Title
-    "Setup"
+SelectProgramFolder,ProgramFolderLabel
+"Program Folder:"
 
-    Caption
-    "Setup is preparing the InstallJammer Wizard which will guide you through\
-     the rest of the setup process.  Please wait."
-}
+SelectProgramFolder,Title
+"Select Program Folder"
 
-SetupComplete {
-    Title
-    "Setup Complete"
+Setup,Caption
+"Setup is preparing the InstallJammer Wizard which will guide you through the rest of the setup process.  Please wait."
 
-    Caption
-    "Setup has finished installing <%AppName%> on your computer."
+Setup,Title
+"Setup"
 
-    Text
-    "Click Finish to complete Setup."
+SetupComplete,BackButton
+"< <%Back%>"
 
-    NextButton
-    "<%Finish%>"
+SetupComplete,CancelButton
+"<%Cancel%>"
 
-    BackButton
-    "< <%Back%>"
+SetupComplete,Caption
+"Setup has finished installing <%AppName%> on your computer."
 
-    CancelButton
-    "<%Cancel%>"
-}
+SetupComplete,NextButton
+"<%Finish%>"
 
-SetupType {
-    Title
-    "Setup Type"
+SetupComplete,Text
+"Click Finish to complete Setup."
 
-    Caption
-    "Click the type of Setup you prefer, then click Next."
+SetupComplete,Title
+"Setup Complete"
 
-    NextButton
-    "<%Next%> >"
+SetupType,BackButton
+"< <%Back%>"
 
-    BackButton
-    "< <%Back%>"
+SetupType,CancelButton
+"<%Cancel%>"
 
-    CancelButton
-    "<%Cancel%>"
-}
+SetupType,Caption
+"Click the type of Setup you prefer, then click Next."
 
-StartCopyingFiles {
-    Title
-    "Start Copying Files"
+SetupType,NextButton
+"<%Next%> >"
 
-    Caption
-    "Setup has enough information to start copying the program files.  If\
-     you want to review or change any settings, click Back.  If you are\
-     satisfied with the settings, click Next to begin copying files. \
-     \n\nCurrent Settings:"
+SetupType,Title
+"Setup Type"
 
-    Text
-    "Install Directory:\n\
-     \t<%InstallDir%>
+StartCopyingFiles,BackButton
+"< <%Back%>"
 
-    Setup Type:\n\
-    \t<%InstallType%>"
+StartCopyingFiles,CancelButton
+"<%Cancel%>"
 
-    NextButton
-    "<%Next%> >"
+StartCopyingFiles,Caption
+"Setup has enough information to start copying the program files.  If you want to review or change any settings, click Back.  If you are satisfied with the settings, click Next to begin copying files.  
 
-    BackButton
-    "< <%Back%>"
+Current Settings:"
 
-    CancelButton
-    "<%Cancel%>"
-}
+StartCopyingFiles,NextButton
+"<%Next%> >"
 
-Uninstall {
-    Title
-    "Uninstall <%AppName%>"
+StartCopyingFiles,Text
+"Install Directory:
+ 	<%InstallDir%>
 
-    Caption
-    "<%GroupBeingUninstalledText%>"
+ Setup Type:
+ 	<%InstallType%>"
 
-    Message
-    "<%Status%>"
+StartCopyingFiles,Title
+"Start Copying Files"
 
-    ProgressValue
-    "<%UninstallPercentComplete%>"
+Uninstall,BackButton
+"< <%Back%>"
 
-    NextButton
-    "<%Next%> >"
+Uninstall,CancelButton
+"<%Cancel%>"
 
-    BackButton
-    "< <%Back%>"
+Uninstall,Caption
+"<%GroupBeingUninstalledText%>"
 
-    CancelButton
-    "<%Cancel%>"
-}
+Uninstall,Message
+"<%Status%>"
 
-UninstallComplete {
-    Title
-    "Uninstall Complete"
+Uninstall,NextButton
+"<%Next%> >"
 
-    Caption
-    "Uninstall Completes Successfully."
+Uninstall,ProgressValue
+"<%UninstallPercentComplete%>"
 
-    FinishButton
-    "<%Finish%>"
-}
+Uninstall,Title
+"Uninstall <%AppName%>"
 
-UninstallDetails {
-    Title
-    "Uninstall Details"
+UninstallComplete,Caption
+"Uninstall Completes Successfully."
 
-    Caption
-    "The following errors occurred during uninstall:"
+UninstallComplete,FinishButton
+"<%Finish%>"
 
-    Errors
-    "<%Errors%>"
+UninstallComplete,Title
+"Uninstall Complete"
 
-    FinishButton
-    "<%Finish%>"
-}
+UninstallDetails,Caption
+"The following errors occurred during uninstall:"
 
+UninstallDetails,Errors
+"<%Errors%>"
 
-UserInformation {
-    Title
-    "User Information"
+UninstallDetails,FinishButton
+"<%Finish%>"
 
-    Caption
-    "Type your name and the company you work for below."
+UninstallDetails,Title
+"Uninstall Details"
 
-    NameLabel
-    "Name:"
+UserInformation,BackButton
+"< <%Back%>"
 
-    CompanyLabel
-    "Company:"
+UserInformation,CancelButton
+"<%Cancel%>"
 
-    NextButton
-    "<%Next%> >"
+UserInformation,Caption
+"Type your name and the company you work for below."
 
-    BackButton
-    "< <%Back%>"
+UserInformation,CompanyLabel
+"Company:"
 
-    CancelButton
-    "<%Cancel%>"
-}
+UserInformation,NameLabel
+"Name:"
 
-Welcome {
-    Title
-    "Welcome Screen"
+UserInformation,NextButton
+"<%Next%> >"
 
-    Caption
-    "Welcome to the <%AppName%> Setup program.  This program will install\
-     <%AppName%> on your computer."
+UserInformation,Title
+"User Information"
 
-    Message
-    "It is strongly recommended that you exit all Windows programs you have\
-     running.  Click Next to continue with the Setup program.\n\nWARNING:\
-     This program is protected by copyright law and international\
-     treaties.\n\nUnauthorized reproduction or distribution of this program,\
-     or any portion of it, may result in severe civil and criminal penalties,\
-     and will be prosecuted to the maximum extent possible under law."
+Welcome,BackButton
+"< <%Back%>"
 
-    NextButton
-    "<%Next%> >"
+Welcome,CancelButton
+"<%Cancel%>"
 
-    BackButton
-    "< <%Back%>"
+Welcome,Caption
+"Welcome to the <%AppName%> Setup program.  This program will install <%AppName%> on your computer."
 
-    CancelButton
-    "<%Cancel%>"
-}
+Welcome,Message
+"It is strongly recommended that you exit all Windows programs you have running.  Click Next to continue with the Setup program.
+
+WARNING: This program is protected by copyright law and international treaties.
+
+Unauthorized reproduction or distribution of this program, or any portion of it, may result in severe civil and criminal penalties, and will be prosecuted to the maximum extent possible under law."
+
+Welcome,NextButton
+"<%Next%> >"
+
+Welcome,Title
+"Welcome Screen"

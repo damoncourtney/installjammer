@@ -194,8 +194,6 @@ proc Window.installjammer.help { file } {
     	%W configure -cursor hand1
     }
 
-    BindMouseWheel $top.sw.html
-
     ParseHelpFile $file
 
     wm deiconify $top
@@ -398,17 +396,19 @@ proc ::InstallJammer::AboutInstallJammer {} {
     $top.text tag configure bold -font TkCaptionFont
 
     $top.text tag configure link -foreground blue -underline 1
-    $top.text tag bind link <Enter> [list %W configure -cursor hand2]
+    $top.text tag bind link <Enter> [list %W configure \
+        -cursor [::InstallJammer::GetHandCursor]]
     $top.text tag bind link <Leave> [list %W configure -cursor ""]
     $top.text tag bind link <1> {
         ::InstallJammer::LaunchBrowser http://www.installjammer.com/
     }
 
     $top.text tag configure email -foreground blue -underline 1
-    $top.text tag bind email <Enter> [list %W configure -cursor hand2]
+    $top.text tag bind email <Enter> [list %W configure \
+        -cursor [::InstallJammer::GetHandCursor]]
     $top.text tag bind email <Leave> [list %W configure -cursor ""]
     $top.text tag bind email <1> {
-        exec $::env(COMSPEC) /c start mailto:damon@installjammer.com
+        ::InstallJammer::OpenExternalFile mailto:damon@installjammer.com
     }
 
     $top.text insert end "InstallJammer Multiplatform Installer\n" bold

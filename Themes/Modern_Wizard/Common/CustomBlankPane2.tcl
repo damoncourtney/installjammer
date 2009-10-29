@@ -56,7 +56,7 @@ proc CreateWindow.CustomBlankPane2 { wizard id } {
     grid $base.caption -row 2 -sticky nsew -padx 8 -pady [list 8 4]
     $id widget set Caption -widget $base.caption
 
-    frame $base.clientarea
+    ttk::frame $base.clientarea
     grid  $base.clientarea -row 3 -sticky nsew -padx 8 -pady 4
     $id widget set ClientArea -widget $base.clientarea -type frame
 

@@ -111,7 +111,7 @@ namespace eval ListBox {
     bind ListBox <Key-Up>    [list ListBox::_keyboard_navigation %W -1]
     bind ListBox <Key-Down>  [list ListBox::_keyboard_navigation %W  1]
 
-    BWidget::bindMouseWheel ListBoxCanvas
+    # BWidget::bindMouseWheel ListBoxCanvas
 
     variable _edit
 }

@@ -38,9 +38,9 @@ Action PopulateComponents ExecuteAction "Before Pane is Displayed"
 
 Text Caption
 Text Title
-Text ComponentLabel     "Component Label"      0
-Text DescriptionLabel   "Description Label"    0
-Text SpaceRequiredLabel "Space Required Label" 1
-Text NextButton         "Next Button"          1
-Text BackButton         "Back Button"          1
-Text CancelButton       "Cancel Button"        1
+Text ComponentLabel     "Component Label"
+Text DescriptionLabel   "Description Label"
+Text SpaceRequiredLabel "Space Required Label"
+Text NextButton         "Next Button"
+Text BackButton         "Back Button"
+Text CancelButton       "Cancel Button"

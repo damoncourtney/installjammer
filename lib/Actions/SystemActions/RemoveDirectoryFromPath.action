@@ -71,7 +71,7 @@ proc ::InstallJammer::actions::RemoveDirectoryFromPath { obj } {
 
             registry set $key $props(Variable) $path expand_sz
 
-            set conf(UpdateWindowsRegistry) 1
+            ::InstallAPI::SendWindowsNotification -environment 1
         }
     }
 }

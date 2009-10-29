@@ -70,6 +70,12 @@ InstallStartupText
 LaunchApplicationText
 "Ejecutar <%AppName%>"
 
+LocateJavaRuntime,PromptMessage
+"Por favor, localice su Entorno de Ejecución Java (JRE)"
+
+LocateJavaRuntime,StatusMessage
+"Buscando Entorno de Ejecución Java (JRE)..."
+
 Next
 "Siguiente"
 
@@ -88,55 +94,41 @@ RequireRootText
 SeparatorText
 "InstallJammer"
 
+TextWindow,Caption
+"Leyenda"
+
+TextWindow,CloseButton
+"<%Close%>"
+
+TextWindow,Message
+"Mensaje aquí."
+
+TextWindow,Title
+"Título de la Ventana"
+
 TypicalInstallDescription
 "Una instalación típica."
 
 UninstallApplicationText
 "Desinstalar <%AppName%>"
 
+UninstallLeftoverText
+"Algunos componentes no pudieron ser eliminados. ¿Desea borrarlos de todos modos? (no recomendado)"
+
 UninstallPrepareText
 "Preparando desinstalación..."
-
-UpdateRegistryText
-"Actualizando Registro de Windows..."
 
 UninstallStartupText
 "Se eliminará completamente <%AppName%> de su sistema. ¿Seguro que desea esto?"
 
-UninstallLeftoverText
-"Algunos componentes no pudieron ser eliminados. ¿Desea borrarlos de todos\
- modos? (no recomendado)"
+UnzipFile,StatusText
+"<%FileBeingInstalledText%>"
+
+UpdateRegistryText
+"Actualizando Registro de Windows..."
 
 ViewReadmeText
 "Ver Léeme"
 
 Yes
 "Sí"
-
-
-LocateJavaRuntime {
-    PromptMessage
-    "Por favor, localice su Entorno de Ejecución Java (JRE)"
-
-    StatusMessage
-    "Buscando Entorno de Ejecución Java (JRE)..."
-}
-
-TextWindow {
-    Title
-    "Título de la Ventana"
-
-    Caption
-    "Leyenda"
-
-    Message
-    "Mensaje aquí."
-
-    CloseButton
-    "<%Close%>"
-}
-
-UnzipFile {
-    StatusText
-    "<%FileBeingInstalledText%>"
-}

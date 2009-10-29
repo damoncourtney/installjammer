@@ -23,6 +23,10 @@
 
 Action SetVirtualText "Set Virtual Text"
 
+Property Action object "Action"
+Help Action "The ID or alias of an action to execute anytime the given\
+            virtual text variable is changed"
+
 Property AutoUpdate      nullboolean "Auto Update"      ""
 Help AutoUpdate "If Auto Update is true, InstallJammer will automatically\
     update the screen whenever this virtual text is modified"
@@ -52,6 +56,10 @@ proc ::InstallJammer::actions::SetVirtualText { obj } {
     lappend args -language $props(Language)
     lappend args -virtualtext $props(VirtualText)
     lappend args -value $value
+
+    if {$props(Action) ne ""} {
+        lappend args -action $props(Action)
+    }
 
     if {$props(AutoUpdate) ne ""} {
         lappend args -autoupdate $props(AutoUpdate)

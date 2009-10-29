@@ -33,4 +33,4 @@ Property Icon image "Icon" "<%Icon%>"
 Text Title
 Text Caption
 Text Errors "Error Messages"
-Text FinishButton "Finish Button" 1
+Text FinishButton "Finish Button"

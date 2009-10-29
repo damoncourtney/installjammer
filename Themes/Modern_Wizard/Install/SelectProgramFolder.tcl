@@ -29,19 +29,19 @@ proc CreateWindow.SelectProgramFolder { wizard id } {
     grid rowconfigure    $base 3 -weight 1
     grid columnconfigure $base 0 -weight 1
 
-    label $base.programFolderL -anchor w -padx 0 -bd 0
+    ttk::label $base.programFolderL -anchor w -borderwidth 0
     grid  $base.programFolderL -row 0 -column 0 -sticky w -padx 1
     $id widget set ProgramFolderLabel -widget $base.programFolderL
 
-    entry $base.programFolderE -textvariable ::info(ProgramFolderName)
+    ttk::entry $base.programFolderE -textvariable ::info(ProgramFolderName)
     grid  $base.programFolderE -row 1 -column 0 -sticky ew -padx 1
 
-    label $base.existingFoldersL -anchor w -padx 0 -bd 0
+    ttk::label $base.existingFoldersL -anchor w -borderwidth 0
     grid  $base.existingFoldersL -row 2 -column 0 -sticky w \
         -padx 1 -pady [list 5 0]
     $id widget set FolderListLabel -widget $base.existingFoldersL
 
-    frame $base.frame
+    ttk::frame $base.frame
     grid  $base.frame -row 3 -column 0 -sticky news
 
     grid rowconfigure    $base.frame 0 -weight 1

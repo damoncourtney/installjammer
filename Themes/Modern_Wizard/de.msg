@@ -1,443 +1,396 @@
-ChooseComponents {
-    Title
-    "Auswahl Komponenten"
+ChooseComponents,BackButton
+"< <%Back%>"
 
-    Subtitle
-    "Wählen Sie die zu installierenden Komponenten aus."
+ChooseComponents,CancelButton
+"<%Cancel%>"
 
-    Caption
-    "Wählen Sie die zu installierenden Komponenten aus und deselektieren Sie\
-     die Komponenten, die Sie nicht installieren möchten."
+ChooseComponents,Caption
+"Wählen Sie die zu installierenden Komponenten aus und deselektieren Sie die Komponenten, die Sie nicht installieren möchten."
 
-    Message
-    "<%SpaceRequiredText%> an Plattenplatz benötigt"
+ChooseComponents,DescriptionLabel
+"Beschreibung"
 
-    DescriptionLabel
-    "Beschreibung"
+ChooseComponents,Message
+"<%SpaceRequiredText%> an Plattenplatz benötigt"
 
-    NextButton
-    "<%Next%> >"
+ChooseComponents,NextButton
+"<%Next%> >"
 
-    BackButton
-    "< <%Back%>"
+ChooseComponents,Subtitle
+"Wählen Sie die zu installierenden Komponenten aus."
 
-    CancelButton
-    "<%Cancel%>"
-}
+ChooseComponents,Title
+"Auswahl Komponenten"
 
-CopyFiles {
-    Title
-    "Installation"
+CopyFiles,BackButton
+"< <%Back%>"
 
-    Subtitle
-    "Installiere <%AppName%>"
+CopyFiles,CancelButton
+"<%Cancel%>"
 
-    Caption
-    "Bitte warten Sie, während Setup <%AppName%> auf Ihrem Computer installiert."
+CopyFiles,Caption
+"Bitte warten Sie, während Setup <%AppName%> auf Ihrem Computer installiert."
 
-    Message
-    ""
+CopyFiles,FileLabel
+"<%Status%>"
 
-    FileLabel
-    "<%Status%>"
+CopyFiles,Message
+""
 
-    ProgressValue
-    "<%InstallPercentComplete%>"
+CopyFiles,NextButton
+"<%Next%> >"
 
-    NextButton
-    "<%Next%> >"
+CopyFiles,ProgressValue
+"<%InstallPercentComplete%>"
 
-    BackButton
-    "< <%Back%>"
+CopyFiles,Subtitle
+"Installiere <%AppName%>"
 
-    CancelButton
-    "<%Cancel%>"
-}
+CopyFiles,Title
+"Installation"
 
-CustomBlankPane1 {
-    Caption
-    "Überschrift kommt hier hin."
+CustomBlankPane1,BackButton
+"< <%Back%>"
 
-    Message
-    "Meldung kommt hier hin."
+CustomBlankPane1,CancelButton
+"<%Cancel%>"
 
-    NextButton
-    "<%Next%> >"
+CustomBlankPane1,Caption
+"Überschrift kommt hier hin."
 
-    BackButton
-    "< <%Back%>"
+CustomBlankPane1,Message
+"Meldung kommt hier hin."
 
-    CancelButton
-    "<%Cancel%>"
-}
+CustomBlankPane1,NextButton
+"<%Next%> >"
 
-CustomBlankPane2 {
-    Title
-    "Titel"
+CustomBlankPane2,BackButton
+"< <%Back%>"
 
-    Subtitle
-    "Untertitel"
+CustomBlankPane2,CancelButton
+"<%Cancel%>"
 
-    Caption
-    "Überschrift"
+CustomBlankPane2,Caption
+"Überschrift"
 
-    Message
-    "Meldung"
+CustomBlankPane2,Message
+"Meldung"
 
-    NextButton
-    "<%Next%> >"
+CustomBlankPane2,NextButton
+"<%Next%> >"
 
-    BackButton
-    "< <%Back%>"
+CustomBlankPane2,Subtitle
+"Untertitel"
 
-    CancelButton
-    "<%Cancel%>"
-}
+CustomBlankPane2,Title
+"Titel"
 
-CustomTextPane1 {
-    Title
-    "Titel"
+CustomTextPane1,BackButton
+"< <%Back%>"
 
-    Subtitle
-    "Untertitel"
+CustomTextPane1,CancelButton
+"<%Cancel%>"
 
-    Caption
-    "Untertitel"
+CustomTextPane1,Caption
+"Untertitel"
 
-    Message
-    "Meldung"
+CustomTextPane1,Message
+"Meldung"
 
-    Text
-    "Ihr benutzerdefinierter Text kommt hier hin."
+CustomTextPane1,NextButton
+"<%Next%> >"
 
-    NextButton
-    "<%Next%> >"
+CustomTextPane1,Subtitle
+"Untertitel"
 
-    BackButton
-    "< <%Back%>"
+CustomTextPane1,Text
+"Ihr benutzerdefinierter Text kommt hier hin."
 
-    CancelButton
-    "<%Cancel%>"
-}
+CustomTextPane1,Title
+"Titel"
 
-License {
-    Title
-    "Lizenzbestimmungen"
+License,AcceptRadiobutton
+"Ich akzeptiere die Lizenzbestimmungen."
 
-    Subtitle
-    "Bitte lesen Sie die folgenden Lizenzbestimmungen aufmerksam."
+License,BackButton
+"< <%Back%>"
 
-    AcceptRadiobutton
-    "Ich akzeptiere die Lizenzbestimmungen."
+License,CancelButton
+"<%No%>"
 
-    DeclineRadiobutton
-    "Ich akzeptiere nicht die Lizenzbestimmungen."
+License,DeclineRadiobutton
+"Ich akzeptiere nicht die Lizenzbestimmungen."
 
-    NextButton
-    "<%Yes%>"
+License,NextButton
+"<%Yes%>"
 
-    BackButton
-    "< <%Back%>"
+License,Subtitle
+"Bitte lesen Sie die folgenden Lizenzbestimmungen aufmerksam."
 
-    CancelButton
-    "<%No%>"
-}
+License,Title
+"Lizenzbestimmungen"
 
-Readme {
-    Title
-    "Liesmich Informationen"
+Readme,BackButton
+"< <%Back%>"
 
-    Subtitle
-    "Liesmich Informationen für <%AppName%>"
+Readme,CancelButton
+"<%Cancel%>"
 
-    Caption
-    ""
+Readme,Caption
+""
 
-    Message
-    ""
+Readme,Message
+""
 
-    Text
-    ""
+Readme,NextButton
+"<%Next%> >"
 
-    NextButton
-    "<%Next%> >"
+Readme,Subtitle
+"Liesmich Informationen für <%AppName%>"
 
-    BackButton
-    "< <%Back%>"
+Readme,Text
+""
 
-    CancelButton
-    "<%Cancel%>"
-}
+Readme,Title
+"Liesmich Informationen"
 
-SelectDestination {
-    Title
-    "Auswahl Installationsziel"
+SelectDestination,BackButton
+"< <%Back%>"
 
-    Subtitle
-    "Wohin soll <%AppName%> installiert werden?"
+SelectDestination,BrowseButton
+"<%Browse%>"
 
-    Caption
-    "Setup wird <%AppName%> in das folgende Verzeichnis installieren. \
-    \n\nKlicken Sie auf Weiter, wenn dieses Verzeichnis verwendet werden soll. \
-    Um ein anderes Verzeichnis auszuwählen, klicken Sie auf Durchsuchen und\
-    wählen ein anderes aus."
+SelectDestination,BrowseText
+"Um Fortzufahren, klicken Sie auf Weiter.  Wenn Sie ein anderes Verzeichnis verwenden möchten, klicken Sie auf Durchsuchen."
 
-    Message
-    ""
+SelectDestination,CancelButton
+"<%Cancel%>"
 
-    BrowseText
-    "Um Fortzufahren, klicken Sie auf Weiter.  Wenn Sie ein anderes Verzeichnis\
-    verwenden möchten, klicken Sie auf Durchsuchen."
+SelectDestination,Caption
+"Setup wird <%AppName%> in das folgende Verzeichnis installieren.  
 
-    NextButton
-    "<%Next%> >"
+Klicken Sie auf Weiter, wenn dieses Verzeichnis verwendet werden soll.  Um ein anderes Verzeichnis auszuwählen, klicken Sie auf Durchsuchen und wählen ein anderes aus."
 
-    BackButton
-    "< <%Back%>"
+SelectDestination,DestinationLabel
+"Zielordner"
 
-    CancelButton
-    "<%Cancel%>"
+SelectDestination,Message
+""
 
-    BrowseButton
-    "<%Browse%>"
+SelectDestination,NextButton
+"<%Next%> >"
 
-    DestinationLabel
-    "Zielordner"
-}
+SelectDestination,Subtitle
+"Wohin soll <%AppName%> installiert werden?"
 
-SelectProgramFolder {
-    Title
-    "Auswahl Programmordner"
+SelectDestination,Title
+"Auswahl Installationsziel"
 
-    Subtitle
-    "Bitte wählen Sie einen Programmordner."
+SelectProgramFolder,AllUsersCheckbutton
+"Erstelle Programmordner für alle Benutzer"
 
-    Caption
-    "Setup wird die Programmsymbole zum unten aufgeführten Programmordner\
-    hinzufügen. Sie können einen neuen Ordnernamen eingeben oder einen von der\
-    von der existierenden Ordnerliste auswählen. Klicken Sie auf Weiter um\
-    Fortzufahren."
+SelectProgramFolder,BackButton
+"< <%Back%>"
 
-    Message
-    ""
+SelectProgramFolder,CancelButton
+"<%Cancel%>"
 
-    ProgramFolderLabel
-    "Programmordner:"
+SelectProgramFolder,Caption
+"Setup wird die Programmsymbole zum unten aufgeführten Programmordner hinzufügen.  Sie können einen neuen Ordnernamen eingeben oder einen von der von der existierenden Ordnerliste auswählen.  Klicken Sie auf Weiter um Fortzufahren."
 
-    FolderListLabel
-    "Vorhandene Ordner:"
+SelectProgramFolder,FolderListLabel
+"Vorhandene Ordner:"
 
-    NextButton
-    "<%Next%> >"
+SelectProgramFolder,Message
+""
 
-    BackButton
-    "< <%Back%>"
+SelectProgramFolder,NextButton
+"<%Next%> >"
 
-    CancelButton
-    "<%Cancel%>"
+SelectProgramFolder,ProgramFolderLabel
+"Programmordner:"
 
-    AllUsersCheckbutton
-    "Erstelle Programmordner für alle Benutzer"
-}
+SelectProgramFolder,Subtitle
+"Bitte wählen Sie einen Programmordner."
 
-SetupComplete {
-    Caption
-    "Installation Abgeschlossen"
+SelectProgramFolder,Title
+"Auswahl Programmordner"
 
-    Message
-    "InstallJammer hat <%AppName%> erfolgreich installiert. \
-     Klicken Sie auf Beenden, um den Assistenten zu verlassen."
+SetupComplete,BackButton
+"< <%Back%>"
 
-    NextButton
-    "<%Finish%>"
+SetupComplete,CancelButton
+"<%Cancel%>"
 
-    BackButton
-    "< <%Back%>"
+SetupComplete,Caption
+"Installation Abgeschlossen"
 
-    CancelButton
-    "<%Cancel%>"
-}
+SetupComplete,Message
+"InstallJammer hat <%AppName%> erfolgreich installiert.  Klicken Sie auf Beenden, um den Assistenten zu verlassen."
 
-SetupType {
-    Title
-    "Setup Art"
+SetupComplete,NextButton
+"<%Finish%>"
 
-    Subtitle
-    "Wählen Sie die Art des Setup, welche am Besten Ihren Anforderungen\
-    entspricht."
+SetupType,BackButton
+"< <%Back%>"
 
-    Caption
-    "Klicken Sie auf die bevorzugte Art des Setup."
+SetupType,CancelButton
+"<%Cancel%>"
 
-    Message
-    ""
+SetupType,Caption
+"Klicken Sie auf die bevorzugte Art des Setup."
 
-    DescriptionLabel
-    "Beschreibung"
+SetupType,DescriptionLabel
+"Beschreibung"
 
-    NextButton
-    "<%Next%> >"
+SetupType,Message
+""
 
-    BackButton
-    "< <%Back%>"
+SetupType,NextButton
+"<%Next%> >"
 
-    CancelButton
-    "<%Cancel%>"
-}
+SetupType,Subtitle
+"Wählen Sie die Art des Setup, welche am Besten Ihren Anforderungen entspricht."
 
-StartCopyingFiles {
-    Title
-    "Kopieren der Dateien"
+SetupType,Title
+"Setup Art"
 
-    Subtitle
-    "Überprüfen Sie die Einstellungen, bevor die Dateien kopiert werden."
+StartCopyingFiles,BackButton
+"< <%Back%>"
 
-    Caption
-    "Setup hat genug Informationen, um die Programmdateien\
-    zu kopieren. Wenn Sie die Einstellungen überprüfen oder ändern möchten,\
-    klicken Sie auf Zurück. Wenn Sie mit den Einstellungen zufrieden sind,\
-    klicken Sie auf Weiter, um mit dem Kopieren der Dateien zu beginnen."
+StartCopyingFiles,CancelButton
+"<%Cancel%>"
 
-    Message
-    ""
+StartCopyingFiles,Caption
+"Setup hat genug Informationen, um die Programmdateien zu kopieren.  Wenn Sie die Einstellungen überprüfen oder ändern möchten, klicken Sie auf Zurück.  Wenn Sie mit den Einstellungen zufrieden sind, klicken Sie auf Weiter, um mit dem Kopieren der Dateien zu beginnen."
 
-    Text
-    "Installationsverzeichnis:
-                <%InstallDir%>
+StartCopyingFiles,Message
+""
 
-    Setup Art:
-            <%InstallType%>"
+StartCopyingFiles,NextButton
+"<%Next%> >"
 
-    NextButton
-    "<%Next%> >"
+StartCopyingFiles,Subtitle
+"Überprüfen Sie die Einstellungen, bevor die Dateien kopiert werden."
 
-    BackButton
-    "< <%Back%>"
+StartCopyingFiles,Text
+"Installationsverzeichnis:
+ <%InstallDir%>
 
-    CancelButton
-    "<%Cancel%>"
-}
+ Setup Art:
+ <%InstallType%>"
 
-Uninstall {
-    Title
-    "Deinstallation"
+StartCopyingFiles,Title
+"Kopieren der Dateien"
 
-    Subtitle
-    "Deinstalliere <%AppName%>"
+Uninstall,BackButton
+"< <%Back%>"
 
-    Caption
-    "<%GroupBeingUninstalledText%>"
+Uninstall,CancelButton
+"<%Cancel%>"
 
-    Message
-    ""
+Uninstall,Caption
+"<%GroupBeingUninstalledText%>"
 
-    FileValue
-    "<%Status%>"
+Uninstall,FileValue
+"<%Status%>"
 
-    ProgressValue
-    "<%UninstallPercentComplete%>"
+Uninstall,Message
+""
 
-    NextButton
-    "<%Next%> >"
+Uninstall,NextButton
+"<%Next%> >"
 
-    BackButton
-    "< <%Back%>"
+Uninstall,ProgressValue
+"<%UninstallPercentComplete%>"
 
-    CancelButton
-    "<%Cancel%>"
-}
+Uninstall,Subtitle
+"Deinstalliere <%AppName%>"
 
-UninstallComplete {
-    Caption
-    "Deinstallation Abgeschlossen"
+Uninstall,Title
+"Deinstallation"
 
-    Message
-    "<%AppName%> wurde von Ihrem System entfernt."
+UninstallComplete,BackButton
+"< <%Back%>"
 
-    NextButton
-    "<%Finish%>"
+UninstallComplete,CancelButton
+"<%Cancel%>"
 
-    BackButton
-    "< <%Back%>"
+UninstallComplete,Caption
+"Deinstallation Abgeschlossen"
 
-    CancelButton
-    "<%Cancel%>"
-}
+UninstallComplete,Message
+"<%AppName%> wurde von Ihrem System entfernt."
 
-UninstallDetails {
-    Title
-    "Deinstallation Details"
+UninstallComplete,NextButton
+"<%Finish%>"
 
-    Subtitle
-    "Es sind Fehler beim Löschen aufgetreten"
+UninstallDetails,BackButton
+"< <%Back%>"
 
-    Caption
-    "Die folgenden Fehler sind beim Löschen aufgetreten:"
+UninstallDetails,CancelButton
+"<%Cancel%>"
 
-    Message
-    ""
+UninstallDetails,Caption
+"Die folgenden Fehler sind beim Löschen aufgetreten:"
 
-    Text
-    "<%Errors%>"
+UninstallDetails,Message
+""
 
-    NextButton
-    "<%Next%> >"
+UninstallDetails,NextButton
+"<%Next%> >"
 
-    BackButton
-    "< <%Back%>"
+UninstallDetails,Subtitle
+"Es sind Fehler beim Löschen aufgetreten"
 
-    CancelButton
-    "<%Cancel%>"
-}
+UninstallDetails,Text
+"<%Errors%>"
 
+UninstallDetails,Title
+"Deinstallation Details"
 
-UserInformation {
-    Title
-    "Benutzer Information"
+UserInformation,BackButton
+"< <%Back%>"
 
-    Subtitle
-    "Bitte geben Sie Ihre Informationen ein."
+UserInformation,CancelButton
+"<%Cancel%>"
 
-    Caption
-    "Bitte geben Sie Ihren Namen und den Namen der Firma ein, für die Sie\
-    arbeiten."
+UserInformation,Caption
+"Bitte geben Sie Ihren Namen und den Namen der Firma ein, für die Sie arbeiten."
 
-    Message
-    ""
+UserInformation,CompanyLabel
+"Firma:"
 
-    UserNameLabel
-    "Benutzername:"
+UserInformation,Message
+""
 
-    CompanyLabel
-    "Firma:"
+UserInformation,NextButton
+"<%Next%> >"
 
-    NextButton
-    "<%Next%> >"
+UserInformation,Subtitle
+"Bitte geben Sie Ihre Informationen ein."
 
-    BackButton
-    "< <%Back%>"
+UserInformation,Title
+"Benutzer Information"
 
-    CancelButton
-    "<%Cancel%>"
-}
+UserInformation,UserNameLabel
+"Benutzername:"
 
+Welcome,BackButton
+"< <%Back%>"
 
-Welcome {
-    Caption
-    "Willkommen beim InstallJammer Assistenten für <%AppName%>"
+Welcome,CancelButton
+"<%Cancel%>"
 
-    Message
-    "Dies wird <%AppName%> Version <%Version%> auf Ihrem Computer installieren. \
-    \n\nEs wird empfohlen, das Sie alle anderen Anwendungen schließen, bevor\
-    Sie fortfahren.\n\nKlicken Sie auf Weiter um Fortzufahren oder auf\
-    Abbrechen, um das Setup zu beenden."
+Welcome,Caption
+"Willkommen beim InstallJammer Assistenten für <%AppName%>"
 
-    NextButton
-    "<%Next%> >"
+Welcome,Message
+"Dies wird <%AppName%> Version <%Version%> auf Ihrem Computer installieren.  
 
-    BackButton
-    "< <%Back%>"
+Es wird empfohlen, das Sie alle anderen Anwendungen schließen, bevor Sie fortfahren.
 
-    CancelButton
-    "<%Cancel%>"
-}
+Klicken Sie auf Weiter um Fortzufahren oder auf Abbrechen, um das Setup zu beenden."
+
+Welcome,NextButton
+"<%Next%> >"

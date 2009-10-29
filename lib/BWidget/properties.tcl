@@ -130,7 +130,11 @@ namespace eval Properties {
     bind Properties <FocusIn>   [list after idle {BWidget::refocus %W %W.c}]
     bind PropertiesCanvas <1>   [list Properties::_focus_canvas %W]
 
-    BWidget::bindMouseWheel PropertiesCanvas
+    bind PropertiesTable <MouseWheel> {
+        BWidget::scroll [winfo parent %W].c %X %Y %D
+        break
+    }
+    # BWidget::bindMouseWheel PropertiesCanvas
 }
 
 

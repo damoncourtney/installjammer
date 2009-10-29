@@ -36,9 +36,9 @@ Property DefaultFolder shorttext "Default Folder" "<%AppName%>"
 
 Text Title
 Text Caption
-Text ProgramFolderLabel   "Program Folder Label"   0
-Text FolderListLabel      "Folder List Label"      0
-Text NextButton           "Next Button"            1
-Text BackButton           "Back Button"            1
-Text CancelButton         "Cancel Button"          1
-Text AllUsersCheckbutton  "All Users Checkbutton"  0
+Text ProgramFolderLabel   "Program Folder Label"
+Text FolderListLabel      "Folder List Label"
+Text NextButton           "Next Button"
+Text BackButton           "Back Button"
+Text CancelButton         "Cancel Button"
+Text AllUsersCheckbutton  "All Users Checkbutton"

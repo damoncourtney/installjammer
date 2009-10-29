@@ -45,5 +45,5 @@ proc ::InstallJammer::actions::ImportWindowsRegistryFile { obj } {
         }
     }
 
-    set conf(UpdateWindowsRegistry) 1
+    ::InstallAPI::SendWindowsNotification -environment 1
 }

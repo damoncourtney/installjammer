@@ -112,10 +112,7 @@ proc ::FileTree::Uncheck {tree {types ""}} {
 
 proc ::Tree::DropFiles { tree files } {
     set node [lindex [$tree selection get] 0]
-    set id   [$tree itemcget $node -data]
-    if {[$id type] eq "filegroup"} {
-        AddFiles -files [lsort $files]
-    }
+    if {[$node type] eq "filegroup"} { AddFiles -files [lsort $files] }
 }
 
 proc ::Tree::DragFiles { tree x y } {
@@ -131,8 +128,7 @@ proc ::Tree::DragFiles { tree x y } {
         (![info exists drag(node)] || ![string equal $drag(node) $node])} {
         set drag(node)  $node
         set drag($node) [after 500 [list $tree opentree $drag(node) 0]]
-        set id [$tree itemcget $drag(node) -data]
-        if {[$id type] eq "filegroup"} {
+        if {[$node type] eq "filegroup"} {
 	    $tree selection set $drag(node)
 	}
     }
@@ -187,8 +183,8 @@ proc ::InstallJammer::Tree::Setup { setup tree } {
     $tree bindImage <Double-1>  [list ::InstallJammer::Tree::Toggle $tree]
 
     set command [list ::InstallJammer::Tree::Popup $setup $tree %X %Y]
-    $tree bindText  <Button-3> $command
-    $tree bindImage <Button-3> $command
+    $tree bindText  <<RightClick>> $command
+    $tree bindImage <<RightClick>> $command
 
     bind $canv <F2>     [list ::InstallJammer::Tree::Rename $tree]
     bind $canv <Delete> [list ::InstallJammer::Tree::Delete $tree]
@@ -355,13 +351,7 @@ proc ::InstallJammer::Tree::Rename { tree } {
     global widg
 
     set item [$tree selection get]
-    set id   $item
-
-    if {$tree eq $widg(FileGroupTree)} {
-        set id [$tree itemcget $item -data]
-    }
-
-    set type [$id type]
+    set type [$item type]
 
     if {$tree eq $widg(FileGroupTree)
         || $tree eq $widg(ComponentTree)
@@ -372,7 +362,7 @@ proc ::InstallJammer::Tree::Rename { tree } {
     } else {
         set types [list pane action actiongroup]
         if {[lsearch -exact $types $type] < 0} { return }
-        set text  [$item title]
+        set text [$item title]
     }
 
     $tree edit $item $text [list ::InstallJammer::Tree::DoRename $tree $item]
@@ -691,17 +681,13 @@ proc ::InstallJammer::RefreshComponentTitles { {items {}} } {
 
     if {![llength $items]} {
         foreach installtype [InstallTypes children] {
-            eval lappend idlist [$installtype children recursive]
-        }
-    } else {
-        set types  [list pane action actiongroup]
-        set idlist [list]
-        foreach id $items {
-            if {[eval $id is $types]} { lappend idlist $id }
+            lappend items {*}[$installtype children recursive]
         }
     }
 
-    foreach id $idlist {
+    foreach id $items {
+        if {![$widg([$id setup]) exists $id]} { continue }
+
         set title [$id title]
         if {[llength [$id conditions]]} { append title "*" }
         $widg([$id setup]) itemconfigure $id -text $title

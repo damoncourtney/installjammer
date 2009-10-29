@@ -21,13 +21,10 @@
 ##
 ## END LICENSE BLOCK
 
-if {[lsearch -exact [tile::availableThemes] "xpnative"] > -1} {
-    tile::setTheme xpnative
-} else {
-    tile::setTheme winnative
-}
+if {$conf(cmdline)} { return }
+if {!$conf(windows)} { return }
 
-style default Toolbutton -padding {4 4}
+style configure Toolbutton -padding {4 4}
 
 ## Setup the default options.
 option add *Button.padY 0

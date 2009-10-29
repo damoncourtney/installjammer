@@ -22,6 +22,9 @@ CleanupInstallText
 Close
 "Закрыть"
 
+ConsolePause,Message
+"<%ConsolePauseText%>"
+
 ConsolePauseQuitText
 "-- Нажмите пробел для продолжения или 'q' для выхода --"
 
@@ -97,6 +100,12 @@ InstallTitleText
 LaunchApplicationText
 "Запуск <%AppName%>"
 
+LocateJavaRuntime,PromptMessage
+"Пожалуйста, укажите где находится Java Runtime"
+
+LocateJavaRuntime,StatusMessage
+"Идёт поиск Java Runtime..."
+
 Next
 "Далее"
 
@@ -127,37 +136,50 @@ RequireRootText
 SeparatorText
 "InstallJammer"
 
+TextWindow,Caption
+"Подпись"
+
+TextWindow,CloseButton
+"<%Close%>"
+
+TextWindow,Message
+"Здесь должно быть сообщение."
+
+TextWindow,Title
+"Заголовок окна"
+
 TypicalInstallDescription
 "Стандартная установка."
 
 UninstallApplicationText
 "Деинсталляция <%AppName%>"
 
-UninstallPrepareText
-"Идёт подготовка к деинсталляции..."
-
-UpdateRegistryText
-"Вносятся изменения в реестр Windows..."
+UninstallCompleteText
+"Деинсталляция завершена."
 
 UninstallingApplicationText
 "Идёт деинсталляция <%AppName%>..."
 
-UninstallCompleteText
-"Деинсталляция завершена."
+UninstallLeftoverText
+"Некоторые компоненты не могут быть удалены. Вы всё-таки желаете их удалить (не рекомендуется) ?"
+
+UninstallPrepareText
+"Идёт подготовка к деинсталляции..."
 
 UninstallStartupText
-"<%AppName%> будет полностью удалена из вашей системы. Вы уверены, что\
- собираетесь это сделать ?"
-
-UninstallLeftoverText
-"Некоторые компоненты не могут быть удалены. Вы всё-таки желаете их удалить\
- (не рекомендуется) ?"
+"<%AppName%> будет полностью удалена из вашей системы. Вы уверены, что собираетесь это сделать ?"
 
 UninstallTitleText
 "Деинсталлировать <%AppName%>"
 
 UnpackingFilesText
 "Идёт распаковка файлов..."
+
+UnzipFile,StatusText
+"<%FileBeingInstalledText%>"
+
+UpdateRegistryText
+"Вносятся изменения в реестр Windows..."
 
 VersionHelpText
 "Эта программа установит <%AppName%> <%Version%>."
@@ -167,35 +189,3 @@ ViewReadmeText
 
 Yes
 "Да"
-
-ConsolePause {
-    Message
-    "<%ConsolePauseText%>"
-}
-
-LocateJavaRuntime {
-    PromptMessage
-    "Пожалуйста, укажите где находится Java Runtime"
-
-    StatusMessage
-    "Идёт поиск Java Runtime..."
-}
-
-TextWindow {
-    Title
-    "Заголовок окна"
-
-    Caption
-    "Подпись"
-
-    Message
-    "Здесь должно быть сообщение."
-
-    CloseButton
-    "<%Close%>"
-}
-
-UnzipFile {
-    StatusText
-    "<%FileBeingInstalledText%>"
-}

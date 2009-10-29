@@ -141,7 +141,7 @@ proc LoadTheme { args } {
     set projectdir [file dirname $info(ProjectFile)]
 
     foreach dir [list $themedir $projectdir] {
-        ::InstallJammer::LoadMessages -dir $dir
+        ::InstallJammer::LoadMessages -dir $dir -force 0
 
         set file [file join $dir theme.tcl]
         if {[file exists $file]} { uplevel #0 source [list $file] }
@@ -442,8 +442,7 @@ proc ::InstallJammer::ThemeList {} {
 }
 
 proc ::InstallJammer::DeletePaneObjects {} {
-    eval ::itcl::delete object \
-        [::itcl::find object -class ::InstallJammer::Pane]
+    ::obj::object destroy {*}[::obj::object instances ::InstallJammer::Pane]
 }
 
 proc ::InstallJammer::DeleteWindowProcs {} {

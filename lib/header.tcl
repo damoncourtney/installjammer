@@ -26,9 +26,6 @@ if {[info exists ::InstallJammer]} { return }
 namespace eval ::InstallAPI {}
 namespace eval ::InstallJammer {}
 
-set ::debug   0
-set ::verbose 0
-
 set ::conf(osx)       [string equal $::tcl_platform(os) "Darwin"]
 set ::conf(unix)      [string equal $::tcl_platform(platform) "unix"]
 set ::conf(windows)   [string equal $::tcl_platform(platform) "windows"]
@@ -37,8 +34,7 @@ set ::conf(vista)     [expr {$conf(windows) && $tcl_platform(osVersion) >= 6.0}]
 set ::conf(wine)      [expr {$conf(windows) && [info exists env(_)]
                          && [file tail $env(_)] eq "wine"}]
 
-set ::info(Testing)   0
-set ::info(Debugging) 0
+set ::info(Testing) 0
 
 ## Trace the virtual text array for changes and execute any
 ## attached commands or auto-update actions.

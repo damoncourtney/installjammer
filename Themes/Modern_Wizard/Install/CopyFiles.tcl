@@ -29,7 +29,7 @@ proc CreateWindow.CopyFiles { wizard id } {
     grid rowconfigure    $base 0 -weight 1
     grid columnconfigure $base 0 -weight 1
 
-    set frame [frame $base.frame]
+    set frame [ttk::frame $base.frame]
     grid $frame -row 0 -column 0 -sticky new
 
     grid rowconfigure    $frame 1 -weight 1

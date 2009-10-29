@@ -36,6 +36,6 @@ Property WizardOptions hidden "Wizard Options" [list -bg white -separator 0]
 
 Text Caption
 Text Message
-Text BackButton   "Back Button"   1
-Text NextButton   "Next Button"   1
-Text CancelButton "Cancel Button" 1
+Text BackButton   "Back Button"
+Text NextButton   "Next Button"
+Text CancelButton "Cancel Button"

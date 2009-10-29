@@ -23,7 +23,7 @@
 
 Action AddWidget "Add Widget"
 
-Property Action short "Action"
+Property Action object "Action"
 Help Action "An action to execute when a button is pressed or a checkbutton\
                 or radiobutton is changed"
 
@@ -100,6 +100,7 @@ Help Y "The Y coordinate to place this widget at"
 Text Text
 
 proc ::InstallJammer::actions::AddWidget { obj } {
+    global conf
     global info
 
     set id     [$obj id]
@@ -138,6 +139,9 @@ proc ::InstallJammer::actions::AddWidget { obj } {
         set command [list ::InstallJammer::ExecuteActions $props(Action)]
     }
 
+    set bg $props(Background)
+    set fg $props(Foreground)
+
     switch -- $props(Type) {
         "button" {
             lappend opts -command $command
@@ -161,6 +165,11 @@ proc ::InstallJammer::actions::AddWidget { obj } {
             set onval   $props(OnValue)
             set offval  $props(OffValue)
             set boolean 1
+
+            if {$conf(osx) && $bg ne "system"} {
+                set ttk  0
+                set type checkbutton
+            }
 
             lappend opts -onvalue  $onval
             lappend opts -offvalue $offval
@@ -206,6 +215,13 @@ proc ::InstallJammer::actions::AddWidget { obj } {
 
             if {$text ne ""} { set label $text }
             if {$value ne ""} { set varval $value }
+        }
+
+        "label" {
+            if {$conf(osx) && $bg ne "system"} {
+                set ttk  0
+                set type label
+            }
         }
 
         "label frame" {
@@ -254,10 +270,8 @@ proc ::InstallJammer::actions::AddWidget { obj } {
         }
     }
 
-    ::InstallJammer::SetVirtualText $info(Language) $parent $id $text
-    $parent set $id,subst $props(Text,subst)
+    $parent set $id $text $id,subst $props(Text,subst)
 
-    set bg $props(Background)
     if {$bg ne "system"} {
         if {$ttk} {
             lappend newStyleOpts -background $bg
@@ -266,7 +280,6 @@ proc ::InstallJammer::actions::AddWidget { obj } {
         }
     }
 
-    set fg $props(Foreground)
     if {$fg ne "system"} {
         if {$ttk} {
             lappend newStyleOpts -foreground $fg

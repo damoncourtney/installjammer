@@ -22,6 +22,9 @@ CleanupInstallText
 Close
 "Bezárás"
 
+ConsolePause,Message
+"<%ConsolePauseText%>"
+
 ConsolePauseQuitText
 "-- Nyomjon egy szóközt a folytatáshoz, vagy egy 'q'-t a kilépéshez --"
 
@@ -97,6 +100,12 @@ InstallTitleText
 LaunchApplicationText
 "<%AppName%> betöltése"
 
+LocateJavaRuntime,PromptMessage
+"Kérem mondja meg, hogy a Java futtatási környezet hol található"
+
+LocateJavaRuntime,StatusMessage
+"A Java futtatási környezet keresése..."
+
 Next
 "Következ\u0151"
 
@@ -127,37 +136,52 @@ RequireRootText
 SeparatorText
 "InstallJammer"
 
+TextWindow,Caption
+"Fejléc"
+
+TextWindow,CloseButton
+"<%Close%>"
+
+TextWindow,Message
+"Az üzenet jön ide."
+
+TextWindow,Title
+"Ablak cím"
+
 TypicalInstallDescription
 "Tipikus telepítés."
 
 UninstallApplicationText
 "<%AppName%> eltávolítása"
 
-UninstallPrepareText
-"Felkészülés az eltávolításra..."
-
-UpdateRegistryText
-"A Windows Registry frissítése..."
+UninstallCompleteText
+"Eltávolítás befejez\u0151d\u0151tt."
 
 UninstallingApplicationText
 "<%AppName%> eltávolítása..."
 
-UninstallCompleteText
-"Eltávolítás befejez\u0151d\u0151tt."
+UninstallLeftoverText
+"Néhány elemet nem kellene eltávolítani.\
+ Mindenáron töröljük \u0151ket (nem javasolt)?"
+
+UninstallPrepareText
+"Felkészülés az eltávolításra..."
 
 UninstallStartupText
 "Ez teljesen letörli a <%AppName%> alkalmazást a rendszerér\u0151l. \
  Biztos abban, hogy ezt akarja?"
-
-UninstallLeftoverText
-"Néhány elemet nem kellene eltávolítani. \
- Mindenáron töröljük \u0151ket (nem javasolt)?"
 
 UninstallTitleText
 "<%AppName%> eltávolítása"
 
 UnpackingFilesText
 "Állományok kicsomagolása..."
+
+UnzipFile,StatusText
+"<%FileBeingInstalledText%>"
+
+UpdateRegistryText
+"A Windows Registry frissítése..."
 
 VersionHelpText
 "Ez a program a <%AppName%> program <%Version%> verzióját fogja telepíteni."
@@ -167,35 +191,3 @@ ViewReadmeText
 
 Yes
 "Igen"
-
-ConsolePause {
-    Message
-    "<%ConsolePauseText%>"
-}
-
-LocateJavaRuntime {
-    PromptMessage
-    "Kérem mondja meg, hogy a Java futtatási környezet hol található"
-
-    StatusMessage
-    "A Java futtatási környezet keresése..."
-}
-
-TextWindow {
-    Title
-    "Ablak cím"
-
-    Caption
-    "Fejléc"
-
-    Message
-    "Az üzenet jön ide."
-
-    CloseButton
-    "<%Close%>"
-}
-
-UnzipFile {
-    StatusText
-    "<%FileBeingInstalledText%>"
-}

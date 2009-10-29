@@ -45,7 +45,8 @@ proc ::InstallJammer::InstallFiles {} {
     global files
     global groups
 
-    set conf(unpackTotal) 0
+    set conf(pct)  0
+    set conf(done) 0
 
     ::InstallJammer::CreateDir $info(InstallDir)
 
@@ -64,102 +65,72 @@ proc ::InstallJammer::InstallFiles {} {
     }
 }
 
-proc ::InstallJammer::IncrProgress { bytes } {
+proc ::InstallJammer::unpack { src dest {permissions "0666"} } {
     global conf
     global info
 
-    if {$info(TotalSize) == 0} {
-	output ":PERCENT 100"
-	return
-    }
-
-    incr0 conf(unpackLeft) -$bytes
-    incr0 conf(unpackTotal) $bytes
-    incr0 conf(unpackSoFar) $bytes
-
-    if {$info(TotalSize) > 0} {
-	set x [expr round(($conf(unpackTotal) * wide(100.0))/$info(TotalSize))]
-        if {$x != $conf(lastPercent)} {
-            output ":PERCENT $x"
-            set conf(lastPercent) $x
-        }
-    }
-
-    #if {$info(FileSize) > 0} {
-	#set x [expr round( ($conf(unpackSoFar) * 100.0) / $info(FileSize) )]
-	#output ":FILEPERCENT $x"
-    #}
-}
-
-proc ::InstallJammer::unpack { src dest {permissions ""} } {
-    global conf
-    global info
-
-    if {![PauseCheck]} { return }
+    if {![::InstallJammer::PauseCheck]} { return }
 
     if {$conf(rollback) && [file exists $dest]} {
         output [list :ROLLBACK $dest]
         ::InstallJammer::SaveForRollback $dest
     }
 
-    if {$permissions eq ""} { set permissions 0666 }
-
     # Extract the file and copy it to its location.
-    set fin [open $src r]
-    if {[catch {open $dest w $permissions} fout]} {
-	close $fin
-	return -code error $fout
+    set ifp [open $src r]
+    if {[catch {open $dest w $permissions} ofp]} {
+	close $ifp
+	return -code error $ofp
     }
 
-    set intrans  binary
-    set outtrans binary
+    fconfigure $ifp -translation binary -encoding identity
+    fconfigure $ofp -translation binary -encoding identity
+
     if {[info exists conf(eol,[file extension $dest])]} {
         set trans $conf(eol,[file extension $dest])
         if {[llength $trans] == 2} {
-            set intrans  [lindex $trans 0]
-            set outtrans [lindex $trans 1]
+            fconfigure $ifp -translation [lindex $trans 0]
+            fconfigure $ofp -translation [lindex $trans 1]
         } else {
-            set outtrans [lindex $trans 0]
+            fconfigure $ofp -translation [lindex $trans 0]
         }
     }
 
-    fconfigure $fin  -translation $intrans  -buffersize $conf(chunk)
-    fconfigure $fout -translation $outtrans -buffersize $conf(chunk)
+    set i     0
+    set pct   0
+    set chunk 4096
+    set total $info(TotalSize)
 
-    set conf(unpackLeft)  $info(FileSize)
-    set conf(unpackDone)  0
-    set conf(unpackSoFar) 0
-    set conf(unpackFin)   $fin
-    set conf(unpackFout)  $fout
-    set conf(lastPercent) 0
+    set break 0
+    while {1} {
+        if {[set x [read $ifp $chunk]] ne ""} {
+            incr conf(done) [string length $x]
+            puts -nonewline $ofp $x
+        } else {
+            set break 1
+        }
 
-    ::InstallJammer::unpackfile $fin $fout 0
+        if {$break || [incr i] >= 10} {
+            set i 0
 
-    if {!$info(InstallStopped)} {
-        vwait ::conf(unpackDone)
+            if {![::InstallJammer::PauseCheck]} { break }
+
+            if {$total > 0} {
+                set pct [expr {round(($conf(done) * wide(100.0)) / $total)}]
+                if {$pct != $conf(pct)} {
+                    set conf(pct) $pct
+                    output ":PERCENT $pct"
+                }
+            }
+        }
+
+        if {$break} { break }
     }
+
+    catch { close $ifp }
+    catch { close $ofp }
 
     return $dest
-}
-
-proc ::InstallJammer::unpackfile { in out bytes {error ""} } {
-    global conf
-
-    if {![PauseCheck]} {
-        set error "Install Stopped"
-    }
-
-    ::InstallJammer::IncrProgress $bytes
-
-    if {$error ne "" || $conf(unpackLeft) <= 0 || [eof $in]} {
-	close $in
-	close $out
-	set conf(unpackDone) $conf(unpackTotal)
-    } else {
-        set size $conf(chunk)
-        if {$size > $conf(unpackLeft)} { set size $conf(unpackLeft) }
-	::fcopy $in $out -size $size -command [lrange [info level 0] 0 2]
-    }
 }
 
 proc ::InstallJammer::InstallLog { string } {
@@ -167,18 +138,9 @@ proc ::InstallJammer::InstallLog { string } {
 }
 
 proc ::InstallJammer::exit {} {
-    global info
     global conf
 
-    if {![threaded]} {
-        ::InstallJammer::WriteDoneFile $info(Temp)
-
-        catch { close $conf(runlogFp) }
-        catch { close $conf(unpackFin)  }
-        catch { close $conf(unpackFout) }
-
-        ::exit
-    }
+    if {![threaded]} { catch { close $conf(runlogFp) } }
 
     output ":PERCENT 100"
     output ":DONE"
@@ -199,10 +161,9 @@ proc ::InstallJammer::UnpackMain {} {
         uplevel #0 [list source [file join $conf(pwd) unpack.ini]]
     }
 
-    set conf(stop)        [TmpDir .stop]
-    set conf(pause)       [TmpDir .pause]
-    set conf(chunk)       [expr {64 * 1024}]
-    set conf(lastPercent) 0
+    set conf(stop)     [::InstallJammer::TmpDir .stop]
+    set conf(pause)    [::InstallJammer::TmpDir .pause]
+    set conf(rollback) [string match "*Rollback*" $info(CancelledInstallAction)]
 
     ::InstallJammer::InitSetup
     ::InstallJammer::InitFiles
@@ -210,19 +171,17 @@ proc ::InstallJammer::UnpackMain {} {
 
     if {![threaded]} {
         set conf(vfs) /installkitunpackvfs
-        ::installkit::Mount $info(installer) $conf(vfs)
+        ::InstallJammer::Mount $info(installer) $conf(vfs)
         set conf(runlogFp) [open [TmpDir run.log] w]
 
         if {$info(InstallHasSolidArchives)} {
             foreach file [glob -nocomplain -dir [TmpDir] solid.*] {
-                installkit::Mount $file $conf(vfs)
+                ::InstallJammer::Mount $file $conf(vfs)
             }
         }
 
         ::InstallJammer::MountSetupArchives
     }
-
-    set conf(rollback) [string match "*Rollback*" $info(CancelledInstallAction)]
 
     if {$conf(Wow64Disabled)} {
         installkit::Windows::disableWow64FsRedirection

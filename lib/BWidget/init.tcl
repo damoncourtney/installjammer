@@ -23,6 +23,31 @@ bind Spinbox <<TraverseIn>> { %W selection range 0 end; %W icursor end }
 bind all <Key-Tab>       { Widget::traverseTo [Widget::focusNext %W] }
 bind all <<PrevWindow>>  { Widget::traverseTo [Widget::focusPrev %W] }
 
+bind Text <4> ""
+bind Text <5> ""
+bind Text <MouseWheel> ""
+bind Listbox <4> ""
+bind Listbox <5> ""
+bind Listbox <MouseWheel> ""
+
+switch -- [tk windowingsystem] {
+    "aqua" - "win32" {
+        bind all <MouseWheel> {
+            BWidget::scroll %W %X %Y %D
+        }
+    }
+
+    "x11" {
+        bind all <4> {
+            BWidget::scroll %W %X %Y -3
+        }
+
+        bind all <5> {
+            BWidget::scroll %W %X %Y 3
+        }
+    }
+}
+
 namespace eval ::BWidget {
     variable library     $::BWIDGET::LIBRARY
     variable langDir     [file join $library lang]

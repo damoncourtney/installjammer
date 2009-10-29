@@ -24,9 +24,9 @@
 proc ThemeSetup {} {
     if {$::tcl_platform(platform) ne "windows"} {
         option add *font                TkTextFont
-	option add *background          [style default . -background]
-	option add *selectForeground    [style default . -selectforeground]
-	option add *selectBackground    [style default . -selectbackground]
+	option add *background          [style lookup . -background]
+	option add *selectForeground    [style lookup . -selectforeground]
+	option add *selectBackground    [style lookup . -selectbackground]
 
 	option add *Listbox.background  white
 

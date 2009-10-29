@@ -60,7 +60,7 @@ proc ::InstallJammer::actions::AddEnvironmentVariable { obj } {
     set ::env($var) $val
 
     if {$conf(windows)} {
-        set conf(UpdateWindowsRegistry) 1
+        ::InstallAPI::SendWindowsNotification -environment 1
 
         set lvl $props(Level)
         set key "<%REG_[string toupper $props(Level)]_ENV%>"

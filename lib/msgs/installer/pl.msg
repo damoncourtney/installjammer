@@ -22,6 +22,9 @@ CleanupInstallText
 Close
 "Zamknij"
 
+ConsolePause,Message
+"<%ConsolePauseText%>"
+
 ConsolePauseQuitText
 "-- Wciśnij spację, aby kontynuować lub 'q', aby wyjść --"
 
@@ -91,6 +94,12 @@ InstallStartupText
 LaunchApplicationText
 "Uruchom <%AppName%>"
 
+LocateJavaRuntime,PromptMessage
+"Proszę powiedzieć, gdzie zainstalowano Java Runtime Environment."
+
+LocateJavaRuntime,StatusMessage
+"Szukanie Java Runtime..."
+
 Next
 "Dalej"
 
@@ -112,31 +121,45 @@ RequireRootText
 SeparatorText
 "InstallJammer"
 
+TextWindow,Caption
+"Nagłówek"
+
+TextWindow,CloseButton
+"<%Close%>"
+
+TextWindow,Message
+"Wyjście wiadomości."
+
+TextWindow,Title
+"Okno tytułowe"
+
 TypicalInstallDescription
 "Instalacja typowa."
 
 UninstallApplicationText
 "Usuń <%AppName%>"
 
-UninstallPrepareText
-"Przygotowywanie do deinstalacji..."
-
-UpdateRegistryText
-"Uaktualnianie rejestru Windows..."
+UninstallCompleteText
+"Deinstalacja zakończona."
 
 UninstallingApplicationText
 "Deinstalacja <%AppName%>..."
 
-UninstallCompleteText
-"Deinstalacja zakończona."
+UninstallLeftoverText
+"Niektóre komponenty nie mogły zostać usunięte.  Czy pomimo to chcesz je usunąć (niezalecane)?"
+
+UninstallPrepareText
+"Przygotowywanie do deinstalacji..."
 
 UninstallStartupText
 "<%AppName%> zostanie kompletnie usunięty z twojego systemu.  Czy\
  na pewno chcesz tego?"
 
-UninstallLeftoverText
-"Niektóre komponenty nie mogły zostać usunięte.  Czy pomimo to chcesz\
- je usunąć (niezalecane)?"
+UnzipFile,StatusText
+"<%FileBeingInstalledText%>"
+
+UpdateRegistryText
+"Uaktualnianie rejestru Windows..."
 
 VersionHelpText
 "Ten program zainstaluje <%AppName%> w wersji <%Version%>."
@@ -146,35 +169,3 @@ ViewReadmeText
 
 Yes
 "Tak"
-
-ConsolePause {
-    Message
-    "<%ConsolePauseText%>"
-}
-
-LocateJavaRuntime {
-    PromptMessage
-    "Proszę powiedzieć, gdzie zainstalowano Java Runtime Environment."
-
-    StatusMessage
-    "Szukanie Java Runtime..."
-}
-
-TextWindow {
-    Title
-    "Okno tytułowe"
-
-    Caption
-    "Nagłówek"
-
-    Message
-    "Wyjście wiadomości."
-
-    CloseButton
-    "<%Close%>"
-}
-
-UnzipFile {
-    StatusText
-    "<%FileBeingInstalledText%>"
-}

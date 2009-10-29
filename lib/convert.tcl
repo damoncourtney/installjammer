@@ -51,197 +51,6 @@ proc ConvertProject {} {
 
     set modified 0
 
-    if {$info(ProjectVersion) eq "0.9.1.0"} {
-        if {$conf(cmdline)} { return 1 }
-
-        ## 1.0a1
-        ##
-        ## SetupFile class was removed in favor of using File.
-        ##    This will be handled by the SetupFile proc defined below.
-        ##
-        ## ModifyButton action was removed in favor of ModifyWidget.
-        ##
-        ## File Group handling of directories was changed.
-
-        Status "Converting project from 1.0a1..."
-        update
-
-        incr modified
-
-        ## Convert ModifyButton actions to ModifyWidget.
-        foreach id [itcl::find object -class InstallComponent] {
-            if {[$id component] eq "ModifyButton"} {
-                $id component ModifyWidget
-                set button [$id get Button]
-                $id set Widget "$button Button"
-            }
-        }
-
-        ## Handle File Group changes.  Each directory that is a
-        ## direct child of a file group must be removed and all of
-        ## their subdirectories moved up a level.
-        foreach group [FileGroups children] {
-            foreach parent [$group children] {
-                if {[$parent is dir]} {
-                    ::InstallJammer::RecursiveGetFiles $parent
-                    foreach id [$parent children] {
-                        $id reparent $group
-                    }
-                    $parent destroy
-                }
-            }
-        }
-        
-        set info(ProjectVersion) "0.9.2.0"
-    }
-
-    if {$info(ProjectVersion) eq "0.9.2.0"} {
-        if {$conf(cmdline)} { return 1 }
-
-        ## 1.0b1
-        ##
-        ## Multi-language support was added.  We need to update all of
-        ## the text in the project.
-
-        Status "Converting project from 1.0b1..."
-        update
-
-        incr modified
-
-        set resetText [::InstallJammer::MessageBox \
-            -type yesno -title "Converting Project" \
-            -message "Your project must be converted to the new version of\
-                InstallJammer.\nDo you want to convert all of your text\
-                to the new version?\nWithout this change, your project will\
-                not support the new multi-language features properly."]
-
-        ## Remove variables that are no longer used.
-        unset -nocomplain info(UseVersions)
-        unset -nocomplain info(PaneList,install)
-        unset -nocomplain info(PaneList,uninstall)
-
-        ## Anything in VirtualTextData needs to be set in
-        ## the info array, and then we need to get rid of
-        ## the VirtualTextData variable.  Virtual text is
-        ## now all stored in message catalogs.
-        if {[info exists info(VirtualTextData)]} {
-            array set info $info(VirtualTextData)
-            unset info(VirtualTextData)
-        }
-
-        set map [list]
-        lappend map <%FileBeingInstalledText%> <%Status%>
-        lappend map <%FileBeingUninstalledText%> <%Status%>
-
-        ## Load the engligh message catalog into an array
-        ## and then clear it.  We're going to rebuild it.
-        array set msgs [::msgcat::mcgetall en]
-        ::msgcat::mcclear en
-
-        ## Walk through all of the InstallComponents and map
-        ## their properties.  Some components need to have their
-        ## text properties converted to advanced properties.
-        foreach id [itcl::find object -class InstallComponent] {
-            foreach var [array names Properties $id,*] {
-                set Properties($var) [string map $map $Properties($var)]
-                if {$resetText} {
-                    if {[string match *Button*,subst $var]} {
-                        set Properties($var) 1
-                    }
-                }
-            }
-
-            switch -- [$id component] {
-                "ExecuteAction" {
-                    ## Remove the Execute Action actions that
-                    ## refer to Startup Actions.  Startup Actions
-                    ## are automatically executed by InstallJammer now.
-                    if {[$id get Action] eq "Startup Actions"} {
-                        $id destroy
-                    }
-                }
-
-                "ExecuteScript" {
-                    ## Convert the tcl script from a text property
-                    ## to a regular property.
-                    if {[info exists msgs($id,TclScript)]} {
-                        $id set TclScript $msgs($id,TclScript)
-                        unset msgs($id,TclScript)
-                    }
-                }
-
-                "ExecuteExternalProgram" {
-                    ## Convert the command line from a text property
-                    ## to a regular property.
-                    if {[info exists msgs($id,ProgramCommandLine)]} {
-                        $id set ProgramCommandLine $msgs($id,ProgramCommandLine)
-                        unset msgs($id,ProgramCommandLine)
-                    }
-                }
-
-                "Exit" {
-                    ## The Exit actions that are part of the silent
-                    ## installs need to be a Finish exit.
-                    if {[string match "Silent*" [$id parent]]} {
-                        $id set ExitType Finish
-                    }
-                }
-            }
-        }
-
-        ## Walk through all of the conditions and look for ones
-        ## that were modified in this release.  We need to change
-        ## their text properties to advanced properties.
-        foreach id [itcl::find objects -class Condition] {
-            switch -- [$id component] {
-                "ScriptCondition" {
-                    if {[info exists msgs($id,Script)]} {
-                        $id set Script $msgs($id,Script)
-                        unset msgs($id,Script)
-                    }
-                }
-
-                "StringEqualCondition" {
-                    if {[info exists msgs($id,String1)]} {
-                        $id set String1 $msgs($id,String1)
-                        unset msgs($id,String1)
-                    }
-
-                    if {[info exists msgs($id,String2)]} {
-                        $id set String2 $msgs($id,String2)
-                        unset msgs($id,String2)
-                    }
-                }
-
-                "StringMatchCondition" {
-                    if {[info exists msgs($id,String)]} {
-                        $id set String $msgs($id,String)
-                        unset msgs($id,String)
-                    }
-
-                    if {[info exists msgs($id,Pattern)]} {
-                        $id set Pattern $msgs($id,Pattern)
-                        unset msgs($id,Pattern)
-                    }
-                }
-            }
-        }
-
-        ## Walk through all of the strings in the english message
-        ## catalog and map them all.  Any that we've converted
-        ## have been removed from the array, so they won't be in
-        ## the new message catalog.
-        if {!$resetText} {
-            foreach var [array names msgs] {
-                ::msgcat::mcset en $var [string map $map $msgs($var)]
-            }
-        } else {
-            ::InstallJammer::LoadMessages
-        }
-
-        set info(ProjectVersion) "0.9.3.0"
-    }
-
     if {[package vcompare $info(ProjectVersion) 1.1.0.1] < 0} {
         if {$conf(cmdline)} { return 1 }
 
@@ -396,9 +205,178 @@ proc ConvertProject {} {
         set info(ProjectVersion) "1.2.5.1"
     }
 
+    if {[vercmp $info(ProjectVersion) 1.3.0.1] < 0} {
+        ## 1.3.0
+
+        Status "Converting project to version 1.3.0..."
+        update
+
+        incr modified
+
+        ## Remove the IncludeTWAPI property from Windows.
+        unset -nocomplain Properties(Windows,IncludeTWAPI)
+
+        ## Look for orphaned properties and remove them.
+        foreach var [array names Properties] {
+            lassign [split $var ,] obj prop
+            if {[::InstallJammer::IsID $obj]
+                && ![::InstallJammer::ObjExists $obj]} {
+                unset Properties($var)
+            }
+        }
+
+        ## Convert to the new File Save Method.
+        if {[info exists info(SaveOnlyToplevelDirs)]} {
+            if {$info(SaveOnlyToplevelDirs)} {
+                set info(FileSaveMethod) "Do not save files and directories"
+            } else {
+                set info(FileSaveMethod) "Save all files and directories"
+            }
+            unset info(SaveOnlyToplevelDirs)
+        }
+
+        ## The Save Files property was removed for the new File Save Method
+        ## property.  Find any Save Files properties and convert them to the
+        ## new File Save Method and then remove the Save Files property from
+        ## the object.
+        foreach var [array names Properties *,SaveFiles] {
+            lassign [split $var ,] id prop
+            ## If Save Files was true, we set to the new File Save Method
+            ## to save all files.  If Save Files was false, we set the new
+            ## File Save Method to not save anything.
+            if {$Properties($var)} {
+                set method "Save all files and directories"
+            } else {
+                set method "Do not save files and directories"
+            }
+            unset Properties($var)
+            set Properties($id,FileSaveMethod) $method
+        }
+
+
+        ## These properties were originally designated to not be substituted
+        ## for virtual text, but now all properties really need to be.
+        ## We need to look for these properties and set their subst to 1.
+        set props [list DestinationLabel DescriptionLabel AcceptRadiobutton \
+            DeclineRadiobutton ProgramFolderLabel FolderListLabel \
+            AllUsersCheckbutton UserNameLabel CompanyLabel ComponentLabel \
+            AcceptCheck NameLabel CompanyLabel]
+        foreach var [array names Properties *,subst] {
+            lassign [split $var ,] comp prop subst
+            if {$prop in $props} { set Properties($var) 1 }
+        }
+
+        ## Convert messages from the message catalogs into the properties
+        ## for the new message handling.  Language-specific text is no longer
+        ## saved for objects.
+        set langs [::InstallJammer::GetLanguageCodes]
+        foreach lang $langs {
+            upvar #0 ::msgcat::Msgs_$lang msgs
+
+            unset -nocomplain msgs(GREGORIAN_CHANGE_DATE)
+
+            foreach var [array names msgs] {
+                set list [split $var ,]
+                if {[llength $list] < 2} { continue }
+
+                set text $msgs($var)
+                lassign $list comp prop
+
+                if {[::InstallJammer::IsID $comp]} {
+                    ## Remove orphaned text.
+                    if {![::InstallJammer::ObjExists $comp]} {
+                        unset msgs($var)
+                        continue
+                    }
+
+                    ## Look to see if we can convert this property to a
+                    ## single string.  If the property has the same text
+                    ## for all the languages it exists for, we can use
+                    ## that text instead of saving a new virtual text
+                    ## value in the message catalog.
+                    set convert 1
+                    foreach l $langs {
+                        if {[::msgcat::mcexists $var $l]
+                            && $text ne [::msgcat::mcget $l $var]} {
+                            set convert 0
+                            break
+                        }
+                    }
+
+                    if {$convert} {
+                        unset msgs($var)
+                        $comp set $prop $text
+                    } else {
+                        $comp set $var "<%$var%>"
+                    }
+                }
+            }
+        }
+        
+        set info(ProjectVersion) "1.3.0.1"
+    }
+
+    if {[vercmp $info(ProjectVersion) 1.3.0.2] < 0} {
+        Status "Converting project to version 1.3.0.2..."
+        update
+
+        incr modified
+
+        if {$info(ExtractSolidArchivesOnStartup)} {
+            set info(ExtractSolidArchives) "On startup"
+        } else {
+            set info(ExtractSolidArchives) "Before installation"
+        }
+        unset info(ExtractSolidArchivesOnStartup)
+
+        set info(ProjectVersion) "1.3.0.2"
+    }
+
+    rename ::Condition ""
+    rename ::_conditionClass ::Condition
+
+    rename ::InstallComponent ""
+    rename ::_installComponentClass ::InstallComponent
+
     if {$modified && !$conf(cmdline)} {
         ::InstallJammer::BackupProjectFile "<%Project%>-<%ProjectVersion%>.mpi"
     }
 
     return $modified
+}
+
+if {[info commands ::_installComponentClass] eq ""} {
+    rename ::InstallComponent ::_installComponentClass
+    proc ::InstallComponent {id args} {
+
+        set type [dict get $args -type]
+        dict unset args -type
+        dict unset args -command
+        if {[dict exists $args -conditions]} { dict unset args -conditions }
+
+        switch -- $type {
+            "action" {
+                Action $id {*}$args
+            }
+
+            "actiongroup" {
+                ActionGroup $id {*}$args
+            }
+
+            "pane" - "window" {
+                Pane $id {*}$args
+            }
+        }
+    }
+}
+
+if {[info commands ::_conditionClass] eq ""} {
+    rename ::Condition ::_conditionClass
+    proc ::Condition {id args} {
+        array set _args $args
+
+        dict unset args -TreeObject::id
+        if {![dict exists $args -setup]} { dict set args -setup "Install" }
+        ::_conditionClass $id {*}$args
+    }
 }

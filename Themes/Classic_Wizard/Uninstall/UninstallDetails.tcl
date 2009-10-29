@@ -43,7 +43,7 @@ proc CreateWindow.UninstallDetails { wizard id } {
     grid  $base.caption -row 0 -column 1 -sticky sw -padx 5 -pady 5
     $id widget set Caption -widget $base.caption
 
-    text $base.text -bg white -bd 2 -relief sunken -wrap word
+    text $base.text -bg white -bd 2 -relief sunken -wrap word -state disabled
     grid $base.text -row 1 -column 0 -columnspan 2 -sticky news
     $id widget set Errors -widget $base.text
 

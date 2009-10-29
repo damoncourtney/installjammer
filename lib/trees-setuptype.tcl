@@ -31,8 +31,8 @@ proc ::SetupTypeTree::setup { tree } {
     $tree bindImage <Button-1>        "::SetupTypeTree::select 1"
     $tree bindText  <ButtonRelease-1> "::SetupTypeTree::dorename"
     $tree bindImage <ButtonRelease-1> "::SetupTypeTree::dorename"
-    $tree bindText  <Button-3>        "::SetupTypeTree::popup %X %Y"
-    $tree bindImage <Button-3>        "::SetupTypeTree::popup %X %Y"
+    $tree bindText  <<RightClick>>    "::SetupTypeTree::popup %X %Y"
+    $tree bindImage <<RightClick>>    "::SetupTypeTree::popup %X %Y"
 
     ::FileTree::Setup $tree
 }

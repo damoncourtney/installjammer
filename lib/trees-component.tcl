@@ -38,8 +38,8 @@ proc ::ComponentTree::setup { tree } {
     $tree bindText  <Control-Button-1>	"::ComponentTree::select 4"
     $tree bindImage <Control-Button-1>	"::ComponentTree::select 4"
 
-    $tree bindText  <Button-3>          "::ComponentTree::popup %X %Y"
-    $tree bindImage <Button-3>          "::ComponentTree::popup %X %Y"
+    $tree bindText  <<RightClick>>      "::ComponentTree::popup %X %Y"
+    $tree bindImage <<RightClick>>      "::ComponentTree::popup %X %Y"
 
     ::FileTree::Setup $tree
 }

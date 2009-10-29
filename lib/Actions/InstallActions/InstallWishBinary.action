@@ -37,7 +37,8 @@ proc ::InstallJammer::actions::InstallWishBinary { obj } {
     set info(FileBeingInstalled) $binary
     set info(Status) "<%BuildFileText%>"
 
-    set opts [list -noinstall -o $binary -w [::installkit::base]]
+    set base [::InstallJammer::BaseInstallkit]
+    set opts [list -noinstall -o $binary -w $base]
 
     if {$conf(windows)} {
         lappend opts -company "InstallJammer.com"

@@ -1,462 +1,420 @@
-ChooseComponents {
-    Title
-    "Выбор компонент для установки"
+ChooseComponents,BackButton
+"< <%Back%>"
 
-    Subtitle
-    "Выберите компоненты, которые вы хотите установить."
+ChooseComponents,CancelButton
+"<%Cancel%>"
 
-    Caption
-    "Отметьте компоненты, которые вы хотите установить, и снимите отметку\
-     с тех компонент, которые вы не желаете устанавливать."
+ChooseComponents,Caption
+"Отметьте компоненты, которые вы хотите установить, и снимите отметку с тех компонент, которые вы не желаете устанавливать."
 
-    Message
-    "Для установки требуется <%SpaceRequiredText%> на жестком диске"
+ChooseComponents,DescriptionLabel
+"Описание"
 
-    DescriptionLabel
-    "Описание"
+ChooseComponents,Message
+"Для установки требуется <%SpaceRequiredText%> на жестком диске"
 
-    NextButton
-    "<%Next%> >"
+ChooseComponents,NextButton
+"<%Next%> >"
 
-    BackButton
-    "< <%Back%>"
+ChooseComponents,Subtitle
+"Выберите компоненты, которые вы хотите установить."
 
-    CancelButton
-    "<%Cancel%>"
-}
+ChooseComponents,Title
+"Выбор компонент для установки"
 
-CopyFiles {
-    Title
-    "Установка"
+CopyFiles,BackButton
+"< <%Back%>"
 
-    Subtitle
-    "Установка <%AppName%>"
+CopyFiles,CancelButton
+"<%Cancel%>"
 
-    Caption
-    "Идёт установка <%AppName%> на Ваш компьютер. Пожалуйста, подождите."
+CopyFiles,Caption
+"Идёт установка <%AppName%> на Ваш компьютер.  Пожалуйста, подождите."
 
-    Message
-    ""
+CopyFiles,FileLabel
+"<%Status%>"
 
-    FileLabel
-    "<%Status%>"
+CopyFiles,Message
+""
 
-    ProgressValue
-    "<%InstallPercentComplete%>"
+CopyFiles,NextButton
+"<%Next%> >"
 
-    NextButton
-    "<%Next%> >"
+CopyFiles,ProgressValue
+"<%InstallPercentComplete%>"
 
-    BackButton
-    "< <%Back%>"
+CopyFiles,Subtitle
+"Установка <%AppName%>"
 
-    CancelButton
-    "<%Cancel%>"
-}
+CopyFiles,Title
+"Установка"
 
-CustomBlankPane1 {
-    Caption
-    "Здесь должна быть подпись."
+CustomBlankPane1,BackButton
+"< <%Back%>"
 
-    Message
-    "Здесь должно быть сообщение."
+CustomBlankPane1,CancelButton
+"<%Cancel%>"
 
-    NextButton
-    "<%Next%> >"
+CustomBlankPane1,Caption
+"Здесь должна быть подпись."
 
-    BackButton
-    "< <%Back%>"
+CustomBlankPane1,Message
+"Здесь должно быть сообщение."
 
-    CancelButton
-    "<%Cancel%>"
-}
+CustomBlankPane1,NextButton
+"<%Next%> >"
 
-CustomBlankPane2 {
-    Title
-    "Заголовок"
+CustomBlankPane2,BackButton
+"< <%Back%>"
 
-    Subtitle
-    "Подзаголовок"
+CustomBlankPane2,CancelButton
+"<%Cancel%>"
 
-    Caption
-    "Подпись"
+CustomBlankPane2,Caption
+"Подпись"
 
-    Message
-    "Сообщение"
+CustomBlankPane2,Message
+"Сообщение"
 
-    NextButton
-    "<%Next%> >"
+CustomBlankPane2,NextButton
+"<%Next%> >"
 
-    BackButton
-    "< <%Back%>"
+CustomBlankPane2,Subtitle
+"Подзаголовок"
 
-    CancelButton
-    "<%Cancel%>"
-}
+CustomBlankPane2,Title
+"Заголовок"
 
-CustomTextPane1 {
-    Title
-    "Заголовок"
+CustomTextPane1,BackButton
+"< <%Back%>"
 
-    Subtitle
-    "Подзаголовок"
+CustomTextPane1,CancelButton
+"<%Cancel%>"
 
-    Caption
-    "Подпись"
+CustomTextPane1,Caption
+"Подпись"
 
-    Message
-    "Сообщение"
+CustomTextPane1,Message
+"Сообщение"
 
-    Text
-    "Здесь впишите текст."
+CustomTextPane1,NextButton
+"<%Next%> >"
 
-    NextButton
-    "<%Next%> >"
+CustomTextPane1,Subtitle
+"Подзаголовок"
 
-    BackButton
-    "< <%Back%>"
+CustomTextPane1,Text
+"Здесь впишите текст."
 
-    CancelButton
-    "<%Cancel%>"
-}
+CustomTextPane1,Title
+"Заголовок"
 
-License {
-    Title
-    "Лицензионное Соглашение"
+InstallPassword,BackButton
+"< <%Back%>"
 
-    Subtitle
-    "Пожалуйста, внимательно прочтите приведённое ниже лицензионное соглашение."
+InstallPassword,CancelButton
+"<%Cancel%>"
 
-    Text
-    "Здесь должно быть лицензионное соглашение."
+InstallPassword,Caption
+"Пожалуйста, введите пароль."
 
-    AcceptRadiobutton
-    "Я принимаю положения лицензионного соглашения."
+InstallPassword,Message
+""
 
-    DeclineRadiobutton
-    "Я не принимаю положения лицензионного соглашения."
+InstallPassword,NextButton
+"<%Next%> >"
 
-    NextButton
-    "<%Yes%>"
+InstallPassword,Subtitle
+"Для продолжения установки необходимо указать пароль."
 
-    BackButton
-    "< <%Back%>"
+InstallPassword,Title
+"Пароль установки"
 
-    CancelButton
-    "<%No%>"
-}
+License,AcceptRadiobutton
+"Я принимаю положения лицензионного соглашения."
 
-Readme {
-    Title
-    "Информация"
+License,BackButton
+"< <%Back%>"
 
-    Subtitle
-    "Информация о <%AppName%>"
+License,CancelButton
+"<%No%>"
 
-    Caption
-    ""
+License,DeclineRadiobutton
+"Я не принимаю положения лицензионного соглашения."
 
-    Message
-    ""
+License,NextButton
+"<%Yes%>"
 
-    Text
-    ""
+License,Subtitle
+"Пожалуйста, внимательно прочтите приведённое ниже лицензионное соглашение."
 
-    NextButton
-    "<%Next%> >"
+License,Text
+"Здесь должно быть лицензионное соглашение."
 
-    BackButton
-    "< <%Back%>"
+License,Title
+"Лицензионное Соглашение"
 
-    CancelButton
-    "<%Cancel%>"
-}
+Readme,BackButton
+"< <%Back%>"
 
-SelectDestination {
-    Title
-    "Укажите каталог назначения"
+Readme,CancelButton
+"<%Cancel%>"
 
-    Subtitle
-    "Где нужно установить <%AppName%> ?"
+Readme,Caption
+""
 
-    Caption
-    "<%AppName%> будет установлена в указанный ниже каталог.\n\nЧтобы произвести установку\
-     в этот каталог, щёлкните по <%Next%>.  Чтобы произвести установку в другой каталог, щёлкните\
-     по <%Browse%>."
+Readme,Message
+""
 
-    Message
-    ""
+Readme,NextButton
+"<%Next%> >"
 
-    BrowseText
-    "Для продолжения щёлкните по <%Next%>. Для указания другого каталога щёлкните по <%Browse%>."
+Readme,Subtitle
+"Информация о <%AppName%>"
 
-    NextButton
-    "<%Next%> >"
+Readme,Text
+""
 
-    BackButton
-    "< <%Back%>"
+Readme,Title
+"Информация"
 
-    CancelButton
-    "<%Cancel%>"
+SelectDestination,BackButton
+"< <%Back%>"
 
-    BrowseButton
-    "<%Browse%>"
+SelectDestination,BrowseButton
+"<%Browse%>"
 
-    DestinationLabel
-    "Каталог назначения"
-}
+SelectDestination,BrowseText
+"Для продолжения щёлкните по <%Next%>.  Для указания другого каталога щёлкните по <%Browse%>."
 
-SelectProgramFolder {
-    Title
-    "Укажите программную группу"
+SelectDestination,CancelButton
+"<%Cancel%>"
 
-    Subtitle
-    "Пожалуйста, выберите программную группу."
+SelectDestination,Caption
+"<%AppName%> будет установлена в указанный ниже каталог.
 
-    Caption
-    "Ярлыки программы будут добавлены в указанную ниже программную группу. \
-     Вы можете указать другую группу, либо выбрать группу из списка существующих. \
-     Для продолжения щёлкните по <%Next%>."
+Чтобы произвести установку в этот каталог, щёлкните по <%Next%>.  Чтобы произвести установку в другой каталог, щёлкните по <%Browse%>."
 
-    Message
-    ""
+SelectDestination,DestinationLabel
+"Каталог назначения"
 
-    ProgramFolderLabel
-    "Программная группа:"
+SelectDestination,Message
+""
 
-    FolderListLabel
-    "Существующие программные группы:"
+SelectDestination,NextButton
+"<%Next%> >"
 
-    NextButton
-    "<%Next%> >"
+SelectDestination,Subtitle
+"Где нужно установить <%AppName%> ?"
 
-    BackButton
-    "< <%Back%>"
+SelectDestination,Title
+"Укажите каталог назначения"
 
-    CancelButton
-    "<%Cancel%>"
+SelectProgramFolder,AllUsersCheckbutton
+"Создать программную группу для всех пользователей"
 
-    AllUsersCheckbutton
-    "Создать программную группу для всех пользователей"
-}
+SelectProgramFolder,BackButton
+"< <%Back%>"
 
-SetupComplete {
-    Caption
-    "Установка завершена"
+SelectProgramFolder,CancelButton
+"<%Cancel%>"
 
-    Message
-    "Мастер InstallJammer успешно установил <%AppName%>. \
-     Выберите <%Finish%>, чтобы закрыть мастер."
+SelectProgramFolder,Caption
+"Ярлыки программы будут добавлены в указанную ниже программную группу.  Вы можете указать другую группу, либо выбрать группу из списка существующих.  Для продолжения щёлкните по <%Next%>."
 
-    NextButton
-    "<%Finish%>"
+SelectProgramFolder,FolderListLabel
+"Существующие программные группы:"
 
-    BackButton
-    "< <%Back%>"
+SelectProgramFolder,Message
+""
 
-    CancelButton
-    "<%Cancel%>"
-}
+SelectProgramFolder,NextButton
+"<%Next%> >"
 
-SetupType {
-    Title
-    "Тип установки"
+SelectProgramFolder,ProgramFolderLabel
+"Программная группа:"
 
-    Subtitle
-    "Выберите тип установки, который вам больше всего подходит."
+SelectProgramFolder,Subtitle
+"Пожалуйста, выберите программную группу."
 
-    Caption
-    "Щёлкните по нужному вам типу установки."
+SelectProgramFolder,Title
+"Укажите программную группу"
 
-    Message
-    ""
+SetupComplete,BackButton
+"< <%Back%>"
 
-    DescriptionLabel
-    "Описание"
+SetupComplete,CancelButton
+"<%Cancel%>"
 
-    NextButton
-    "<%Next%> >"
+SetupComplete,Caption
+"Установка завершена"
 
-    BackButton
-    "< <%Back%>"
+SetupComplete,Message
+"Мастер InstallJammer успешно установил <%AppName%>.  Выберите <%Finish%>, чтобы закрыть мастер."
 
-    CancelButton
-    "<%Cancel%>"
-}
+SetupComplete,NextButton
+"<%Finish%>"
 
-StartCopyingFiles {
-    Title
-    "Начало копирования файлов"
+SetupType,BackButton
+"< <%Back%>"
 
-    Subtitle
-    "Просмотр информации перед началом копирования файлов"
+SetupType,CancelButton
+"<%Cancel%>"
 
-    Caption
-    "Программа установки собрала необходимую информацию для начала копирования файлов. \
-     Щёлкните по <%Back%>, чтобы проверить или заново ввести информацию для установки. \
-     Чтобы начать установку, щёлкните по <%Next%>."
+SetupType,Caption
+"Щёлкните по нужному вам типу установки."
 
-    Message
-    ""
+SetupType,DescriptionLabel
+"Описание"
 
-    Text
-    "Каталог назначения:
-            <%InstallDir%>
+SetupType,Message
+""
 
-    Тип установки:
-            <%InstallType%>"
+SetupType,NextButton
+"<%Next%> >"
 
-    NextButton
-    "<%Next%> >"
+SetupType,Subtitle
+"Выберите тип установки, который вам больше всего подходит."
 
-    BackButton
-    "< <%Back%>"
+SetupType,Title
+"Тип установки"
 
-    CancelButton
-    "<%Cancel%>"
-}
+StartCopyingFiles,BackButton
+"< <%Back%>"
 
-Uninstall {
-    Title
-    "Деинсталляция"
+StartCopyingFiles,CancelButton
+"<%Cancel%>"
 
-    Subtitle
-    "Деинсталляция <%AppName%>"
+StartCopyingFiles,Caption
+"Программа установки собрала необходимую информацию для начала копирования файлов.  Щёлкните по <%Back%>, чтобы проверить или заново ввести информацию для установки.  Чтобы начать установку, щёлкните по <%Next%>."
 
-    Caption
-    "<%GroupBeingUninstalledText%>"
+StartCopyingFiles,Message
+""
 
-    Message
-    ""
+StartCopyingFiles,NextButton
+"<%Next%> >"
 
-    FileValue
-    "<%Status%>"
+StartCopyingFiles,Subtitle
+"Просмотр информации перед началом копирования файлов"
 
-    ProgressValue
-    "<%UninstallPercentComplete%>"
+StartCopyingFiles,Text
+"Каталог назначения:
+ <%InstallDir%>
 
-    NextButton
-    "<%Next%> >"
+ Тип установки:
+ <%InstallType%>"
 
-    BackButton
-    "< <%Back%>"
+StartCopyingFiles,Title
+"Начало копирования файлов"
 
-    CancelButton
-    "<%Cancel%>"
-}
+Uninstall,BackButton
+"< <%Back%>"
 
-UninstallComplete {
-    Caption
-    "Деинсталляция завершена"
+Uninstall,CancelButton
+"<%Cancel%>"
 
-    Message
-    "<%AppName%> удалена из вашей системы."
+Uninstall,Caption
+"<%GroupBeingUninstalledText%>"
 
-    NextButton
-    "<%Finish%>"
+Uninstall,FileValue
+"<%Status%>"
 
-    BackButton
-    "< <%Back%>"
+Uninstall,Message
+""
 
-    CancelButton
-    "<%Cancel%>"
-}
+Uninstall,NextButton
+"<%Next%> >"
 
-UninstallDetails {
-    Title
-    "Информация о деинсталляции"
+Uninstall,ProgressValue
+"<%UninstallPercentComplete%>"
 
-    Subtitle
-    "В процессе удаления произошли ошибки"
+Uninstall,Subtitle
+"Деинсталляция <%AppName%>"
 
-    Caption
-    "В процессе деинсталляции произошли следующие ошибки:"
+Uninstall,Title
+"Деинсталляция"
 
-    Message
-    ""
+UninstallComplete,BackButton
+"< <%Back%>"
 
-    Text
-    "<%Errors%>"
+UninstallComplete,CancelButton
+"<%Cancel%>"
 
-    NextButton
-    "<%Next%> >"
+UninstallComplete,Caption
+"Деинсталляция завершена"
 
-    BackButton
-    "< <%Back%>"
+UninstallComplete,Message
+"<%AppName%> удалена из вашей системы."
 
-    CancelButton
-    "<%Cancel%>"
-}
+UninstallComplete,NextButton
+"<%Finish%>"
 
+UninstallDetails,BackButton
+"< <%Back%>"
 
-UserInformation {
-    Title
-    "Информация о пользователе"
+UninstallDetails,CancelButton
+"<%Cancel%>"
 
-    Subtitle
-    "Пожалуйста, введите ваши данные."
+UninstallDetails,Caption
+"В процессе деинсталляции произошли следующие ошибки:"
 
-    Caption
-    "Пожалуйста, введите ваше имя и название компании, в которой вы работаете."
+UninstallDetails,Message
+""
 
-    Message
-    ""
+UninstallDetails,NextButton
+"<%Next%> >"
 
-    UserNameLabel
-    "Имя пользователя:"
+UninstallDetails,Subtitle
+"В процессе удаления произошли ошибки"
 
-    CompanyLabel
-    "Компания:"
+UninstallDetails,Text
+"<%Errors%>"
 
-    NextButton
-    "<%Next%> >"
+UninstallDetails,Title
+"Информация о деинсталляции"
 
-    BackButton
-    "< <%Back%>"
+UserInformation,BackButton
+"< <%Back%>"
 
-    CancelButton
-    "<%Cancel%>"
-}
+UserInformation,CancelButton
+"<%Cancel%>"
 
+UserInformation,Caption
+"Пожалуйста, введите ваше имя и название компании, в которой вы работаете."
 
-Welcome {
-    Caption
-    "Вас приветствует мастер установки InstallJammer для <%AppName%>"
+UserInformation,CompanyLabel
+"Компания:"
 
-    Message
-    "Мастер InstallJammer установит <%AppName%> <%Version%> на вашем компьютере. \
-    \n\nПеред началом установки рекомендуется закрыть все другие работающие\
-    программы.\n\nЧтобы продолжить, выберите <%Next%>, или выберите <%Cancel%> для выхода."
+UserInformation,Message
+""
 
-    NextButton
-    "<%Next%> >"
+UserInformation,NextButton
+"<%Next%> >"
 
-    BackButton
-    "< <%Back%>"
+UserInformation,Subtitle
+"Пожалуйста, введите ваши данные."
 
-    CancelButton
-    "<%Cancel%>"
-}
+UserInformation,Title
+"Информация о пользователе"
 
-InstallPassword {
-    Title
-    "Пароль установки"
+UserInformation,UserNameLabel
+"Имя пользователя:"
 
-    Subtitle
-    "Для продолжения установки необходимо указать пароль."
+Welcome,BackButton
+"< <%Back%>"
 
-    Caption
-    "Пожалуйста, введите пароль."
+Welcome,CancelButton
+"<%Cancel%>"
 
-    Message
-    ""
+Welcome,Caption
+"Вас приветствует мастер установки InstallJammer для <%AppName%>"
 
-    NextButton
-    "<%Next%> >"
+Welcome,Message
+"Мастер InstallJammer установит <%AppName%> <%Version%> на вашем компьютере.  
 
-    BackButton
-    "< <%Back%>"
+Перед началом установки рекомендуется закрыть все другие работающие программы.
 
-    CancelButton
-    "<%Cancel%>"
-}
+Чтобы продолжить, выберите <%Next%>, или выберите <%Cancel%> для выхода."
+
+Welcome,NextButton
+"<%Next%> >"

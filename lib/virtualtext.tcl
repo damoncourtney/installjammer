@@ -47,6 +47,7 @@ proc ::InstallJammer::LoadReservedVirtualText {} {
         {FileBeingInstalledText   1}
         {FileBeingUninstalled     1}
         {FileBeingUninstalledText 1}
+        {FileSaveMethod           1}
         {FileSize                 1}
         {GroupBeingInstalled      1}
         {GroupBeingInstalledText  1}
@@ -270,9 +271,7 @@ proc ::InstallJammer::LoadVirtualText {} {
         set lang $languages($conf(VirtualTextLanguage))
         array set msg [::msgcat::mcgetall $lang]
         foreach var [lsort [array names msg]] {
-            if {[string first , $var] < 0} {
-                $table insert end root #auto -values [list $var $msg($var)]
-            }
+            $table insert end root #auto -values [list $var $msg($var)]
         }
     }
 }

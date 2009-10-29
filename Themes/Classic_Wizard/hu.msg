@@ -1,400 +1,352 @@
-Background {
-    Title
-    "<%AppName%> Telepítés"
+Background,Text
+"<%AppName%>"
 
-    Text
-    "<%AppName%>"
-}
+Background,Title
+"<%AppName%> Telepítés"
 
-ChooseComponents {
-    Title
-    "Egyedi telepítés"
+ChooseComponents,BackButton
+"< <%Back%>"
 
-    Caption
-    "Válassza ki azokat a komponenseket, amelyeket fel akar telepíteni,\
-     és ne válassza ki azokat, amelyeket nem akar telepíteni."
+ChooseComponents,CancelButton
+"<%Cancel%>"
 
-    ComponentLabel
-    "Komponensek"
+ChooseComponents,Caption
+"Válassza ki azokat a komponenseket, amelyeket fel akar telepíteni, és ne válassza ki azokat, amelyeket nem akar telepíteni."
 
-    DescriptionLabel
-    "Leírás"
+ChooseComponents,ComponentLabel
+"Komponensek"
 
-    SpaceRequiredLabel
-    "Szükséges tárterület: <%SpaceRequiredText%>"
+ChooseComponents,DescriptionLabel
+"Leírás"
 
-    NextButton
-    "<%Next%> >"
+ChooseComponents,NextButton
+"<%Next%> >"
 
-    BackButton
-    "< <%Back%>"
+ChooseComponents,SpaceRequiredLabel
+"Szükséges tárterület: <%SpaceRequiredText%>"
 
-    CancelButton
-    "<%Cancel%>"
-}
+ChooseComponents,Title
+"Egyedi telepítés"
 
-CopyFiles {
-    Title
-    "Állományok másolása"
+CopyFiles,CancelButton
+"<%Cancel%>"
 
-    Caption
-    "<%GroupBeingInstalledText%>"
+CopyFiles,Caption
+"<%GroupBeingInstalledText%>"
 
-    Message
-    "<%Status%>"
+CopyFiles,Message
+"<%Status%>"
 
-    ProgressValue
-    "<%InstallPercentComplete%>"
+CopyFiles,ProgressValue
+"<%InstallPercentComplete%>"
 
-    CancelButton
-    "<%Cancel%>"
-}
+CopyFiles,Title
+"Állományok másolása"
 
-CustomBlankPane1 {
-    Title
-    "A fejléc jön ide."
+CustomBlankPane1,BackButton
+"< <%Back%>"
 
-    NextButton
-    "<%Next%> >"
+CustomBlankPane1,CancelButton
+"<%Cancel%>"
 
-    BackButton
-    "< <%Back%>"
+CustomBlankPane1,NextButton
+"<%Next%> >"
 
-    CancelButton
-    "<%Cancel%>"
-}
+CustomBlankPane1,Title
+"A fejléc jön ide."
 
-CustomTextPane1 {
-    Title
-    "Cím"
+CustomTextPane1,BackButton
+"< <%Back%>"
 
-    Caption
-    "Leírás"
+CustomTextPane1,CancelButton
+"<%Cancel%>"
 
-    Message
-    "Üzenet"
+CustomTextPane1,Caption
+"Leírás"
 
-    NextButton
-    "<%Next%> >"
+CustomTextPane1,Message
+"Üzenet"
 
-    BackButton
-    "< <%Back%>"
+CustomTextPane1,NextButton
+"<%Next%> >"
 
-    CancelButton
-    "<%Cancel%>"
-}
+CustomTextPane1,Title
+"Cím"
 
-CustomTextPane2 {
-    Title
-    "<%AppName%> Telepítés"
+CustomTextPane2,BackButton
+"< <%Back%>"
 
-    Caption
-    "Fejléc"
+CustomTextPane2,CancelButton
+"<%Cancel%>"
 
-    Text
-    "Szöveg kerül ide."
+CustomTextPane2,Caption
+"Fejléc"
 
-    NextButton
-    "<%Next%> >"
+CustomTextPane2,NextButton
+"<%Next%> >"
 
-    BackButton
-    "< <%Back%>"
+CustomTextPane2,Text
+"Szöveg kerül ide."
 
-    CancelButton
-    "<%Cancel%>"
-}
+CustomTextPane2,Title
+"<%AppName%> Telepítés"
 
-CustomTextPane3 {
-    Title
-    "Cím"
+CustomTextPane3,BackButton
+"< <%Back%>"
 
-    Caption
-    "Fejléc"
+CustomTextPane3,CancelButton
+"<%No%>"
 
-    Message
-    "Üzenet"
+CustomTextPane3,Caption
+"Fejléc"
 
-    Text
-    "Szöveg kerül ide."
+CustomTextPane3,Message
+"Üzenet"
 
-    NextButton
-    "<%Yes%>"
+CustomTextPane3,NextButton
+"<%Yes%>"
 
-    BackButton
-    "< <%Back%>"
+CustomTextPane3,Text
+"Szöveg kerül ide."
 
-    CancelButton
-    "<%No%>"
-}
+CustomTextPane3,Title
+"Cím"
 
-License {
-    Title
-    "Licensz elfogadása"
+License,AcceptCheck
+"Elfogadom ezt a licensz megállapodás feltételeit."
 
-    Caption
-    "Kérem olvassa el a következ\u0151 Licensz megállapodást. Nyomja le a PAGE DOWN billenty\u0171t,\
-     hogy lássa a megállapodás további részét."
+License,BackButton
+"< <%Back%>"
 
-    Message
-    "Elfogadja a fenti Licensz megállapodás minden feltételét? Ha\
-     Nem-et választ, akkor a telepítés befejez\u0151dik. A <%AppName%> telepítéséhez el kell fogadnia\
-     ezt a megállapodást."
+License,CancelButton
+"<%No%>"
 
-    Text
-    "Rakja ide a licensz megállapodását."
+License,Caption
+"Kérem olvassa el a következ\u0151 Licensz megállapodást.  Nyomja le a PAGE DOWN billenty\u0171t, hogy lássa a megállapodás további részét."
 
-    AcceptCheck
-    "Elfogadom ezt a licensz megállapodás feltételeit."
+License,Message
+"Elfogadja a fenti Licensz megállapodás minden feltételét?  Ha Nem-et választ, akkor a telepítés befejez\u0151dik.  A <%AppName%> telepítéséhez el kell fogadnia ezt a megállapodást."
 
-    NextButton
-    "<%Yes%>"
+License,NextButton
+"<%Yes%>"
 
-    BackButton
-    "< <%Back%>"
+License,Text
+"Rakja ide a licensz megállapodását."
 
-    CancelButton
-    "<%No%>"
-}
+License,Title
+"Licensz elfogadása"
 
-Readme {
-    Title
-    "Olvassa el információk"
+Readme,BackButton
+"< <%Back%>"
 
-    Text
-    "Rakja ide az olvassa el információit."
+Readme,CancelButton
+"<%Cancel%>"
 
-    NextButton
-    "<%Next%> >"
+Readme,NextButton
+"<%Next%> >"
 
-    BackButton
-    "< <%Back%>"
+Readme,Text
+"Rakja ide az olvassa el információit."
 
-    CancelButton
-    "<%Cancel%>"
-}
+Readme,Title
+"Olvassa el információk"
 
-SelectDestination {
-    Title
-    "Válassza ki a célkönyvtárat"
+SelectDestination,BackButton
+"< <%Back%>"
 
-    Caption
-    "A telepít\u0151 a <%AppName%> programot a következ\u0151 könyvtárba telepíti.\n\n
-     Ahhoz, hogy ebbe könyvtárba kerüljön kattintson a <%Next%> gombra\
-     Ahhoz, hogy más könyvtárba kerüljön kattintson a <%Browse%> gombra.\n\n
+SelectDestination,BrowseButton
+"<%Browse%>"
+
+SelectDestination,CancelButton
+"<%Cancel%>"
+
+SelectDestination,Caption
+"A telepít\u0151 a <%AppName%> programot a következ\u0151 könyvtárba telepíti.
+
+
+ Ahhoz, hogy ebbe könyvtárba kerüljön kattintson a <%Next%> gombra Ahhoz, hogy más könyvtárba kerüljön kattintson a <%Browse%> gombra.
+
+
 	 A <%Cancel%> választásával kiléphet a <%AppName%> program telepítéséb\u0151l."
 
-    NextButton
-    "<%Next%> >"
+SelectDestination,DestinationLabel
+"Célkönyvtár"
 
-    BackButton
-    "< <%Back%>"
+SelectDestination,NextButton
+"<%Next%> >"
 
-    CancelButton
-    "<%Cancel%>"
+SelectDestination,Title
+"Válassza ki a célkönyvtárat"
 
-    BrowseButton
-    "<%Browse%>"
+SelectProgramFolder,AllUsersCheckbutton
+"Létrehozza a program mappát az összes felhasználónak?"
 
-    DestinationLabel
-    "Célkönyvtár"
-}
+SelectProgramFolder,BackButton
+"< <%Back%>"
 
-SelectProgramFolder {
-    Title
-    "Program mappa kiválasztás"
+SelectProgramFolder,CancelButton
+"<%Cancel%>"
 
-    Caption
-    "A telepít\u0151 a program ikonokat a lentebb listázott Program mappához fogja hozzáadni. \
-	 Megváltoztathatja az új mappa nevét, vagy kiválaszthat egy már létez\u0151t a listáról. \
-     Kattintson a <%Next%> gombra a folytatáshoz."
+SelectProgramFolder,Caption
+"A telepít\u0151 a program ikonokat a lentebb listázott Program mappához fogja hozzáadni.  Megváltoztathatja az új mappa nevét, vagy kiválaszthat egy már létez\u0151t a listáról.  Kattintson a <%Next%> gombra a folytatáshoz."
 
-    ProgramFolderLabel
-    "Program mappa:"
+SelectProgramFolder,FolderListLabel
+"Létez\u0151 mappák:"
 
-    FolderListLabel
-    "Létez\u0151 mappák:"
+SelectProgramFolder,NextButton
+"<%Next%> >"
 
-    NextButton
-    "<%Next%> >"
+SelectProgramFolder,ProgramFolderLabel
+"Program mappa:"
 
-    BackButton
-    "< <%Back%>"
+SelectProgramFolder,Title
+"Program mappa kiválasztás"
 
-    CancelButton
-    "<%Cancel%>"
+Setup,Caption
+"A telepít\u0151 el\u0151készíti az InstallJammer Varázslót, amely keresztülvezeti Önt a telepítés folyamatán.  Kérem várjon!"
 
-    AllUsersCheckbutton
-    "Létrehozza a program mappát az összes felhasználónak?"
-}
+Setup,Title
+"Telepítés"
 
-Setup {
-    Title
-    "Telepítés"
+SetupComplete,BackButton
+"< <%Back%>"
 
-    Caption
-    "A telepít\u0151 el\u0151készíti az InstallJammer Varázslót, amely keresztülvezeti Önt a\
-	 telepítés folyamatán. Kérem várjon!"
-}
+SetupComplete,CancelButton
+"<%Cancel%>"
 
-SetupComplete {
-    Title
-    "Telepítés befejez\u0151dött"
+SetupComplete,Caption
+"A telepít\u0151 befejezte az <%AppName%> program telepítését a számítógépére."
 
-    Caption
-    "A telepít\u0151 befejezte az <%AppName%> program telepítését a számítógépére."
+SetupComplete,NextButton
+"<%Finish%>"
 
-	Text
-	"Kattintson a <%Finish%> gombra a telepítés befejezéséhez."
-	
-    NextButton
-    "<%Finish%>"
+SetupComplete,Text
+"Kattintson a <%Finish%> gombra a telepítés befejezéséhez."
 
-    BackButton
-    "< <%Back%>"
+SetupComplete,Title
+"Telepítés befejez\u0151dött"
 
-    CancelButton
-    "<%Cancel%>"
-}
+SetupType,BackButton
+"< <%Back%>"
 
-SetupType {
-    Title
-    "Telepítés típusa"
+SetupType,CancelButton
+"<%Cancel%>"
 
-    Caption
-    "Válassza ki a kívánt telepítési típust, majd kattintson a <%Next%> gombra!"
+SetupType,Caption
+"Válassza ki a kívánt telepítési típust, majd kattintson a <%Next%> gombra!"
 
-    NextButton
-    "<%Next%> >"
+SetupType,NextButton
+"<%Next%> >"
 
-    BackButton
-    "< <%Back%>"
+SetupType,Title
+"Telepítés típusa"
 
-    CancelButton
-    "<%Cancel%>"
-}
+StartCopyingFiles,BackButton
+"< <%Back%>"
 
-StartCopyingFiles {
-    Title
-    "Állományok másolásának elkezdése"
+StartCopyingFiles,CancelButton
+"<%Cancel%>"
 
-    Caption
-    "A telepít\u0151nek elég információja van ahhoz, hogy a program állományait\
-	elkezdje másolni. Ha meg akarja nézni vagy változtatni a beállításokat,\
-	akkor kattintson a <%Back%> gombra. Ha elégedett a beállításokkal, akkor\
-	kattintson a <%Next%> gombra, hogy elkezd\u0151djön a fájlok másolása. \
-	\n\nJelenlegi beállítások:"
+StartCopyingFiles,Caption
+"A telepít\u0151nek elég információja van ahhoz, hogy a program állományait elkezdje másolni.  Ha meg akarja nézni vagy változtatni a beállításokat, akkor kattintson a <%Back%> gombra.  Ha elégedett a beállításokkal, akkor kattintson a <%Next%> gombra, hogy elkezd\u0151djön a fájlok másolása.  
 
-    Text
-    "Telepítési könyvtár:\n\
-     \t<%InstallDir%>
+Jelenlegi beállítások:"
 
-    Telepítés típusa:\n
-     \t<%InstallType%>"
+StartCopyingFiles,NextButton
+"<%Next%> >"
 
-    NextButton
-    "<%Next%> >"
+StartCopyingFiles,Text
+"Telepítési könyvtár:
+ 	<%InstallDir%>
 
-    BackButton
-    "< <%Back%>"
+ Telepítés típusa:
 
-    CancelButton
-    "<%Cancel%>"
-}
+ 	<%InstallType%>"
 
-Uninstall {
-    Title
-    "<%AppName%> eltávolítása"
+StartCopyingFiles,Title
+"Állományok másolásának elkezdése"
 
-    Caption
-    "<%GroupBeingUninstalledText%>"
+Uninstall,BackButton
+"< <%Back%>"
 
-    Message
-    "<%Status%>"
+Uninstall,CancelButton
+"<%Cancel%>"
 
-    ProgressValue
-    "<%UninstallPercentComplete%>"
+Uninstall,Caption
+"<%GroupBeingUninstalledText%>"
 
-    NextButton
-    "<%Next%> >"
+Uninstall,Message
+"<%Status%>"
 
-    BackButton
-    "< <%Back%>"
+Uninstall,NextButton
+"<%Next%> >"
 
-    CancelButton
-    "<%Cancel%>"
-}
+Uninstall,ProgressValue
+"<%UninstallPercentComplete%>"
 
-UninstallComplete {
-    Title
-    "Eltávolítás befejez\u0151dött"
+Uninstall,Title
+"<%AppName%> eltávolítása"
 
-    Caption
-    "Az eltávolítás sikeresen befejez\u0151dött."
+UninstallComplete,Caption
+"Az eltávolítás sikeresen befejez\u0151dött."
 
-    FinishButton
-    "<%Finish%>"
-}
+UninstallComplete,FinishButton
+"<%Finish%>"
 
-UninstallDetails {
-    Title
-    "Eltávolítás részletei"
+UninstallComplete,Title
+"Eltávolítás befejez\u0151dött"
 
-    Caption
-    "A következ\u0151 hibák léptek fel az eltávolítás alatt:"
+UninstallDetails,Caption
+"A következ\u0151 hibák léptek fel az eltávolítás alatt:"
 
-	Errors
-    "<%Errors%>"
+UninstallDetails,Errors
+"<%Errors%>"
 
-    FinishButton
-    "<%Finish%>"
-}
+UninstallDetails,FinishButton
+"<%Finish%>"
 
+UninstallDetails,Title
+"Eltávolítás részletei"
 
-UserInformation {
-    Title
-    "Felhasználói információk"
+UserInformation,BackButton
+"< <%Back%>"
 
-    Caption
-    "Kérem írja be a nevét és a munkahelyének nevét."
+UserInformation,CancelButton
+"<%Cancel%>"
 
-    NameLabel
-    "Felhasználó neve:"
+UserInformation,Caption
+"Kérem írja be a nevét és a munkahelyének nevét."
 
-    CompanyLabel
-    "Cég:"
+UserInformation,CompanyLabel
+"Cég:"
 
-    NextButton
-    "<%Next%> >"
+UserInformation,NameLabel
+"Felhasználó neve:"
 
-    BackButton
-    "< <%Back%>"
+UserInformation,NextButton
+"<%Next%> >"
 
-    CancelButton
-    "<%Cancel%>"
-}
+UserInformation,Title
+"Felhasználói információk"
 
+Welcome,BackButton
+"< <%Back%>"
 
-Welcome {
-    Title
-    "Üdvözl\u0151 képerny\u0151"
+Welcome,CancelButton
+"<%Cancel%>"
 
-    Caption
-    "Üdvözli a <%AppName%> telepít\u0151je.  Ez program a <%AppName%> programot\
-     fogja telepíteni a számítógépére."
+Welcome,Caption
+"Üdvözli a <%AppName%> telepít\u0151je.  Ez program a <%AppName%> programot fogja telepíteni a számítógépére."
 
-    Message
-    "Er\u0151sen javasolt, hogy lépjen ki minden futó Windows programból. \
-	 Kattintson a <%Next%> gombra, hogy folytassa a telepítést.\n\n\
-	 FIGYELMEZTETÉS: Ezt a programot szerz\u0151i jogok és nemzetközi szerz\u0151dések\
-	 védik.\n\nEzen program nem engedélyezett gyártása és forgalmazása\
-	 polgári büntetést eredményezhet és a törvény teljes erejével sújt le."
-	 
-    NextButton
-    "<%Next%> >"
+Welcome,Message
+"Er\u0151sen javasolt, hogy lépjen ki minden futó Windows programból.  Kattintson a <%Next%> gombra, hogy folytassa a telepítést.
 
-    BackButton
-    "< <%Back%>"
+ FIGYELMEZTETÉS: Ezt a programot szerz\u0151i jogok és nemzetközi szerz\u0151dések védik.
 
-    CancelButton
-    "<%Cancel%>"
-}
+Ezen program nem engedélyezett gyártása és forgalmazása polgári büntetést eredményezhet és a törvény teljes erejével sújt le."
+
+Welcome,NextButton
+"<%Next%> >"
+
+Welcome,Title
+"Üdvözl\u0151 képerny\u0151"

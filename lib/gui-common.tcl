@@ -21,6 +21,8 @@
 ##
 ## END LICENSE BLOCK
 
+if {$conf(cmdline)} { return }
+
 proc BUTTON { path args } {
     eval [list ::ttk::button $path] $args
 }
@@ -101,12 +103,17 @@ proc TREE { path args } {
     eval Tree $path -linesfill gray -bg white -highlightthickness 0 $args
 }
 
-proc BIND { window args } {
-    eval [list bind $window] $args
-    if {$::conf(osx) && [string match "*Control-*" [lindex $args 0]]} {
-        set event [string map {Control- Command-} [lindex $args 0]]
-        eval [list bind $window] [lreplace $args 0 0 $event]
+rename ::bind ::tk::bind
+proc ::bind { window args } {
+    if {![llength $args]} { return [::tk::bind $window] }
+    set event [lindex $args 0]
+    if {$::conf(osx)} {
+        set event [string map {Func- Command-} $event]
+    } else {
+        set event [string map {Func- Control-} $event]
     }
+    if {[llength $args] == 1} { return [::tk::bind $window $event] }
+    return [::tk::bind $window $event [lindex $args 1]]
 }
 
 proc ::InstallJammer::PostPropertiesRightClick { prop node x y } {
@@ -247,18 +254,68 @@ proc WindowsIconComboBox { w args } {
     return [eval COMBOBOX $w -width 50 -values [list [GetIconList]] $args]
 }
 
+proc AddMenuItem {menu type args} {
+    global widg
+
+    switch -- $menu {
+        "main"   { set menu $widg(MainMenu) }
+        "file"   { set menu $widg(MainFileMenu) }
+        "edit"   { set menu $widg(MainEditMenu) }
+        "build"  { set menu $widg(MainBuildMenu) }
+        "help"   { set menu $widg(MainHelpMenu) }
+        "editrc" { set menu $widg(RightClickEditMenu) }
+        "proprc" { set menu $widg(PropertiesRightClick) }
+        "apple"  { set menu $widg(MainAppleMenu) }
+    }
+
+    array set _args $args
+    if {$::conf(osx)} {
+        unset -nocomplain _args(-image)
+        unset -nocomplain _args(-compound)
+    }
+
+    if {[info exists _args(-accel)]} {
+        if {$::conf(osx)} {
+            set _args(-accel) [string map {Func+ Command+} $_args(-accel)]
+        } else {
+            set _args(-accel) [string map {Func+ Ctrl+} $_args(-accel)]
+        }
+    }
+
+    if {[info exists _args(-image)]} {
+        set image $_args(-image)
+        if {![catch { GetImage $_args(-image) } err]} {
+            set _args(-image) $err
+        }
+    }
+
+    $menu add $type {*}[array get _args]
+}
+
 proc Window.installjammer { {base .installjammer} } {
     global conf
     global widg
     global preferences
 
-    set widg(InstallJammer)      $base
-    set widg(Main)               $base.main
-    set widg(MainMenu)           $base.m
-    set widg(MainEditMenu)       $base.m.edit
-    set widg(MainFileMenu)       $base.m.file
-    set widg(MainBuildMenu)      $base.m.build
-    set widg(MainHelpMenu)       $base.m.helpm
+    set widg(InstallJammer)        $base
+    set widg(Main)                 $base.main
+    set widg(Product)              $widg(Main).p
+    set widg(MainMenu)             $base.m
+    set widg(MainFileMenu)         $widg(MainMenu).file
+    set widg(MainEditMenu)         $widg(MainMenu).edit
+    set widg(MainBuildMenu)        $widg(MainMenu).build
+    set widg(MainHelpMenu)         $widg(MainMenu).helpm
+    set widg(MainAppleMenu)        $widg(MainMenu).apple
+    set widg(MainToolbar)          $base.toolbar
+    set widg(BackButton)           $widg(MainToolbar).back
+    set widg(ForwardButton)        $widg(MainToolbar).forward
+    set widg(BuildButton)          $widg(MainToolbar).build
+    set widg(BuildQuickButton)     $widg(MainToolbar).qbuild
+    set widg(StopBuildButton)      $widg(MainToolbar).stopbuild
+    set widg(TestButton)           $widg(MainToolbar).test
+    set widg(Status)               $base.status
+    set widg(RightClickEditMenu)   $base.editMenu
+    set widg(PropertiesRightClick) $base.propRightClick
 
     set geometry 800x600+50+0
     if {[info exists preferences(Geometry)]} {
@@ -276,7 +333,7 @@ proc Window.installjammer { {base .installjammer} } {
         return
     }
 
-    toplevel    $base -class Installjammer
+    toplevel    $base -class Installjammer -menu $widg(MainMenu)
     wm withdraw $base
     update idletasks
     wm geometry $base $geometry
@@ -290,138 +347,181 @@ proc Window.installjammer { {base .installjammer} } {
         set conf(hwin) [twapi::find_windows -text $title]
     }
 
-    BIND all <F1> {Help $conf(HelpTopic)}
+    bind all <F1> {Help $conf(HelpTopic)}
 
-    BIND $base <F7> { Build }
-    BIND $base <Control-F5> { TestInstall }
+    bind $base <F7> { Build }
+    bind $base <Func-F5> { TestInstall }
 
-    BIND $base <Control-b> { Build }
-    BIND $base <Control-r> { TestInstall }
+    bind $base <Func-b> { Build }
+    bind $base <Func-r> { TestInstall }
 
-    BIND $base <Control-n> "NewFromWizard"
-    BIND $base <Control-o> "Open"
-    BIND $base <Control-s> "Save"
+    bind $base <Func-n> "NewFromWizard"
+    bind $base <Func-N> "NewFromWizard"
+
+    bind $base <Func-o> "Open"
+    bind $base <Func-O> "Open"
+
+    bind $base <Func-s> "Save"
+    bind $base <Func-S> "Save"
+
+    bind $base <Func-Shift-s> "SaveAs"
+    bind $base <Func-Shift-S> "SaveAs"
+
+    if {$conf(osx)} {
+        bind $base <Func-w> "Close"
+        bind $base <Func-W> "Close"
+    } else {
+        bind $base <Func-q> "Exit"
+        bind $base <Func-Q> "Exit"
+    }
 
     InstallJammerIcons add blank -imageargs [list -width 16 -height 16]
 
-    $base configure -menu $base.m
-
     ## Create the main menu
-    set m [menu $widg(MainMenu)]
+    menu $widg(MainMenu)
     MENU $widg(MainFileMenu)
     MENU $widg(MainEditMenu)
     MENU $widg(MainBuildMenu)
     MENU $widg(MainHelpMenu)
 
-    $m add cascade -label File -menu $m.file -underline 0
+    if {$conf(osx)} {
+        MENU $widg(MainAppleMenu)
+        AddMenuItem main cascade -label "Apple" -menu $widg(MainAppleMenu)
+    }
 
-    $m.file add command -label "New" -underline 0 -accel "Ctrl+N" \
-    	-command New -image [GetImage filenew16] -compound left
-    $m.file add command -label "New Project Wizard..." \
-    	-command NewFromWizard -image [GetImage filenew16] -compound left
-    $m.file add command -label "Open..." -underline 0 -accel "Ctrl+O" \
-        -command Open -image [GetImage fileopen16] -compound left
-    $m.file add command -label "Close" -underline 0 -command Close \
-    	-image [GetImage fileclose16] -compound left
-    $m.file add separator
-    $m.file add command -label "Save" -underline 0 -accel "Ctrl+S" \
-        -command Save -image [GetImage filesave16] -compound left
-    $m.file add command -label "Save as..." -underline 5 -command SaveAs \
-    	-image [GetImage filesaveas16] -compound left
-    $m.file add separator
-    $m.file add command -label Exit -underline 1 -command Exit \
-    	-image [GetImage actexit16] -compound left
+    AddMenuItem $widg(MainMenu) cascade -label "File" \
+        -menu $widg(MainFileMenu) -underline 0
+
+    AddMenuItem file command -label "New" -underline 0 \
+        -accel "Func+N" -command New -image filenew16 -compound left
+    AddMenuItem file command -label "New Project Wizard..." \
+    	-command NewFromWizard -image filenew16 -compound left
+    AddMenuItem file command -label "Open..." -underline 0 \
+        -accel "Func+O" -command Open -image fileopen16 -compound left
+    AddMenuItem file separator
+    AddMenuItem file command -label "Close" -underline 0 \
+        -command Close -image fileclose16 -compound left
+    AddMenuItem file command -label "Save" -underline 0 \
+        -accel "Func+S" -command Save -image filesave16 -compound left
+    AddMenuItem file command -label "Save as..." -underline 5 \
+        -command SaveAs -image filesaveas16 -compound left
+    if {!$conf(osx)} {
+        AddMenuItem file separator
+        AddMenuItem file command -label Exit -underline 1 \
+            -command Exit -image actexit16 -compound left
+    }
     
-    tag add project [list $m.file "Save"]
-    tag add project [list $m.file "Save as..."]
-    tag add project [list $m.file "Close"]
+    tag add project [list $widg(MainFileMenu) "Save"]
+    tag add project [list $widg(MainFileMenu) "Save as..."]
+    tag add project [list $widg(MainFileMenu) "Close"]
 
-    $m add cascade -label Edit -menu $m.edit -underline 0
+    AddMenuItem $widg(MainMenu) cascade -label Edit \
+        -menu $widg(MainEditMenu) -underline 0
 
-    $m.edit add command -label Cut -underline 2 -accel "Ctrl+X" \
+    AddMenuItem edit command -label Cut -underline 2 -accel "Func+X" \
     	-command ::InstallJammer::EditCut \
     	-image [GetImage editcut16] -compound left
-    $m.edit add command -label Copy -underline 0 -accel "Ctrl+C" \
+    AddMenuItem edit command -label Copy -underline 0 -accel "Func+C" \
     	-command ::InstallJammer::EditCopy \
     	-image [GetImage editcopy16] -compound left
-    $m.edit add command -label Paste -underline 0 -accel "Ctrl+V" \
+    AddMenuItem edit command -label Paste -underline 0 -accel "Func+V" \
     	-command ::InstallJammer::EditPaste \
     	-image [GetImage editpaste16] -compound left
-    $m.edit add command -label Delete -underline 0 -accel "Delete" \
+    AddMenuItem edit command -label Delete -underline 0 -accel "Delete" \
     	-command ::InstallJammer::EditDelete \
     	-image [GetImage editdelete16] -compound left
-    $m.edit add separator
-    $m.edit add command -label "Select All" -underline 7 -accel "Ctrl+A" \
+    AddMenuItem edit separator
+    AddMenuItem edit command -label "Select All" -underline 7 -accel "Func+A" \
     	-command ::InstallJammer::EditSelectAll \
     	-image [GetImage blank] -compound left
-    $m.edit add separator
-    $m.edit add command -label "Preferences..." -underline 0 \
+    AddMenuItem edit separator
+    AddMenuItem edit command -label "Preferences..." -underline 0 \
     	-command "Window show .preferences" \
     	-image [GetImage actconfigure16] -compound left
 
-    tag addtag editMenu menuentries $m recursive
+    tag addtag editMenu menuentries $widg(MainEditMenu) recursive
 
-    $m add cascade -label Build -menu $m.build -underline 0
+    AddMenuItem $widg(MainMenu) cascade -label Build \
+        -menu $widg(MainBuildMenu) -underline 0
 
-    $m.build add command -label "Build Install" -underline 0 \
-    	-accel "Ctrl+B" -command "Build" \
+    AddMenuItem build command -label "Build Install" -underline 0 \
+    	-accel "Func+B" -command "Build" \
     	-image [GetImage build16] -compound left
-    $m.build add command -label "Quick Build Install" -underline 0 \
-    	-accel "Ctrl+B" -command ::InstallJammer::QuickBuild \
-    	-image [GetImage quickbuild16] -compound left
-    $m.build add command -label "Stop Build" -underline 0 \
+    AddMenuItem build command -label "Quick Build Install" \
+    	-command ::InstallJammer::QuickBuild -image quickbuild16 -compound left
+    AddMenuItem build command -label "Stop Build" -underline 0 \
     	-command ::InstallJammer::StopBuild \
         -image [GetImage actstop16] -compound left
     	
-    $m.build add command -label "Run Install" -underline 0 \
-    	-accel "Ctrl+R" -command "TestInstall" \
+    AddMenuItem build command -label "Run Install" -underline 0 \
+    	-accel "Func+R" -command "TestInstall" \
     	-image [GetImage actrun16] -compound left
-    $m.build add command -label "Run Uninstall" -underline 4 \
+    AddMenuItem build command -label "Run Uninstall" -underline 4 \
         -command "TestUninstall" -image [GetImage edittrash16] -compound left
-    tag add project [list $m.build "Build Install"]
-    tag add project [list $m.build "Quick Build Install"]
-    tag add project [list $m.build "Stop Build"]
-    tag add project [list $m.build "Run Install"]
-    tag add project [list $m.build "Run Uninstall"]
+    tag add project [list $widg(MainBuildMenu) "Build Install"]
+    tag add project [list $widg(MainBuildMenu) "Quick Build Install"]
+    tag add project [list $widg(MainBuildMenu) "Stop Build"]
+    tag add project [list $widg(MainBuildMenu) "Run Install"]
+    tag add project [list $widg(MainBuildMenu) "Run Uninstall"]
 
-    $m add cascade -label Help -menu $m.helpm -underline 0
+    AddMenuItem $widg(MainMenu) cascade -label Help \
+        -menu $widg(MainHelpMenu) -underline 0
 
     if {[::InstallJammer::LocalHelpExists]} {
-        $m.helpm add command -label "InstallJammer Help" \
+        AddMenuItem help command -label "InstallJammer Help" \
             -underline 0 -accel "F1" -compound left \
             -image [GetImage acthelp16] -command {Help $conf(DefaultHelpTopic)}
-        $m.helpm add command -label "Release Notes" -underline 0 \
+        AddMenuItem help command -label "Release Notes" -underline 0 \
             -command [list Help ReleaseNotes] -image [GetImage acthelp16] \
             -compound left
-        $m.helpm add separator
+        AddMenuItem help separator
     }
-    $m.helpm add command -label "Online Help" -underline 0 \
+    AddMenuItem help command -label "Online Help" -underline 0 \
         -image [GetImage acthelp16] -compound left \
     	-command [list ::InstallJammer::LaunchBrowser $conf(HelpURL)]
-    $m.helpm add command -label "Online Support Forums" -underline 0 \
+    AddMenuItem help command -label "Online Support Forums" -underline 0 \
         -image [GetImage acthelp16] -compound left \
     	-command [list ::InstallJammer::LaunchBrowser $conf(ForumsURL)]
-    $m.helpm add separator
-    $m.helpm add command -label "Show Debug Console" \
+    AddMenuItem help separator
+    AddMenuItem help command -label "Show Debug Console" \
 	-underline 0 -command "console show" \
 	-image [GetImage displayscreen16] -compound left
-    $m.helpm add separator
-    $m.helpm add command -label "About InstallJammer" \
-        -underline 0 -command "::InstallJammer::AboutInstallJammer" \
-        -image [GetImage about16] -compound left
+    
+    if {!$conf(osx)} {
+        AddMenuItem help separator
+        AddMenuItem help command -label "About InstallJammer" \
+            -underline 0 -command "::InstallJammer::AboutInstallJammer" \
+            -image [GetImage about16] -compound left
+    } else {
+        AddMenuItem apple command -label "About InstallJammer" \
+            -underline 0 -command "::InstallJammer::AboutInstallJammer"
+        AddMenuItem apple separator
+    }
 
     if {$conf(demo)} {
-	$m.helpm add command -label "About Demo Mode" \
+	AddMenuItem help command -label "About Demo Mode" \
 	    -underline 0 -command "Help Demo" \
 	    -image [GetImage about16] -compound left
     }
 
     pack [Separator $base.sp1] -fill x
     set toolbar $base.toolbar
-    set widg(MainToolbar) $toolbar
     pack [frame $toolbar -bd 1 -relief flat] -anchor w -fill x
     pack [Separator $base.sp2] -fill x
     pack [frame $base.sp3] -pady 5
+
+    set b [WinButton $widg(BackButton) -image [GetImage actback22] \
+        -command ::InstallJammer::HistoryBack -state disabled]
+    pack $b -side left
+    DynamicHelp::register $b balloon "Back"
+
+    set b [WinButton $widg(ForwardButton) -image [GetImage actforward22] \
+        -command ::InstallJammer::HistoryForward -state disabled]
+    pack $b -side left
+    DynamicHelp::register $b balloon "Forward"
+
+    pack [Separator $toolbar.sp1 -orient vertical] \
+    	-side left -fill y -padx 3 -pady 4
 
     set b [WinButton $toolbar.new -image [GetImage filenew22] \
     	-command NewFromWizard]
@@ -443,29 +543,29 @@ proc Window.installjammer { {base .installjammer} } {
     DynamicHelp::register $b balloon "Explore Project"
     tag add project $b
 
-    pack [Separator $toolbar.sp1 -orient vertical] \
+    pack [Separator $toolbar.sp2 -orient vertical] \
     	-side left -fill y -padx 3 -pady 4
 
-    set widg(BuildButton) [WinButton $toolbar.build \
-        -image [GetImage build22] -command Build -state disabled]
+    WinButton $widg(BuildButton) -image [GetImage build22] \
+        -command Build -state disabled
     pack $widg(BuildButton) -side left
     DynamicHelp::register $widg(BuildButton) balloon "Build Install"
     tag add project $widg(BuildButton)
 
-    set widg(BuildQuickButton) [WinButton $toolbar.qbuild -state disabled \
-        -image [GetImage quickbuild22] -command ::InstallJammer::QuickBuild]
+    WinButton $widg(BuildQuickButton) -state disabled \
+        -image [GetImage quickbuild22] -command ::InstallJammer::QuickBuild
     pack $widg(BuildQuickButton) -side left
     DynamicHelp::register $widg(BuildQuickButton) balloon "Quick Build Install"
     tag add project $widg(BuildQuickButton)
 
-    set widg(StopBuildButton) [WinButton $toolbar.stopbuild -state disabled \
-        -image [GetImage actstop22] -command ::InstallJammer::StopBuild]
+    WinButton $widg(StopBuildButton) -state disabled \
+        -image [GetImage actstop22] -command ::InstallJammer::StopBuild
     pack $widg(StopBuildButton) -side left
     DynamicHelp::register $widg(StopBuildButton) balloon "Stop Build"
     tag add project $widg(StopBuildButton)
 
-    set widg(TestButton) [WinButton $toolbar.test -image [GetImage actrun22] \
-    	-command TestInstall -state disabled]
+    WinButton $widg(TestButton) -image [GetImage actrun22] \
+    	-command TestInstall -state disabled
     pack $widg(TestButton) -side left
     DynamicHelp::register $widg(TestButton) balloon "Test Install"
     tag add project $widg(TestButton)
@@ -488,8 +588,7 @@ proc Window.installjammer { {base .installjammer} } {
     pack $toolbar.help -side right
     DynamicHelp::register $toolbar.help balloon "Help"
 
-    set status [StatusBar $base.status]
-    set widg(Status) $status
+    set status [StatusBar $widg(Status)]
     pack $status -fill x -side bottom
     set f [$status getframe]
 
@@ -498,73 +597,30 @@ proc Window.installjammer { {base .installjammer} } {
 
     PROGRESSBAR $f.progress
     set widg(Progress) $f.progress
-    $status add $f.progress -separator 0
+    $status add $f.progress -separator 0 -sticky se
     grid remove $widg(Progress)
 
-    set n [ttk::notebook $widg(Main)]
+    ttk::frame $widg(Main)
     pack $widg(Main) -expand 1 -fill both
-
-    set widg(StartPageTab) [ttk::frame $n.fProjects]
-    $n add $widg(StartPageTab) -text "Start Page" \
-        -compound left -image [GetImage startpage16]
-
-    set widg(InstallDesignerTab) [ttk::frame $n.fProduct]
-    $n add $widg(InstallDesignerTab) -text "Install Designer" -state disabled \
-        -compound left -image [GetImage actwizard16]
-
-    $n select $widg(InstallDesignerTab)
-
-    ## Create the Projects tab.
-    set widg(Projects) $widg(StartPageTab).c
-
-    ScrolledWindow $widg(StartPageTab).sw
-    pack $widg(StartPageTab).sw -expand 1 -fill both
-
-    canvas $widg(Projects) -bg white -bd 2 -relief sunken
-    $widg(StartPageTab).sw setwidget $widg(Projects)
-
-    label  $widg(Projects).logo -image logo -background white
-    pack   $widg(Projects).logo -side bottom -anchor se -padx 10 -pady 10
-
-    set c $widg(Projects)
-    $c bind project <1>     "::InstallJammer::LoadProject 1"
-    $c bind project <3>     "::InstallJammer::ProjectPopup %X %Y"
-    $c bind project <Enter> "::InstallJammer::EnterProjectItem %W"
-    $c bind project <Leave> "::InstallJammer::LeaveProjectItem %W"
-
-    ## Create the Project popup.
-
-    set m [MENU $widg(Projects).rightClick]
-    $m add command -label "Open Project" \
-        -compound left -image [GetImage fileopen16] \
-        -command "::InstallJammer::LoadProject"
-    $m add command -label "Explore Project" \
-        -compound left -image [GetImage filefind16] \
-        -command "::InstallJammer::ExploreProject"
-    $m add separator
-    $m add command -label "Rename Project" \
-        -compound left -image [GetImage editcopy16] \
-        -command "::InstallJammer::RenameProject"
-    $m add command -label "Duplicate Project" \
-        -compound left -image [GetImage editcopy16] \
-        -command "::InstallJammer::DuplicateProject"
-    $m add separator
-    $m add command -label "Delete Project" \
-        -compound left -image [GetImage buttoncancel16] \
-        -command "::InstallJammer::DeleteProject"
-
-    ## Create the Product tab.
-    set widg(Product) $widg(InstallDesignerTab).p
 
     set opts {}
     if {[info exists preferences(Geometry,Product)]} {
         set opts $preferences(Geometry,Product)
     }
 
-    eval [list PREFERENCES $widg(Product) -showlines 0 -treewidth 215 \
-    	-padx [list 10 0] -deltax 5 -deltay 18 -treepadx 5] $opts
+    PREFERENCES $widg(Product) -showlines 0 -treewidth 215 -padx {10 0} \
+        -deltax 5 -deltay 18 -treepadx 5 \
+        -raisecommand "::InstallJammer::RaiseSection %W %n" {*}$opts
+    pack $widg(Product) -expand 1 -fill both
 
     set main $widg(Product)
+
+    $main insert end root projects -text "Projects" \
+        -font TkCaptionFont -haspage 0
+
+        $main insert end projects installProjects \
+            -text "Install Projects" \
+            -raisecommand Frame.installProjects
 
     $main insert end root general -text "General Information" \
         -font TkCaptionFont -haspage 0
@@ -577,6 +633,9 @@ proc Window.installjammer { {base .installjammer} } {
         $main insert end general packageAndArchiveInformation \
             -text "Package and Archive Information" \
             -raisecommand Frame.packageAndArchiveInformation
+        $main insert end general externalPackages \
+            -text "External Packages" \
+            -raisecommand Frame.externalPackages
 
     $main insert end root groups  -text "Components and Files" \
     	-font TkCaptionFont -haspage 0
@@ -626,9 +685,7 @@ proc Window.installjammer { {base .installjammer} } {
     	$main insert end test testUninstaller -text "Test Uninstaller" \
             -raisecommand Frame.testUninstaller
 
-    #Frame.general
-    #Frame.applicationInformation
-    #Frame.platformInformation
+    Frame.installProjects
     Frame.groupsAndFiles
     Frame.components
     Frame.setupTypes
@@ -638,41 +695,82 @@ proc Window.installjammer { {base .installjammer} } {
     Frame.commandLine Uninstall
     Frame.virtualText
     Frame.diskBuilder
-    #Frame.testInstaller
 
     foreach node [$main nodes root] { $main open $node 1 }
 
+    ::InstallJammer::DisableBuilder
+
     ## Create the standard right-click edit menu.
-    set m [POPUP $base.editMenu -tearoff 0]
-    set widg(RightClickEditMenu) $m
-    $m add command -label Cut -underline 2 \
+    POPUP $widg(RightClickEditMenu) -tearoff 0
+    AddMenuItem editrc command -label Cut -underline 2 \
     	-command {::edit::cut $::edit::widget} \
     	-image [GetImage editcut16] -compound left
-    $m add command -label Copy -underline 0 \
+    AddMenuItem editrc command -label Copy -underline 0 \
     	-command {::edit::copy $::edit::widget} \
     	-image [GetImage editcopy16] -compound left
-    $m add command -label Paste -underline 0 \
+    AddMenuItem editrc command -label Paste -underline 0 \
     	-command {::edit::paste $::edit::widget} \
     	-image [GetImage editpaste16] -compound left
-    $m add command -label Delete -underline 0 \
+    AddMenuItem editrc command -label Delete -underline 0 \
     	-command {::edit::delete $::edit::widget} \
     	-image [GetImage editdelete16] -compound left
-    $m add command -label "Select All" -underline 7 \
+    AddMenuItem editrc command -label "Select All" -underline 7 \
     	-command {::edit::selectall $::edit::widget} \
     	-image [GetImage blank] -compound left
-    tag addtag editMenu menuentries $m recursive
+    tag addtag editMenu menuentries $widg(RightClickEditMenu) recursive
 
     ## Create the properties right-click menu.
-    set m [POPUP $base.propertiesRightClick -tearoff 0]
-    set widg(PropertiesRightClick) $m
-    $m add command -label "Copy Value" \
+    POPUP $widg(PropertiesRightClick) -tearoff 0
+    AddMenuItem proprc command -label "Copy Value" \
         -command ::InstallJammer::CopyPropertiesValue \
     	-image [GetImage editcopy16] -compound left
-    $m add command -label "Paste Value" \
+    AddMenuItem proprc command -label "Paste Value" \
         -command ::InstallJammer::PastePropertiesValue \
         -image [GetImage editpaste16] -compound left
 
     ::InstallJammer::SetHelp <default>
+}
+
+proc Frame.installProjects {} {
+    global widg
+
+    set f [$widg(Product) getframe installProjects]
+
+    ::InstallJammer::SetHelp Projects
+
+    if {[winfo exists $f.sw]} { return }
+
+    ScrolledWindow $f.sw
+    pack $f.sw -expand 1 -fill both
+
+    set widg(Projects) $f.c
+    canvas $widg(Projects) -bg white -bd 2 -relief sunken
+    $f.sw setwidget $widg(Projects)
+
+    label $widg(Projects).logo -image logo -background white
+    pack  $widg(Projects).logo -side bottom -anchor se -padx 10 -pady 10
+
+    set c $widg(Projects)
+    $c bind project <1>            "::InstallJammer::LoadProject 1"
+    $c bind project <<RightClick>> "::InstallJammer::ProjectPopup %X %Y"
+    $c bind project <Enter>        "::InstallJammer::EnterProjectItem %W"
+    $c bind project <Leave>        "::InstallJammer::LeaveProjectItem %W"
+
+    ## Create the Project popup.
+
+    set m [MENU $widg(Projects).rightClick]
+    $m add command -label "Open Project" \
+        -command "::InstallJammer::LoadProject"
+    $m add command -label "Explore Project" \
+        -command "::InstallJammer::ExploreProject"
+    $m add separator
+    $m add command -label "Rename Project" \
+        -command "::InstallJammer::RenameProject"
+    $m add command -label "Duplicate Project" \
+        -command "::InstallJammer::DuplicateProject"
+    $m add separator
+    $m add command -label "Delete Project" \
+        -command "::InstallJammer::DeleteProject"
 }
 
 proc Frame.applicationInformation {} {
@@ -778,9 +876,10 @@ proc Frame.applicationInformation {} {
                 save-response-file command-line options that allow a user\
                 to save responses in an installer and replay them later"
 
-        $p insert end features #auto -text "Extract Solid Archives on Startup" \
-            -variable info(ExtractSolidArchivesOnStartup) -editable 0 \
-            -values [list Yes No] -helptext "Whether or not InstallJammer\
+        $p insert end features #auto -text "Extract Solid Archives" \
+            -variable info(ExtractSolidArchives) -editable 0 \
+            -values {"On startup" "Before installation" "Never"} \
+            -helptext "Whether or not InstallJammer\
                 should extract solid archives during startup or wait until\
                 just before file installation"
 
@@ -846,6 +945,13 @@ proc Frame.applicationInformation {} {
             -helptext "The default location to look for files within the\
                 file groups of the project."
 
+	$p insert end preferences #auto -text "File Save Method" \
+	    -variable info(FileSaveMethod) -editable 0 \
+            -values $::conf(FileSaveMethods) -helptext "This property tells\
+                the builder how to behave when saving files and directories\
+                in the project file.  See the documentation for more\
+                information about each option."
+
 	$p insert end preferences #auto -text "Ignore Directories" \
             -variable info(IgnoreDirectories) \
             -helptext "A list of regular expressions to match when searching\
@@ -885,13 +991,6 @@ proc Frame.applicationInformation {} {
                 should look for new and deleted files in directories added\
                 to file groups automatically before building"
 
-	$p insert end preferences #auto -text "Save Only Toplevel Directories" \
-	    -variable info(SaveOnlyToplevelDirs) -editable 0 \
-            -values [list Yes No] -helptext "Do not recursively save all of the\
-                files and subdirectories beneath a directory in a file\
-                group.  Only save the directories and files that are direct\
-                children of the file group."
-
 	$p insert end preferences #auto -text "Skip Unused File Groups" \
 	    -variable info(SkipUnusedFileGroups) -editable 0 \
             -values [list Yes No] -helptext "Do not pack file groups that are\
@@ -916,6 +1015,215 @@ proc Frame.applicationInformation {} {
     pack $f.save -side left
 }
 
+proc ::InstallJammer::CreatePlatformFrame { platform } {
+    global widg
+
+    set f [$widg(Product) getframe platformInformation]
+    set p $f.sw.p
+
+    set node [PlatformName $platform]
+    if {[$p exists $node]} {
+        if {[$p itemcget $node -window] eq ""} { return }
+        $p itemconfigure $node -window ""
+    } else {
+        $p insert end root $node \
+            -text [PlatformText $platform] -data $platform \
+            -open [expr {[lsearch -exact [ActivePlatforms] $platform] > -1}]
+    }
+
+    if {![::InstallJammer::PlatformBinaryExists $platform]} {
+        set frame [ttk::frame $f.f$node]
+        grid columnconfigure $frame 2 -weight 1
+
+        ttk::label $frame.l -text "This platform is not installed"
+        grid $frame.l -row 0 -column 0 -sticky ew -padx 10
+
+        ttk::button $frame.b -text "Download and Install" \
+            -command [list ::InstallJammer::DownloadPlatform $platform]
+        grid $frame.b -row 0 -column 1 -sticky e
+
+        $p itemconfigure $node -window $frame
+
+        return
+    }
+
+    set cmd [list ::InstallJammer::FinishEditPlatformPropertyNode %W %p %n]
+
+    $p insert end $node #auto -text "Active" \
+        -values [list Yes No] -editable 0 -data Active \
+        -editfinishcommand $cmd -value [$platform get Active] \
+        -helptext "Whether this platform is active for your project"
+
+    $p insert end $node #auto -text "Build Separate Archives" \
+        -values [list Yes No] -editable 0 -editfinishcommand $cmd \
+        -data BuildSeparateArchives \
+        -value [$platform get BuildSeparateArchives] \
+        -helptext "Whether this platform should be built as a single\
+            executable installer or that the files should be packaged\
+            separately in archives to be distributed with the installer"
+
+    if {$platform eq "MacOS-X"} {
+        $p insert end $node #auto -text "Build Type" \
+            -values {".app bundle" "single executable"}  -editable 0 \
+            -editfinishcommand $cmd -data BuildType \
+            -value [$platform get BuildType] \
+            -helptext "Whether the OS X installer should be built as a\
+                single executable or a .app bundle"
+    }
+
+    $p insert end $node #auto \
+        -text "Default Destination Directory" \
+        -valuescommand [list InstallDirList $platform] \
+        -data InstallDir -editfinishcommand $cmd \
+        -value [$platform get InstallDir] -helptext "The default\
+            installation location for this application"
+
+    if {$platform ne "Windows"} {
+        $p insert end $node #auto \
+            -text "Default Directory Permission Mask" \
+            -data DefaultDirectoryPermission -editfinishcommand $cmd \
+            -value [$platform get DefaultDirectoryPermission] \
+            -helptext "The default permission mask for\
+                directories on a UNIX platform (in octal format)"
+
+        $p insert end $node #auto \
+            -text "Default File Permission Mask" \
+            -data DefaultFilePermission -editfinishcommand $cmd \
+            -value [$platform get DefaultFilePermission] \
+            -helptext "The default permission mask for\
+                files on a UNIX platform (in octal format)"
+    }
+
+    $p insert end $node #auto -text "Default Install Mode" \
+        -values [list Default Silent Standard] \
+        -editable 0 -data InstallMode -editfinishcommand $cmd \
+        -value [$platform get InstallMode] -helptext "The default install\
+            mode when installing this application"
+
+    $p insert end $node #auto -text "Default Program Folder" \
+        -data ProgramFolderName -editfinishcommand $cmd \
+        -value [$platform get ProgramFolderName] -helptext "The default\
+            program folder on Windows to store shortcuts for this\
+            application"
+
+    $p insert end $node #auto -text "Default Setup Type" \
+        -valuescommand [list ::InstallJammer::GetSetupTypeNames $platform] \
+        -editable 0 -data InstallType -editfinishcommand $cmd \
+        -value [$platform get InstallType] -helptext "The default setup\
+            type when installing this application"
+
+    if {$platform ne "Windows"} {
+        $p insert end $node #auto -text "Fall Back to Console Mode" \
+            -values [list Yes No] -editable 0 \
+            -data FallBackToConsole -editfinishcommand $cmd \
+            -value [$platform get FallBackToConsole] \
+            -helptext "If a GUI mode is unavailable the installer will\
+                automatically fall back to a console mode to install"
+    }
+
+    if {$platform eq "Windows"} {
+        $p insert end $node #auto -text "Install Executable Description" \
+            -data FileDescription -editfinishcommand $cmd \
+            -value [$platform get FileDescription] \
+            -helptext "The file description when someone examines the\
+                properties of the executable on the Windows platform"
+    }
+
+    $p insert end $node #auto -text "Install Executable Name" \
+        -data Executable -editfinishcommand $cmd \
+        -value [$platform get Executable] -helptext "The name of your\
+            installer when it is built"
+
+    if {$platform eq "Windows"} {
+        $p insert end $node #auto \
+            -text "Install Program Folder for All Users" \
+            -values [list Yes No] -editable 0 \
+            -data ProgramFolderAllUsers -editfinishcommand $cmd \
+            -value [$platform get ProgramFolderAllUsers] -helptext \
+                "Whether or not to create the Program Folder for all or \
+                 the current user by default"
+    }
+
+    $p insert end $node #auto \
+        -text "Program Executable" \
+        -valuescommand [list InstallDirList $platform] \
+        -data ProgramExecutable -editfinishcommand $cmd \
+        -value [$platform get ProgramExecutable] -helptext "The path to\
+            the main executable for your application on the target system"
+
+    $p insert end $node #auto \
+        -text "Program License" \
+        -valuescommand [list InstallDirList $platform] \
+        -data ProgramLicense -editfinishcommand $cmd \
+        -value [$platform get ProgramLicense] -helptext "The path to your\
+            LICENSE file on the target system"
+
+    $p insert end $node #auto \
+        -text "Program Readme" \
+        -valuescommand [list InstallDirList $platform] \
+        -data ProgramReadme -editfinishcommand $cmd \
+        -value [$platform get ProgramReadme] -helptext "The path to your\
+            README file on the target system"
+
+    if {$platform eq "Windows"} {
+        $p insert end $node #auto -text "Require Administrator" \
+            -values "Yes No" -editable 0 -data RequireAdministrator \
+            -editfinishcommand $cmd \
+            -value [$platform get RequireAdministrator] \
+            -helptext "Whether this install requires administrator\
+                privileges to install"
+    } else {
+        $p insert end $node #auto -text "Prompt for Root Password" \
+            -values [list Yes No] -editable 0 -data PromptForRoot \
+            -editfinishcommand $cmd -value [$platform get PromptForRoot] \
+            -helptext "If root access is required, InstallJammer will\
+                prompt the user to login as root on startup if they are\
+                not already root"
+
+        $p insert end $node #auto -text "Require Root User" \
+            -values [list Yes No] -editable 0 -data RequireRoot \
+            -editfinishcommand $cmd -value [$platform get RequireRoot] \
+            -helptext "Whether this install requires the root user to\
+                install"
+
+        $p insert end $node #auto \
+            -text "Root Destination Directory" \
+            -valuescommand [list InstallDirList $platform] \
+            -data RootInstallDir -editfinishcommand $cmd \
+            -value [$platform get RootInstallDir] -helptext "The\
+                default installation location for this application\
+                when being installed as root.  If this value is empty,\
+                the Default Destination Directory will be used"
+    }
+
+    if {$platform eq "MacOS-X"} {
+        $p insert end $node #auto -text "Version Description" \
+            -editfinishcommand $cmd -data VersionDescription \
+            -value [$platform get VersionDescription] \
+            -helptext "The description that is displayed for Get Info\
+                when the installer is built as a .app bundle"
+    }
+
+    if {$platform eq "Windows"} {
+        $p insert end $node #auto -text "Use Uncompressed Binaries" \
+            -values [list Yes No] -editable 0 \
+            -data UseUncompressedBinaries -editfinishcommand $cmd \
+            -value [$platform get UseUncompressedBinaries] \
+            -helptext "If this property is true, the installer will be\
+                built with uncompressed binaries that make the install\
+                larger but sometimes avoid being erroneously detected by\
+                some virus scanning software"
+
+        $p insert end $node #auto -text "Windows File Icon" \
+            -browsebutton 1 -browsecommand [list GetIconFile %v] \
+            -browseargs {-style Toolbutton} \
+            -valuescommand GetIconList \
+            -data WindowsIcon -editfinishcommand $cmd \
+            -value [$platform get WindowsIcon] -helptext "The Windows\
+                icon to use for building the Windows installer"
+    }
+}
+
 proc Frame.platformInformation {} {
     global conf
     global info
@@ -934,189 +1242,21 @@ proc Frame.platformInformation {} {
             }
         }
 
+        focus -force $p
         return
     }
 
     ScrolledWindow $f.sw -scrollbar vertical -auto vertical
-    PROPERTIES $p
-    $f.sw setwidget $p
     pack $f.sw -expand 1 -fill both
 
-    set platforms [ActivePlatforms]
+    PROPERTIES $p
+    $f.sw setwidget $p
+
     foreach platform [AllPlatforms] {
-	set open 0
-	if {[lsearch -exact $platforms $platform] > -1} { set open 1 }
-
-        set cmd [list ::InstallJammer::FinishEditPlatformPropertyNode %W %p %n]
-
-	set node [PlatformName $platform]
-	$p insert end root $node -text [PlatformText $platform] \
-            -open $open -data $platform
-
-        $p insert end $node #auto -text "Active" \
-            -values [list Yes No] -editable 0 -data Active \
-            -editfinishcommand $cmd -value [$platform get Active] \
-            -helptext "Whether this platform is active for your project"
-
-        $p insert end $node #auto -text "Build Separate Archives" \
-            -values [list Yes No] -editable 0 -editfinishcommand $cmd \
-            -data BuildSeparateArchives \
-            -value [$platform get BuildSeparateArchives] \
-            -helptext "Whether this platform should be built as a single\
-                executable installer or that the files should be packaged\
-                separately in archives to be distributed with the installer"
-
-	$p insert end $node #auto \
-	    -text "Default Destination Directory" \
-            -valuescommand [list InstallDirList $platform] \
-            -data InstallDir -editfinishcommand $cmd \
-            -value [$platform get InstallDir] -helptext "The default\
-                installation location for this application"
-
-        if {$platform ne "Windows"} {
-            $p insert end $node #auto \
-                -text "Default Directory Permission Mask" \
-                -data DefaultDirectoryPermission -editfinishcommand $cmd \
-                -value [$platform get DefaultDirectoryPermission] \
-                -helptext "The default permission mask for\
-                    directories on a UNIX platform (in octal format)"
-
-            $p insert end $node #auto \
-                -text "Default File Permission Mask" \
-                -data DefaultFilePermission -editfinishcommand $cmd \
-                -value [$platform get DefaultFilePermission] \
-                -helptext "The default permission mask for\
-                    files on a UNIX platform (in octal format)"
-        }
-
-	$p insert end $node #auto -text "Default Install Mode" \
-            -values [list Default Silent Standard] \
-            -editable 0 -data InstallMode -editfinishcommand $cmd \
-            -value [$platform get InstallMode] -helptext "The default install\
-                mode when installing this application"
-
-	$p insert end $node #auto -text "Default Program Folder" \
-            -data ProgramFolderName -editfinishcommand $cmd \
-            -value [$platform get ProgramFolderName] -helptext "The default\
-                program folder on Windows to store shortcuts for this\
-                application"
-
-	$p insert end $node #auto -text "Default Setup Type" \
-            -valuescommand [list ::InstallJammer::GetSetupTypeNames $platform] \
-            -editable 0 -data InstallType -editfinishcommand $cmd \
-            -value [$platform get InstallType] -helptext "The default setup\
-                type when installing this application"
-
-        if {$platform ne "Windows"} {
-            $p insert end $node #auto -text "Fall Back to Console Mode" \
-                -values [list Yes No] -editable 0 \
-                -data FallBackToConsole -editfinishcommand $cmd \
-                -value [$platform get FallBackToConsole] \
-                -helptext "If a GUI mode is unavailable the installer will\
-                    automatically fall back to a console mode to install"
-        }
-
-        if {$platform eq "Windows"} {
-            $p insert end $node #auto -text "Include Windows API Extension" \
-                -values [list Yes No] -editable 0 \
-                -data IncludeTWAPI -editfinishcommand $cmd \
-                -value [$platform get IncludeTWAPI] \
-                -helptext "Whether or not to include the Tcl Windows API\
-                    extension in your install (Windows NT 4.0 SP4 or later)"
-
-            $p insert end $node #auto -text "Install Executable Description" \
-                -data FileDescription -editfinishcommand $cmd \
-                -value [$platform get FileDescription] \
-                -helptext "The file description when someone examines the\
-                    properties of the executable on the Windows platform"
-        }
-
-	$p insert end $node #auto -text "Install Executable Name" \
-            -data Executable -editfinishcommand $cmd \
-            -value [$platform get Executable] -helptext "The name of your\
-                installer when it is built"
-
-        if {$platform eq "Windows"} {
-            $p insert end $node #auto \
-                -text "Install Program Folder for All Users" \
-                -values [list Yes No] -editable 0 \
-                -data ProgramFolderAllUsers -editfinishcommand $cmd \
-                -value [$platform get ProgramFolderAllUsers] -helptext \
-                    "Whether or not to create the Program Folder for all or \
-                     the current user by default"
-        }
-
-	$p insert end $node #auto \
-	    -text "Program Executable" \
-            -valuescommand [list InstallDirList $platform] \
-            -data ProgramExecutable -editfinishcommand $cmd \
-            -value [$platform get ProgramExecutable] -helptext "The path to\
-                the main executable for your application on the target system"
-
-	$p insert end $node #auto \
-	    -text "Program License" \
-            -valuescommand [list InstallDirList $platform] \
-            -data ProgramLicense -editfinishcommand $cmd \
-            -value [$platform get ProgramLicense] -helptext "The path to your\
-                LICENSE file on the target system"
-
-	$p insert end $node #auto \
-	    -text "Program Readme" \
-            -valuescommand [list InstallDirList $platform] \
-            -data ProgramReadme -editfinishcommand $cmd \
-            -value [$platform get ProgramReadme] -helptext "The path to your\
-                README file on the target system"
-
-        if {$platform eq "Windows"} {
-            $p insert end $node #auto -text "Require Administrator" \
-                -values "Yes No" -editable 0 -data RequireAdministrator \
-                -editfinishcommand $cmd \
-                -value [$platform get RequireAdministrator] \
-                -helptext "Whether this install requires administrator\
-                    privileges to install"
-        } else {
-            $p insert end $node #auto -text "Prompt for Root Password" \
-                -values [list Yes No] -editable 0 -data PromptForRoot \
-                -editfinishcommand $cmd -value [$platform get PromptForRoot] \
-                -helptext "If root access is required, InstallJammer will\
-                    prompt the user to login as root on startup if they are\
-                    not already root"
-
-            $p insert end $node #auto -text "Require Root User" \
-                -values [list Yes No] -editable 0 -data RequireRoot \
-                -editfinishcommand $cmd -value [$platform get RequireRoot] \
-                -helptext "Whether this install requires the root user to\
-                    install"
-
-            $p insert end $node #auto \
-                -text "Root Destination Directory" \
-                -valuescommand [list InstallDirList $platform] \
-                -data RootInstallDir -editfinishcommand $cmd \
-                -value [$platform get RootInstallDir] -helptext "The\
-                    default installation location for this application\
-                    when being installed as root.  If this value is empty,\
-                    the Default Destination Directory will be used"
-        }
-
-        if {$platform eq "Windows"} {
-            $p insert end $node #auto -text "Use Uncompressed Binaries" \
-                -values [list Yes No] -editable 0 \
-                -data UseUncompressedBinaries -editfinishcommand $cmd \
-                -value [$platform get UseUncompressedBinaries] \
-                -helptext "If this property is true, the installer will be\
-                    built with uncompressed binaries that make the install\
-                    larger but sometimes avoid being erroneously detected by\
-                    some virus scanning software"
-
-            $p insert end $node #auto -text "Windows File Icon" \
-                -browsebutton 1 -browsecommand [list GetIconFile %v] \
-                -browseargs {-style Toolbutton} \
-                -valuescommand GetIconList \
-                -data WindowsIcon -editfinishcommand $cmd \
-                -value [$platform get WindowsIcon] -helptext "The Windows\
-                    icon to use for building the Windows installer"
-        }
+        ::InstallJammer::CreatePlatformFrame $platform
     }
+
+    focus -force $p
 }
 
 proc Frame.packageAndArchiveInformation {} {
@@ -1254,6 +1394,34 @@ proc Frame.packageAndArchiveInformation {} {
     }
 }
 
+proc Frame.externalPackages {} {
+    global conf
+    global info
+    global widg
+
+    set f [$widg(Product) getframe externalPackages]
+    set tree $f.sw.tree
+
+    ::InstallJammer::SetHelp ExternalPackages
+
+    if {[winfo exists $tree]} {
+        ::InstallJammer::PopulateExternalPackages
+        return
+    }
+
+    ttk::label $f.l -text "Available External Packages"
+    pack $f.l -fill x -pady "0 2"
+
+    set widg(ExternalPackageTree) $tree
+
+    ScrolledWindow $f.sw
+    OptionTree $tree -highlightthickness 0
+    $f.sw setwidget $tree
+    pack $f.sw -expand 1 -fill both -padx "0 10" -pady "0 5"
+
+    ::InstallJammer::PopulateExternalPackages
+}
+
 proc Frame.groupsAndFiles {} {
     global conf
     global widg
@@ -1270,6 +1438,13 @@ proc Frame.groupsAndFiles {} {
         variable ::InstallJammer::ActiveComponents
         if {[info exists ActiveComponents(filegroup)]} {
             ::InstallJammer::SetActiveComponent $ActiveComponents(filegroup)
+        }
+
+        set sel [$widg(FileGroupTree) selection get]
+        if {[llength $sel] == 1} {
+            ::InstallJammer::HistoryAppend $sel
+        } else {
+            ::InstallJammer::HistoryAppend [list $widg(Product) groupsAndFiles]
         }
 
         return
@@ -1340,10 +1515,6 @@ proc Frame.groupsAndFiles {} {
     set ::FileGroupTree::DirectoryPopup $f1.directoryPopup
 
     set m [POPUP $::FileGroupTree::FilePopup]
-
-    #$m add command -label "Select All" \
-    	#-command {::FileTree::SelectAll $widg(FileGroupTree)}
-    #$m add separator
     $m add command -label "Check" -underline 0 \
         -compound left -image [GetImage checkfiledocument16] \
     	-command {::FileGroupTree::Check}
@@ -1359,22 +1530,12 @@ proc Frame.groupsAndFiles {} {
     	-command {::FileGroupTree::AddToDesktop}
     $m add command -label "Add to Program Folder" -underline 0 \
     	-command {::FileGroupTree::AddToProgramFolder}
-    #$m add command -label "Add Windows Shortcut" -underline 0 \
-    	#-command {::FileGroupTree::AddWindowsShortcut}
-    #$m add command -label "Add as Wrapped Script" -underline 0 \
-    	#-command {::FileGroupTree::AddWrappedScript}
-    #$m add command -label "Add as Wrapped Application" -underline 0 \
-    	#-command {::FileGroupTree::AddWrappedApplication}
     $m add separator
     $m add command -label "Explore" -underline 1 \
         -compound left -image [GetImage filefind16] \
         -command ::FileGroupTree::Explore
 
     set m [POPUP $::FileGroupTree::MultiPopup]
-
-    #$m add command -label "Select All" \
-    	#-command {::FileTree::SelectAll $widg(FileGroupTree)}
-    #$m add separator
     $m add command -label "Check" -underline 0 \
         -compound left -image [GetImage checkfiledocument16] \
     	-command {::FileGroupTree::Check}
@@ -1387,7 +1548,6 @@ proc Frame.groupsAndFiles {} {
     	-command {::FileGroupTree::delete}
 
     set m [POPUP $::FileGroupTree::FileGroupPopup]
-
     $m add command -label "Open" \
         -compound left -image [GetImage folderopen16] \
         -command {
@@ -1407,11 +1567,6 @@ proc Frame.groupsAndFiles {} {
 
     $m add separator
 
-    #$m add command -label "Select All" \
-    	#-command {::FileTree::SelectAll $widg(FileGroupTree)}
-    #$m add command -label "Select All in this File Group" \
-    	#-command {::FileTree::SelectAllBeneath $widg(FileGroupTree)}
-    #$m add separator
     $m add command -label "Add Files" -underline 0 \
         -compound left -image [GetImage filedocument16] \
         -command "AddFiles"
@@ -1424,7 +1579,6 @@ proc Frame.groupsAndFiles {} {
     	-command {::FileGroupTree::delete}
 
     set m [POPUP $::FileGroupTree::DirectoryPopup]
-
     $m add command -label "Open" \
         -compound left -image [GetImage folderopen16] \
         -command {
@@ -1443,9 +1597,6 @@ proc Frame.groupsAndFiles {} {
         }
 
     $m add separator
-    #$m add command -label "Select All" \
-    	#-command {::FileTree::SelectAll $widg(FileGroupTree)}
-    #$m add separator
     $m add command -label "Check" -underline 0 \
         -compound left -image [GetImage checkfolder16] \
     	-command {::FileGroupTree::Check}
@@ -1578,6 +1729,8 @@ proc Frame.components {} {
         variable ::InstallJammer::ActiveComponents
         if {[info exists ActiveComponents(component)]} {
             ::InstallJammer::SetActiveComponent $ActiveComponents(component)
+        } else {
+            ::InstallJammer::HistoryAppend [list $widg(Product) components]
         }
 
         return
@@ -1665,6 +1818,8 @@ proc Frame.setupTypes {} {
         variable ::InstallJammer::ActiveComponents
         if {[info exists ActiveComponents(setuptype)]} {
             ::InstallJammer::SetActiveComponent $ActiveComponents(setuptype)
+        } else {
+            ::InstallJammer::HistoryAppend [list $widg(Product) setupTypes]
         }
 
         return
@@ -1753,6 +1908,8 @@ proc Frame.install {} {
         variable ::InstallJammer::ActiveComponents
         if {[info exists ActiveComponents(Install)]} {
             ::InstallJammer::SetActiveComponent $ActiveComponents(Install)
+        } else {
+            ::InstallJammer::HistoryAppend [list $widg(Product) install]
         }
 
         return
@@ -1818,7 +1975,7 @@ proc Frame.install {} {
             set id $allactions($title)
             $submenu add command -label $title \
                 -compound left -image [GetImage insertaction16] \
-                -command [list ::InstallJammer::AddAction Install [$id action]]
+                -command [list ::InstallJammer::AddAction Install [$id name]]
         }
     }
 
@@ -1826,7 +1983,7 @@ proc Frame.install {} {
         set id $allactions($title)
         $m.all add command -label $title \
             -compound left -image [GetImage insertaction16] \
-            -command [list ::InstallJammer::AddAction Install [$id action]]
+            -command [list ::InstallJammer::AddAction Install [$id name]]
     }
 
     WinButton $f.addActionGroup -image [GetImage appwindow_list16] \
@@ -1871,6 +2028,8 @@ proc Frame.uninstall {} {
         variable ::InstallJammer::ActiveComponents
         if {[info exists ActiveComponents(Uninstall)]} {
             ::InstallJammer::SetActiveComponent $ActiveComponents(Uninstall)
+        } else {
+            ::InstallJammer::HistoryAppend [list $widg(Product) uninstall]
         }
 
         return
@@ -1921,7 +2080,7 @@ proc Frame.uninstall {} {
         $m insert end cascade -label "$group   " -menu $submenu
 
         foreach id $::InstallJammer::actiongroups($group) {
-            set action [$id action]
+            set action [$id name]
             set allactions($action) $id
             $submenu add command -label [$id title] \
                 -command [list ::InstallJammer::AddAction Uninstall $action]
@@ -2071,6 +2230,12 @@ proc Frame.diskBuilder {} {
     global widg
 
     set top [$widg(Product) getframe diskBuilder]
+    set pframe $top.progressF
+
+    set widg(BuildLog)              $top.log
+    set widg(BuildTree)             $top.buildTree
+    set widg(ProgressBuild)         $pframe.progress
+    set widg(ProgressBuildPlatform) $pframe.fileProgress
 
     ::InstallJammer::SetHelp DiskBuilder
 
@@ -2092,37 +2257,35 @@ proc Frame.diskBuilder {} {
     label $top.label -text "Platforms to Build:"
     grid  $top.label -row 0 -column 0 -sticky ws
 
-    set f [frame $top.progressF]
+    set f [frame $pframe]
     grid $f -row 0 -column 1 -sticky ew -padx 10
     grid columnconfigure $f 1 -weight 1
 
     label $f.l1 -text "Build Progress:"
     grid  $f.l1 -row 0 -column 0 -sticky w
 
-    PROGRESSBAR $f.progress -variable ::conf(buildProgress)
-    set widg(ProgressBuild) $f.progress
-    grid $f.progress -row 0 -column 1 -sticky ew
+    PROGRESSBAR $widg(ProgressBuild) -variable ::conf(buildProgress)
+    grid $widg(ProgressBuild) -row 0 -column 1 -sticky ew -padx 10
 
     label $f.l2 -text "Platform Progress:"
     grid  $f.l2 -row 1 -column 0 -sticky w
 
-    PROGRESSBAR $f.fileProgress -variable ::conf(buildPlatformProgress)
-    set widg(ProgressBuildPlatform) $f.fileProgress
-    grid $f.fileProgress -row 1 -column 1 -sticky ew
+    PROGRESSBAR $widg(ProgressBuildPlatform) \
+        -variable ::conf(buildPlatformProgress)
+    grid $widg(ProgressBuildPlatform) -row 1 -column 1 -sticky ew -padx 10
 
     ScrolledWindow $top.sw1
     grid $top.sw1 -row 1 -column 0 -sticky ns -pady [list 5 10]
 
-    set t [OPTIONTREE $top.buildTree -width 16 -highlightthickness 0]
-    $top.sw1 setwidget $t
-
-    set widg(BuildTree) $t
+    OPTIONTREE $widg(BuildTree) -width 16 -highlightthickness 0
+    $top.sw1 setwidget $widg(BuildTree)
 
     ScrolledWindow $top.sw2 -auto none
     grid $top.sw2 -row 1 -column 1 -sticky news -padx 10 -pady [list 5 2]
 
-    set widg(BuildLog) [Text $top.log -wrap none -state readonly -height 1]
-    $top.sw2 setwidget $top.log
+    Text $widg(BuildLog) -wrap none -state readonly -height 1 \
+        -borderwidth 2 -relief sunken
+    $top.sw2 setwidget $widg(BuildLog)
 
     CHECKBUTTON $top.buildRelease -text "Build for final release" \
         -variable ::conf(buildForRelease)
@@ -2133,7 +2296,8 @@ proc Frame.diskBuilder {} {
     $widg(BuildLog) tag configure error -foreground red
 
     $widg(BuildLog) tag configure link -foreground blue -underline 1
-    $widg(BuildLog) tag bind link <Enter> [list %W configure -cursor hand2]
+    $widg(BuildLog) tag bind link <Enter> [list %W configure \
+        -cursor [::InstallJammer::GetHandCursor]]
     $widg(BuildLog) tag bind link <Leave> [list %W configure -cursor ""]
     $widg(BuildLog) tag bind link <1> {
         ::InstallJammer::Explore [InstallDir output]
@@ -2381,6 +2545,7 @@ proc Window.preferences {} {
     array set ::tmppreferences [array get ::preferences]
 
     if {[winfo exists $top]} {
+        ::InstallJammer::Grab $top
 	wm deiconify $top
 	return
     }
@@ -2389,10 +2554,10 @@ proc Window.preferences {} {
     wm withdraw  $top
     update idletasks
     wm title     $top "InstallJammer Preferences"
-    wm geometry  $top 450x400
+    wm geometry  $top 450x450
     wm protocol  $top WM_DELETE_WINDOW "CancelPreferences"
     wm transient $top $widg(InstallJammer)
-    BWidget::place $top 450 400 center $widg(InstallJammer)
+    BWidget::place $top 450 450 center $widg(InstallJammer)
 
     bind $top <Return> "SetPreferences"
     bind $top <Escape> "CancelPreferences"
@@ -2487,6 +2652,21 @@ proc Window.preferences {} {
         [list GetDir ::tmppreferences(CustomConditionDir) -parent $top]
     grid  $f.projectDirB -row 1 -column 1
 
+    ## Custom Message Catalog Dir
+    set f $top.n.dirs.f5
+    pack [frame $f] -anchor nw -fill x -padx 5 -pady {0 5}
+    
+    grid columnconfigure $f 0 -weight 1
+    label $f.l -text "Custom Message Catalog Directory Location"
+    grid  $f.l -row 0 -column 0 -sticky w -padx 5
+
+    ENTRY $f.e -width 50 -textvariable ::tmppreferences(CustomMessageDir)
+    grid  $f.e -row 1 -column 0 -sticky ew -padx [list 5 0]
+
+    BrowseButton $f.b \
+        -command [list GetDir ::tmppreferences(CustomMessageDir) -parent $top]
+    grid  $f.b -row 1 -column 1
+
 
     ## Create the External Programs tab.
 
@@ -2572,6 +2752,7 @@ proc Window.preferences {} {
     pack $top.n.update.checkNow -anchor se -padx 5 -pady 5
 
 
+    ::InstallJammer::Grab $top
     wm deiconify $top
 }
 
@@ -2599,10 +2780,10 @@ proc Window.filterFileGroups {} {
     wm withdraw  $top
     update idletasks
     wm transient $top $parent
-    wm geometry  $top 300x260
+    wm geometry  $top 300x300
     wm title     $top "Filter File Groups"
     wm protocol  $top WM_DELETE_WINDOW "set ::TMP 0"
-    CenterWindow $top
+    ::InstallJammer::CenterWindow $top
 
     bind $top <Escape> "set ::TMP 0"
     bind $top <Return> "set ::TMP 1"
@@ -2732,12 +2913,6 @@ proc ::InstallJammer::FinishEditVersion { args } {
     return 1
 }
 
-proc SetInstallPanes {} {
-    global conf
-    ::msgcat::mcmset en [array get ::InstallJammer::preview::text]
-    if {[info exists conf(window)]} { Cancel $conf(window) }
-}
-
 proc PopupEditMenu {w X Y} {
     global widg
     set menu $widg(RightClickEditMenu)
@@ -2838,7 +3013,9 @@ proc SetPreferences {} {
 
 proc CancelPreferences {} {
     ::InstallJammer::SetHelp <last>
-    wm withdraw [::InstallJammer::TopName .preferences]
+    set top [::InstallJammer::TopName .preferences]
+    ::InstallJammer::Grab release $top
+    wm withdraw $top
 }
 
 proc ::InstallJammer::AddPlatformPropertyNode { prop arrayName
@@ -2867,26 +3044,24 @@ proc InitializeBindings {} {
         event add <<RightClick>> <Button-3>
     }
 
-    BIND all <FocusIn>  { ::InstallJammer::WidgetFocusIn %W }
-    BIND all <FocusOut> { ::InstallJammer::WidgetFocusOut %W }
+    bind all <FocusIn>  { ::InstallJammer::WidgetFocusIn %W }
+    bind all <FocusOut> { ::InstallJammer::WidgetFocusOut %W }
 
-    BIND all <Control-x> ::InstallJammer::EditCut
-    BIND all <Control-c> ::InstallJammer::EditCopy
-    BIND all <Control-v> ::InstallJammer::EditPaste
+    bind all <Func-x> ::InstallJammer::EditCut
+    bind all <Func-c> ::InstallJammer::EditCopy
+    bind all <Func-v> ::InstallJammer::EditPaste
 
-    BIND Entry  <<RightClick>> { PopupEditMenu %W %X %Y }
-    BIND Entry  <Control-a>    { ::InstallJammer::EditSelectAll }
-    BIND Entry  <Control-A>    { ::InstallJammer::EditSelectAll }
-    BIND TEntry <Control-a>    { ::InstallJammer::EditSelectAll }
-    BIND TEntry <Control-A>    { ::InstallJammer::EditSelectAll }
+    bind Entry  <<RightClick>> { PopupEditMenu %W %X %Y }
+    bind Entry  <Func-a>    { ::InstallJammer::EditSelectAll }
+    bind Entry  <Func-A>    { ::InstallJammer::EditSelectAll }
+    bind TEntry <Func-a>    { ::InstallJammer::EditSelectAll }
+    bind TEntry <Func-A>    { ::InstallJammer::EditSelectAll }
 
-    BIND Text  <<RightClick>> { PopupEditMenu %W %X %Y }
-    BIND Text  <Control-a>    { ::InstallJammer::EditSelectAll }
-    BIND Text  <Control-A>    { ::InstallJammer::EditSelectAll }
+    bind Text  <<RightClick>> { PopupEditMenu %W %X %Y }
+    bind Text  <Func-a>    { ::InstallJammer::EditSelectAll }
+    bind Text  <Func-A>    { ::InstallJammer::EditSelectAll }
 
-    BIND Button <Return> { %W invoke }
-
-    #BIND Properties <FocusOut> { ::InstallJammer::FinishEditingActiveNode }
+    bind Button <Return> { %W invoke }
 }
 
 proc ::InstallJammer::WidgetFocusIn { w } {
@@ -2901,4 +3076,14 @@ proc ::InstallJammer::WidgetFocusIn { w } {
 
 proc ::InstallJammer::WidgetFocusOut { w } {
     set ::edit::widget ""
+}
+
+proc ::InstallJammer::RaiseSection {w node} {
+    global conf
+
+    set ignore {groupsAndFiles components setupTypes install uninstall}
+
+    if {$node ni $ignore} {
+        ::InstallJammer::HistoryAppend [list $w $node]
+    }
 }

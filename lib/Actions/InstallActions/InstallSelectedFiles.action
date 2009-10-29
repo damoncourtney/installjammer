@@ -85,7 +85,7 @@ proc ::InstallJammer::actions::InstallSelectedFiles { obj } {
 
             lappend groups $filegroup
 
-            if {$::verbose} {
+            if {[debugging ison] >= 2} {
                 debug "Adding file group [$filegroup name] for installation..."
             }
 
@@ -101,7 +101,7 @@ proc ::InstallJammer::actions::InstallSelectedFiles { obj } {
 
                 set total [expr {wide($total) + [$file size]}]
 
-                if {$::verbose} {
+                if {[debugging ison] >= 2} {
                     debug "Adding file [$file name] for installation..."
                 }
 
@@ -118,7 +118,9 @@ proc ::InstallJammer::actions::InstallSelectedFiles { obj } {
 
     set info(TotalSize) $total
 
-    if {$info(InstallHasSolidArchives) && !$info(SolidArchivesExtracted)} {
+    if {$info(InstallHasSolidArchives)
+        && !$info(SolidArchivesExtracted)
+        && $info(ExtractSolidArchives) ne "Never"} {
         ::InstallJammer::UnpackSolidArchives 0
         set info(InstallPercentComplete) 0
         set info(Status) "<%InstallPrepareText%>"
@@ -126,7 +128,7 @@ proc ::InstallJammer::actions::InstallSelectedFiles { obj } {
 
     set conf(InstallLog) [file join $info(InstallDir) install.log]
 
-    set unpackBin    [::installkit::base]
+    set unpackBin    [::InstallJammer::BaseInstallkit]
     set unpackInf    [::InstallJammer::BuildUnpackInfo $groups files]
     set unpackScript [::InstallJammer::BuildUnpack]
 
@@ -182,7 +184,7 @@ proc ::InstallJammer::actions::InstallSelectedFiles { obj } {
 	## has changed.  This forces any environment variables
 	## changed during installation to be updated in all running
 	## Windows applications.
-        set conf(UpdateWindowsRegistry) 1
+        ::InstallAPI::SendWindowsNotification -environment 1
     }
 
     ## If we saved files for rollback, we need to clean them up now.

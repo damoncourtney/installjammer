@@ -49,8 +49,8 @@ proc ::InstallJammer::PreviewWindow { id } {
             destroy $info(Wizard)
         }
 
-        foreach obj [::itcl::find objects -class InstallComponent] {
-            itcl::delete object $obj
+        foreach obj [::obj::class instances InstallComponent] {
+            $obj destroy
         }
     }
 
@@ -64,18 +64,14 @@ proc ::InstallJammer::PreviewWindow { id } {
     $interp eval [list source [file join $installdir init.tcl]]
 
     $interp eval [list set ::id $id]
-    set opts [$id serialize]
-    lappend opts -parent [list]
-    $interp eval [list eval InstallComponent $id $opts]
+    $interp eval [$id serialize] -parent ""
 
     ## Add any actions that are AddWidget components.  We
     ## want to preview the window with the widgets the user
     ## has added.
     foreach child [$id children] {
         if {[$child component] eq "AddWidget"} {
-            set opts [$child serialize]
-            lappend opts -parent $id
-            $interp eval [list eval InstallComponent $child $opts]
+            $interp eval [$child serialize] -parent $id
         }
     }
 
@@ -258,11 +254,12 @@ proc ::InstallJammer::preview::Initialize {} {
     $interp eval {
         package require installkit
         package require Tk
-        package require tile
-	package require Itcl
         package require BWidget
 
-        if {$::tcl_platform(platform) eq "unix"} { tile::setTheme jammer }
+        namespace import ::ttk::style
+
+        set ::tcl::tm::paths {}
+        tcl::tm::path add $::tcl_library $::tk_library
 
         BWidget::use png
         BWidget::use ttk

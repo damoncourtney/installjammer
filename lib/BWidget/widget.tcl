@@ -1804,7 +1804,7 @@ proc Widget::theme {{bool {}}} {
             && [catch {package require tile 1}]} {
             return -code error "BWidget's theming requires tile 0.6+"
         } else {
-            catch {style default BWSlim.Toolbutton -padding 0}
+            catch {style lookup BWSlim.Toolbutton -padding 0}
         }
         set _theme [string is true -strict $bool]
     }

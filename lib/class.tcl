@@ -21,68 +21,100 @@
 ##
 ## END LICENSE BLOCK
 
-::itcl::class ::InstallJammer::ComponentDetails {
-    inherit Object
+::obj::class create ::InstallJammer::ComponentDetails {
+    variable order         0
+    variable title         ""
+    variable parent        ""
+    variable name          ""
+    variable images        [list]
+    variable properties    [list]
+    variable textfields    [list]
+    variable standardprops [list]
+
+    variable help          [dict create]
+    variable conditions    [dict create]
+    variable propertyopts  [dict create]
 
     constructor { args } {
-        eval configure $args
-
-        standard ID         readonly   "ID"
-        standard Active     boolean    "Active"  Yes
-        standard Alias      shorttext  "Alias"
-        standard Comment    text       "Comment"
-        standard Data       text       "Data"
+        my standard ID         readonly   "ID"
+        my standard Active     boolean    "Active"  Yes
+        my standard Alias      shorttext  "Alias"
+        my standard Comment    text       "Comment"
+        my standard Data       text       "Data"
     }
 
     method initialize { id args } {
         variable ::InstallJammer::ComponentObjectMap
-        set ComponentObjectMap($id) $this
+
+        set textfields   [my textfields]
+        set propertyopts [my propertyopts]
+
+        set ComponentObjectMap($id) $self
 
         foreach {prop val} $args {
             $id set -safe $prop $val
         }
 
-        foreach prop [properties] {
-            $id set -safe $prop $propertyopts($prop,value)
+        foreach prop [my properties] {
+            $id set -safe $prop [dict get $propertyopts $prop,value]
         }
 
         foreach field [lsort $textfields] {
-            $id set -safe $field,subst $propertyopts($field,subst)
+            $id set -safe $field [gettext $id $field -default 1]
+            $id set -safe $field,subst [dict get $propertyopts $field,subst]
         }
     }
 
     method get { prop field varName } {
         upvar 1 $varName var
-        if {![info exists propertyopts($prop,$field)]} { return 0 }
-        set var $propertyopts($prop,$field)
+
+        set propertyopts [my propertyopts]
+
+        if {![dict exists $propertyopts $prop,$field]} { return 0 }
+        set var [dict get $propertyopts $prop,$field]
         return 1
     }
 
     method standard { prop args } {
-        if {[lsearch -exact $standardprops $prop] < 0} {
-            lappend standardprops $prop
+        set standardprops [my standardprops]
+
+        if {$prop ni $standardprops} {
+            my standardprops [lappend standardprops $prop]
         }
-        eval [list property $prop] $args
+        my property $prop {*}$args
     }
 
     method property { prop type pretty {value ""} {choices ""} } {
-        if {[string equal $type "image"]} { image $prop }
+        set properties   [my cget properties]
+        set propertyopts [my cget propertyopts]
 
-        if {[lsearch -exact $properties $prop] < 0} { lappend properties $prop }
-        set propertyopts($prop,type)    $type
-        set propertyopts($prop,pretty)  $pretty
-        set propertyopts($prop,value)   $value
-        set propertyopts($prop,choices) $choices
-        set propertyopts($prop,help)    ""
+        if {$type eq "image"} { my image $prop }
+
+        if {$prop ni $properties} {
+            my configure properties [lappend properties $prop]
+        }
+        dict set propertyopts $prop,type     $type
+        dict set propertyopts $prop,pretty   $pretty
+        dict set propertyopts $prop,value    $value
+        dict set propertyopts $prop,choices  $choices
+        dict set propertyopts $prop,help     ""
+        my propertyopts $propertyopts
     }
 
     method text { field pretty subst } {
-        lappend textfields $field
-        set propertyopts($field,subst)  $subst
-        set propertyopts($field,pretty) $pretty
+        set textfields   [my textfields]
+        set propertyopts [my propertyopts]
+
+        my textfields [lappend textfields $field]
+
+        dict set propertyopts $field,subst  $subst
+        dict set propertyopts $field,pretty $pretty
+        my propertyopts $propertyopts
     }
 
     method addproperties { prop id args } {
+        set propertyopts [my cget propertyopts]
+
         array set _args {
             -array        ::InstallJammer::active
             -standard     1
@@ -99,15 +131,15 @@
                 set var  $_args(-array)($property)
                 AddProperty $prop end $_args(-parentnode) $id $property $var \
                     -data    $property \
-                    -help    $propertyopts($property,help)   \
-                    -type    $propertyopts($property,type)   \
-                    -pretty  $propertyopts($property,pretty) \
-                    -choices $propertyopts($property,choices)
+                    -help    [dict get $propertyopts $property,help]   \
+                    -type    [dict get $propertyopts $property,type]   \
+                    -pretty  [dict get $propertyopts $property,pretty] \
+                    -choices [dict get $propertyopts $property,choices]
             }
             return
         }
 
-        set standard [standardproperties]
+        set standard [my standardproperties]
         if {![string is boolean -strict $_args(-standard)]} {
             set standard $_args(-standard)
             set _args(-standard) 1
@@ -118,38 +150,40 @@
                 set var  $_args(-array)($property)
                 AddProperty $prop end $_args(-standardnode) $id $property $var \
                     -data    $property \
-                    -help    $propertyopts($property,help)   \
-                    -type    $propertyopts($property,type)   \
-                    -pretty  $propertyopts($property,pretty) \
-                    -choices $propertyopts($property,choices)
+                    -help    [dict get $propertyopts $property,help]   \
+                    -type    [dict get $propertyopts $property,type]   \
+                    -pretty  [dict get $propertyopts $property,pretty] \
+                    -choices [dict get $propertyopts $property,choices]
             }
         }
 
-        set advanced [properties 0]
+        set advanced [my properties 0]
         if {![string is boolean -strict $_args(-advanced)]} {
             set advanced $_args(-advanced)
             set _args(-advanced) 1
         }
 
         if {$_args(-advanced)} {
-            if {[lempty $advanced]} { return }
+            if {![llength $advanced]} { return }
 
             foreach property $advanced {
                 set var  $_args(-array)($property)
                 AddProperty $prop end $_args(-advancednode) $id $property $var \
                     -data    $property \
-                    -help    $propertyopts($property,help)   \
-                    -type    $propertyopts($property,type)   \
-                    -pretty  $propertyopts($property,pretty) \
-                    -choices $propertyopts($property,choices)
+                    -help    [dict get $propertyopts $property,help]   \
+                    -type    [dict get $propertyopts $property,type]   \
+                    -pretty  [dict get $propertyopts $property,pretty] \
+                    -choices [dict get $propertyopts $property,choices]
             }
         }
     }
 
     method addtextfields { prop node id {arrayName ::InstallJammer::active} } {
+        set textfields   [my cget textfields]
+        set propertyopts [my cget propertyopts]
+
         set check $prop.editTextFieldSubst
         if {![winfo exists $check]} {
-            # CHECKBUTTON $check -padx 0 -pady 0 -bd 0 -command Modified
             CHECKBUTTON $check -command Modified
             DynamicHelp::add $check \
                 -text "Do virtual text substitution for this field"
@@ -158,7 +192,7 @@
         foreach field [lsort $textfields] {
             set var    ${arrayName}($field)
             set subst  ${arrayName}($field,subst)
-            set pretty $propertyopts($field,pretty)
+            set pretty [dict get $propertyopts $field,pretty]
 
             set start  ::InstallJammer::EditTextFieldNode
             set end    ::InstallJammer::FinishEditTextFieldNode
@@ -172,27 +206,36 @@
     }
 
     method image { image } {
-        lappend images $image
+        set images [my images]
+        my images [lappend images $image]
     }
 
     method help { prop {text ""} } {
+        set propertyopts [my cget propertyopts]
         if {$text ne ""} {
-            set propertyopts($prop,help) $text
+            dict set propertyopts $prop,help $text
+            my propertyopts $propertyopts
         }
-        return $propertyopts($prop,help)
+        return [dict get $propertyopts $prop,help]
     }
 
     method condition { which cond arguments } {
-        lappend conditions($which) [list $cond $arguments]
+        set conditions [my cget conditions]
+        dict lappend conditions $which [list $cond $arguments]
+        my configure conditions $conditions
     }
 
     method properties { {includeStandard 1} } {
+        set properties    [my cget properties]
+        set propertyopts  [my cget propertyopts]
+        set standardprops [my cget standardprops]
+
         if {$includeStandard} {
             return [lsort $properties]
         } else {
             set props [list]
-            foreach prop [eval lremove [list $properties] $standardprops] {
-                if {![string equal $propertyopts($prop,type) "hidden"]} {
+            foreach prop [lremove $properties {*}$standardprops] {
+                if {[dict get $propertyopts $prop,type] ne "hidden"} {
                     lappend props $prop
                 }
             }
@@ -201,122 +244,122 @@
     }
 
     method type { property } {
-        return $propertyopts($property,type)
+        set propertyopts [my propertyopts]
+        return [dict get $propertyopts $property,type]
     }
 
     method default { property } {
-        return $propertyopts($property,value)
+        set propertyopts [my propertyopts]
+        return [dict get $propertyopts $property,value]
     }
 
     method pretty { property } {
-        return $propertyopts($property,pretty)
+        set propertyopts [my propertyopts]
+        return [dict get $propertyopts $property,pretty]
     }
 
     method choices { property } {
-        return $propertyopts($property,choices)
+        set propertyopts [my propertyopts]
+        return [dict get $propertyopts $property,choices]
     }
 
     method standardproperties {} {
+        set standardprops [my standardprops]
+
         set list [list ID]
-        if {[lsearch -exact $standardprops Component] > -1} {
-            lappend list Component
-        }
-        return [concat $list [lsort [eval lremove [list $standardprops] $list]]]
-    }
-
-    method textfields {} {
-        return $textfields
-    }
-
-    method images {} {
-        return $images
+        if {"Component" in $standardprops} { lappend list "Component" }
+        return [concat $list [lsort [lremove $standardprops {*}$list]]]
     }
 
     method conditions { which } {
-        if {[info exists conditions($which)]} { return $conditions($which) }
+        set conditions [my cget conditions]
+        if {[dict exists $conditions $which]} {
+            return [dict get $conditions $which]
+        }
     }
 
     method component {} {
         return "ClassObject"
     }
-
-    method name   { args } { eval cfgvar name   $args }
-    method order  { args } { eval cfgvar order  $args }
-    method title  { args } { eval cfgvar title  $args }
-    method parent { args } { eval cfgvar parent $args }
-
-    public variable order  0
-    public variable title  ""
-    public variable parent ""
-
-    public  variable help
-    public  variable name          ""
-    private variable images        [list]
-    public  variable properties    [list]
-    private variable textfields    [list]
-    public  variable standardprops [list]
-
-    private variable conditions
-    public  variable propertyopts
 }
 
-::itcl::class ::InstallJammer::Action {
-    inherit ::InstallJammer::ComponentDetails
+::obj::class create ::InstallJammer::Action {
+    superclass ::InstallJammer::ComponentDetails
+
+    variable group    ""
+    variable includes [list]
+    variable requires [list]
 
     constructor { args } {
-        eval configure $args
+        next {*}$args
 
-        set ::InstallJammer::components($name) [namespace tail $this]
+        set name  [my cget name]
+        set group [my cget group]
 
-        set ::InstallJammer::actions($name) [namespace tail $this]
-        lappend ::InstallJammer::actiongroups($group) [namespace tail $this]
+        set ::InstallJammer::components($name) [namespace tail $self]
 
-        standard Component      readonly   "Component"
-        standard Conditions     conditions "Conditions"
-        standard Include        choice     "Include"       "Always include" \
-            $::InstallJammer::PropertyMap(Include)
-        standard IgnoreErrors   boolean    "Ignore Errors" "No"
-        standard ExecuteAction  choice     "Execute Action" \
+        set ::InstallJammer::actions($name) [namespace tail $self]
+        lappend ::InstallJammer::actiongroups($group) [namespace tail $self]
+
+        my standard Component      readonly   "Component"
+        my standard Conditions     conditions "Conditions"
+        my standard Include        choice     "Include" \
+            "Always include" $::InstallJammer::PropertyMap(Include)
+        my standard IgnoreErrors   boolean    "Ignore Errors" "No"
+        my standard ExecuteAction  choice     "Execute Action" \
             "After Pane is Displayed" \
             $::InstallJammer::PropertyMap(ExecuteAction)
     }
 
     destructor {
+        set name [my name]
         unset -nocomplain ::InstallJammer::actions($name)
     }
 
     method includes { args } {
-        if {[llength $args]} { return [eval lappend includes $args] }
+        set includes [my cget includes]
+
+        if {[llength $args]} {
+            my configure includes [lappend includes {*}$args]
+            return $includes
+        }
         
         variable ::InstallJammer::components
 
         set list $includes
         foreach include $list {
-            eval lappend list [$components($include) includes]
+            lappend list {*}[$components($include) includes]
         }
 
         return $list
     }
 
     method requires { args } {
-        if {[llength $args]} { return [eval lappend requires $args] }
+        set requires [my cget requires]
+
+        if {[llength $args]} {
+            my configure requires [lappend requires {*}$args]
+            return $requires
+        }
 
         variable ::InstallJammer::components
 
         set list $requires
-        foreach include [includes] {
-            eval lappend list [$components($include) requires]
+        foreach include [my includes] {
+            lappend list {*}[$components($include) requires]
         }
 
         return $list
     }
 
     method group { args } {
-        variable ::InstallJammer::actiongroups
+        set group [my cget group]
 
         if {[llength $args]} {
+            variable ::InstallJammer::actiongroups
+
             set groupName [lindex $args 0]
-            set tail [namespace tail $this]
+            set tail [namespace tail $self]
 
             set actiongroups($group) [lremove $actiongroups($group) $tail]
 
@@ -326,58 +369,65 @@
 
         return $group
     }
-
-    method action { args } { eval cfgvar name $args }
-
-    public variable group    ""
-    public variable includes [list]
-    public variable requires [list]
 }
 
-::itcl::class ::InstallJammer::Pane {
-    inherit ::InstallJammer::ComponentDetails
+::obj::class create ::InstallJammer::Pane {
+    superclass ::InstallJammer::ComponentDetails
+
+    variable setup        ""
+    variable preview      0
+    variable deffile      ""
+    variable tclfile      ""
+    variable files        [list]
+    variable actions      [list]
+    variable widgets      [list]
+    variable includes     [list]
+    variable installtypes [list Standard]
 
     constructor { args } {
-        eval configure $args
-        set ::InstallJammer::panes($name) [namespace tail $this]
+        next {*}$args
 
-        standard Component  readonly   "Component"
-        standard Conditions conditions "Conditions"
-        standard Include    choice     "Include"    "Always include" \
-            $::InstallJammer::PropertyMap(Include)
+        set name [my cget name]
+
+        set ::InstallJammer::panes($name) [namespace tail $self]
+
+        my standard Component  readonly   "Component"
+        my standard Conditions conditions "Conditions"
+        my standard Include    choice     "Include" \
+            "Always include" $::InstallJammer::PropertyMap(Include)
     }
 
     destructor {
+        set name [my cget name]
         unset -nocomplain ::InstallJammer::panes($name)
     }
 
     method includes { args } {
-        if {[llength $args]} { return [eval lappend includes $args] }
+        set includes [my cget includes]
+
+        if {[llength $args]} {
+            my configure includes [lappend includes {*}$args]
+            return $includes
+        }
         
         variable ::InstallJammer::panes
 
         set list $includes
         foreach include $list {
-            eval lappend list [$panes($include) includes]
+            lappend list {*}[$panes($include) includes]
         }
 
         return $list
     }
 
     method action { action arguments } {
-        lappend actions [list $action $arguments]
+        set actions [my cget actions]
+        my actions [lappend actions [list $action $arguments]]
     }
 
     method file { file } {
-        lappend files $file
-    }
-
-    method actions {} {
-        return $actions
-    }
-
-    method installtypes {} {
-        return $installtypes
+        set files [my cget files]
+        my configure files [lappend files $file]
     }
 
     method directories {} {
@@ -385,179 +435,180 @@
         global info
         global preferences
 
+        set setup [my cget setup]
+
         lappend dirs [InstallDir Theme/$setup]
-        if {[string length $preferences(CustomThemeDir)]} {
+        if {$preferences(CustomThemeDir) ne ""} {
             set custom $preferences(CustomThemeDir)
-            lappend dirs [::file join $custom $info(Theme) $setup]
+            lappend dirs [file join $custom $info(Theme) $setup]
         }
-        lappend dirs [::file join $conf(pwd) Themes $info(Theme) $setup]
+        lappend dirs [file join $conf(pwd) Themes $info(Theme) $setup]
     }
 
-    method deffile { args } {
-        if {[llength $args]} { return [eval cfgvar deffile $args] }
-        foreach dir [directories] {
-            set file [::file join $dir $name.pane]
-            if {[::file exists $file]} { return $file }
+    method deffile { {file ""} } {
+        if {$file ne ""} { return [my configure deffile $file] }
+        set name [my cget name]
+
+        foreach dir [my directories] {
+            set file [file join $dir $name.pane]
+            if {[file exists $file]} { return $file }
         }
         return $deffile
     }
 
-    method tclfile { args } {
-        if {[llength $args]} { return [eval cfgvar tclfile $args] }
-        foreach dir [directories] {
-            set file [::file join $dir $name.tcl]
-            if {[::file exists $file]} { return $file }
+    method tclfile { {file ""} } {
+        if {$file ne ""} { return [my configure tclfile $file] }
+        set name [my cget name]
+
+        foreach dir [my directories] {
+            set file [file join $dir $name.tcl]
+            if {[file exists $file]} { return $file }
         }
         return $tclfile
     }
-
-    method pane    { args } { eval cfgvar name    $args }
-    method setup   { args } { eval cfgvar setup   $args }
-
-    public variable setup        ""
-    public variable preview      0
-    public variable deffile      ""
-    public variable tclfile      ""
-    public variable includes     [list]
-    public variable installtypes [list Standard]
-
-    private variable files   [list]
-    private variable actions [list]
-    private variable widgets [list]
 }
 
-::itcl::class ::InstallJammer::ActionGroup {
-    inherit ::InstallJammer::ComponentDetails
+::obj::class create ::InstallJammer::ActionGroup {
+    superclass ::InstallJammer::ComponentDetails
 
     constructor { args } {
-        eval configure $args
+        next {*}$args
 
-        standard Conditions conditions "Conditions"
+        my standard Conditions conditions "Conditions"
     }
 }
 
-::itcl::class ::InstallJammer::FileGroup {
-    inherit ::InstallJammer::ComponentDetails
+::obj::class create ::InstallJammer::FileGroup {
+    superclass ::InstallJammer::ComponentDetails
 
     constructor { args } {
-        eval configure $args
+        next {*}$args
 
-        standard Name              text   "Name"
-        standard Size              text   "Size"
-        standard CompressionMethod choice "Compression Method" "" \
+        my standard Name              text   "Name"
+        my standard Size              text   "Size"
+        my standard CompressionMethod choice "Compression Method" "" \
             [concat {{}} $::conf(CompressionMethods)]
-        standard Destination       installedfile "Destination Directory"
-        standard FileUpdateMethod  filemethod "File Update Method" \
+        my standard Destination       installedfile "Destination Directory"
+        my standard FileUpdateMethod  filemethod "File Update Method" \
             "Update files with more recent dates"
-        standard FollowDirLinks boolean "Follow Directory Links" "Yes"
-        help FollowDirLinks "If this property is true, links to\
+        my standard FollowDirLinks boolean "Follow Directory Links" "Yes"
+        my help FollowDirLinks "If this property is true, links to\
             directories will be followed and their contents stored in the\
             installer as normal files.  If this is false, the directory will\
             be stored as a symlink to be recreated on the target system"
-        standard FollowFileLinks   boolean "Follow File Links" "No"
-        help FollowFileLinks "If this property is true, links to files will\
+        my standard FollowFileLinks   boolean "Follow File Links" "No"
+        my help FollowFileLinks "If this property is true, links to files will\
             be followed, and the linked file will be stored as an actual file\
             within the installer.  If it is false, a link will be stored and\
             recreated as a link on the target system"
-        standard Version           version "Version"
-        standard SaveFiles         nullboolean "Save Files" ""
-        help SaveFiles "Setting this property to Yes or No overrides the\
-            default Save Only Toplevel Directories project preference.  If\
-            the property is false, no files or subdirectories of any directory\
-            in the file group will be saved in the project file.  Only\
-            directories which are toplevel directories in the file group\
-            will be saved"
+        my standard Version           version "Version"
+        my standard FileSaveMethod    choice "File Save Method" "" \
+            $::conf(FileSaveMethods)
+        my help FileSaveMethod "This property determines how the files in this\
+            file group will be handled when the project is saved.  See the\
+            documentation for more information about each option."
 
-        standard FileSize          hidden "File Size"
-        standard Attributes        hidden "Windows File Attributes"
-        standard Permissions       hidden "File Permissions"
+        my standard FileSize          hidden "File Size"
+        my standard Attributes        hidden "Windows File Attributes"
+        my standard Permissions       hidden "File Permissions"
     }
 }
 
-::itcl::class ::InstallJammer::Component {
-    inherit ::InstallJammer::ComponentDetails
+::obj::class create ::InstallJammer::Component {
+    superclass ::InstallJammer::ComponentDetails
 
     constructor { args } {
-        eval configure $args
+        next {*}$args
 
-        standard Name              text    "Name"
-        standard Size              text    "Size"
-        standard Checked           boolean "Checked"            "Yes"
-        standard FileGroups        hidden  "File Groups"
-        standard Selectable        boolean "Selectable"         "Yes"
-        standard ShowComponent     boolean "Show Component"     "Yes"
-        standard ComponentGroup    text    "Component Group"
-        standard RequiredComponent boolean "Required Component" "No"
+        my standard Name              text    "Name"
+        my standard Size              text    "Size"
+        my standard Checked           boolean "Checked"            "Yes"
+        my standard FileGroups        hidden  "File Groups"
+        my standard Selectable        boolean "Selectable"         "Yes"
+        my standard ShowComponent     boolean "Show Component"     "Yes"
+        my standard ComponentGroup    text    "Component Group"
+        my standard IncludeComponents text    "Include Components"
+        my help IncludeComponents "A list of components (separated by ;)\
+            that should be included whenever this component is selected\
+            to be installed.  Each component in the list will also be\
+            checked when this component is checked"
+        my standard RequiredComponent boolean "Required Component" "No"
 
-        text Description "Description"  1
-        text DisplayName "Display Name" 1
+        my standard IncludeComponents text    "Include Components"
+        my help IncludeComponents "A list of components (separated by ;) that\
+            will automatically be checked when this component is checked in\
+            the installer"
+
+        my text Description "Description"  1
+        my text DisplayName "Display Name" 1
     }
 }
 
-::itcl::class ::InstallJammer::SetupType {
-    inherit ::InstallJammer::ComponentDetails
+::obj::class create ::InstallJammer::SetupType {
+    superclass ::InstallJammer::ComponentDetails
 
     constructor { args } {
-        eval configure $args
+        next {*}$args
 
-        standard Name          text    "Name"
-        standard Components    hidden  "Components"
-        standard ShowSetupType boolean "Show Setup Type"     "Yes"
+        my standard Name          text    "Name"
+        my standard Components    hidden  "Components"
+        my standard ShowSetupType boolean "Show Setup Type"     "Yes"
 
-        text Description "Description"  1
-        text DisplayName "Display Name" 1
+        my text Description "Description"  1
+        my text DisplayName "Display Name" 1
     }
 }
 
-::itcl::class ::InstallJammer::File {
-    inherit ::InstallJammer::ComponentDetails
+::obj::class create ::InstallJammer::File {
+    superclass ::InstallJammer::ComponentDetails
 
     constructor { args } {
-        eval configure $args
+        next {*}$args
 
-        standard CompressionMethod choice "Compression Method" "" \
+        my standard CompressionMethod choice "Compression Method" "" \
             [concat {{}} $::conf(CompressionMethods)]
-        standard Destination       installedfile "Destination Directory"
-        standard FileUpdateMethod  filemethod "File Update Method" \
+        my standard Destination       installedfile "Destination Directory"
+        my standard FileUpdateMethod  filemethod "File Update Method" \
             "Update files with more recent dates"
-        standard Version           version "Version"
-        standard Location          location "Location"
-        standard TargetFilename    short "Target Filename"
-        standard SaveFiles         nullboolean "Save Files"
-        help SaveFiles "Setting this property to Yes or No overrides the\
-            default Save Only Toplevel Directories project preference.  If\
-            the property is false, no files or subdirectories of any directory\
-            in the file group will be saved in the project file.  Only\
-            directories which are toplevel directories in the file group\
-            will be saved"
+        my standard Version           version "Version"
+        my standard Location          location "Location"
+        my standard TargetFilename    short "Target Filename"
+        my standard FileSaveMethod    choice "File Save Method" "" \
+            $::conf(FileSaveMethods)
+        my help FileSaveMethod "This property determines how the files in this\
+            file directory will be handled when the project is saved.  See the\
+            documentation for more information about each option."
     }
 }
 
-::itcl::class ::InstallJammer::Condition {
-    inherit ::InstallJammer::ComponentDetails
+::obj::class create ::InstallJammer::Condition {
+    superclass ::InstallJammer::ComponentDetails
+
+    variable group     ""
+    variable includes  [list]
 
     constructor { args } {
-        eval configure $args
+        next {*}$args
 
-        standard Component      readonly  "Component"
-        standard CheckCondition choice    "Check Condition" \
+        set name  [my cget name]
+        set group [my cget group]
+
+        set ::InstallJammer::components($name) [namespace tail $self]
+
+        set ::InstallJammer::conditions($name) [namespace tail $self]
+        lappend ::InstallJammer::conditiongroups($group) [namespace tail $self]
+
+        my standard Component      readonly  "Component"
+        my standard CheckCondition choice    "Check Condition" \
             "Before Pane is Displayed" $::conf(PaneCheckConditions)
-
-        standard FailureFocus   text "Failure Focus"
-        help FailureFocus "A widget to move the focus to after the failure\
+        my standard FailureFocus   text "Failure Focus"
+        my help FailureFocus "A widget to move the focus to after the failure\
                                 message has been displayed."
-
-        standard FailureMessage text "Failure Message"
-        help FailureMessage "A message to display to the user if this conditon\
-                                fails."
-
-        standard Include choice "Include" "Always include" \
+        my standard FailureMessage text "Failure Message"
+        my help FailureMessage "A message to display to the user if this\
+                                conditon fails."
+        my standard Include choice "Include" "Always include" \
             $::InstallJammer::PropertyMap(Include)
-
-        set ::InstallJammer::components($name) [namespace tail $this]
-
-        set ::InstallJammer::conditions($name) [namespace tail $this]
-        lappend ::InstallJammer::conditiongroups($group) [namespace tail $this]
     }
 
     destructor {
@@ -567,9 +618,11 @@
     method group { args } {
         variable ::InstallJammer::conditiongroups
 
+        set group [my group]
+
         if {[llength $args]} {
             set groupName [lindex $args 0]
-            set tail [namespace tail $this]
+            set tail [namespace tail $self]
 
             set conditiongroups($group) [lremove $conditiongroups($group) $tail]
 
@@ -581,66 +634,65 @@
     }
 
     method includes { args } {
-        if {[llength $args]} { return [eval lappend includes $args] }
+        set includes [my cget includes]
+
+        if {[llength $args]} {
+            my configure includes [lappend includes {*}$args]
+            return $includes
+        }
         
         variable ::InstallJammer::components
 
         set list $includes
         foreach include $list {
-            eval lappend list [$components($include) includes]
+            lappend list {*}[$components($include) includes]
         }
 
         return $list
     }
-
-    method condition { args } { eval cfgvar name $args }
-
-    public variable group     ""
-    public variable includes  [list]
 }
 
-::itcl::class Platform {
-    inherit InstallComponent
+::obj::class create Platform {
+    superclass InstallComponent
 
     constructor { args } {
-        eval configure $args
-    } {
-        eval configure $args
-        ::set type platform
+        next {*}$args
+        my type platform
 
-        set Active                "NEW"
-        set BuildSeparateArchives "No"
-        set InstallMode           "Standard"
-        set InstallType           "Typical"
-        set ProgramName           ""
-        set ProgramReadme         "<%InstallDir%>/README.txt"
-        set ProgramLicense        "<%InstallDir%>/LICENSE.txt"
-        set ProgramFolderName     "<%AppName%>"
-        set ProgramExecutable     ""
-        set ProgramFolderAllUsers "No"
+        my set Active                "NEW"
+        my set BuildSeparateArchives "No"
+        my set InstallMode           "Standard"
+        my set InstallType           "Typical"
+        my set ProgramName           ""
+        my set ProgramReadme         "<%InstallDir%>/README.txt"
+        my set ProgramLicense        "<%InstallDir%>/LICENSE.txt"
+        my set ProgramFolderName     "<%AppName%>"
+        my set ProgramExecutable     ""
+        my set ProgramFolderAllUsers "No"
 
-        if {$name eq "windows"} {
-            set Executable   "<%AppName%>-<%Version%>-Setup<%Ext%>"
-            set FileDescription "<%AppName%> <%Version%> Setup"
-            set InstallDir   "<%PROGRAM_FILES%>/<%AppName%>"
-            set WindowsIcon  "Setup Blue Screen.ico"
-            set IncludeTWAPI "No"
-            set RequireAdministrator "Yes"
-            set UseUncompressedBinaries "No"
+        if {[my name] eq "windows"} {
+            my set Executable   "<%AppName%>-<%Version%>-Setup<%Ext%>"
+            my set FileDescription "<%AppName%> <%Version%> Setup"
+            my set InstallDir   "<%PROGRAM_FILES%>/<%AppName%>"
+            my set WindowsIcon  "Setup Blue Screen.ico"
+            my set RequireAdministrator "Yes"
+            my set UseUncompressedBinaries "No"
             set LastRequireAdministrator "Yes"
         } else {
-            set Executable "<%AppName%>-<%Version%>-<%Platform%>-Install<%Ext%>"
-            set InstallDir "<%Home%>/<%ShortAppName%>"
+            my set Executable \
+                "<%AppName%>-<%Version%>-<%Platform%>-Install<%Ext%>"
+            my set InstallDir "<%Home%>/<%ShortAppName%>"
+            my set PromptForRoot  "Yes"
+            my set RequireRoot    "No"
+            my set RootInstallDir "/usr/local/<%ShortAppName%>"
+            my set DefaultFilePermission      "0755"
+            my set DefaultDirectoryPermission "0755"
+            my set FallBackToConsole "Yes"
+        }
 
-            set PromptForRoot  "Yes"
-
-            set RequireRoot    "No"
-            set RootInstallDir "/usr/local/<%ShortAppName%>"
-
-            set DefaultFilePermission      "0755"
-            set DefaultDirectoryPermission "0755"
-
-            set FallBackToConsole "Yes"
+        if {[my name] eq "macos-x"} {
+            my set BuildType ".app bundle"
+            my set VersionDescription "<%AppName%> <%Version%> Setup"
         }
     }
 
@@ -649,4 +701,4 @@
     method object {} {
         return ::PlatformObject
     }
-} ; ## ::itcl::class Platform
+}

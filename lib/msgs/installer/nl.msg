@@ -22,6 +22,9 @@ CleanupInstallText
 Close
 "Sluiten"
 
+ConsolePause,Message
+"<%ConsolePauseText%>"
+
 ConsolePauseQuitText
 "-- Druk op spatie om door te gaan of op 'q' om te stoppen --"
 
@@ -97,6 +100,12 @@ InstallTitleText
 LaunchApplicationText
 "Start <%AppName%>"
 
+LocateJavaRuntime,PromptMessage
+"Wijs uw Java Runtime locatie aan"
+
+LocateJavaRuntime,StatusMessage
+"Java Runtime lokaliseren..."
+
 Next
 "Volgende"
 
@@ -127,37 +136,50 @@ RequireRootText
 SeparatorText
 "SemLab"
 
+TextWindow,Caption
+"Bijschrift"
+
+TextWindow,CloseButton
+"<%Close%>"
+
+TextWindow,Message
+"Bericht gaat hier."
+
+TextWindow,Title
+"Scherm titel"
+
 TypicalInstallDescription
 "Een standaard installatie."
 
 UninstallApplicationText
 "Verwijderen <%AppName%>"
 
-UninstallPrepareText
-"Deïnstallatie voorbereiden..."
-
-UpdateRegistryText
-"Windows Register bijwerken..."
+UninstallCompleteText
+"Deïnstallatie klaar."
 
 UninstallingApplicationText
 "<%AppName%> verwijderen..."
 
-UninstallCompleteText
-"Deïnstallatie klaar."
+UninstallLeftoverText
+"Sommige componenten konden niet worden verwijderd.  Wilt u ze toch verwijderen (niet aangeraden)?"
+
+UninstallPrepareText
+"Deïnstallatie voorbereiden..."
 
 UninstallStartupText
-"Dit verwijderd <%AppName%> geheel van uw systeem.  Weet u zeker\
- dat u dit wilt doen?"
-
-UninstallLeftoverText
-"Sommige componenten konden niet worden verwijderd.  Wilt u ze toch verwijderen\
- (niet aangeraden)?"
+"Dit verwijderd <%AppName%> geheel van uw systeem.  Weet u zeker dat u dit wilt doen?"
 
 UninstallTitleText
 "Verwijder <%AppName%>"
 
 UnpackingFilesText
 "Bestanden uitpakken..."
+
+UnzipFile,StatusText
+"<%FileBeingInstalledText%>"
+
+UpdateRegistryText
+"Windows Register bijwerken..."
 
 VersionHelpText
 "Dit programma zal <%AppName%> versie <%Version%> installeren."
@@ -167,35 +189,3 @@ ViewReadmeText
 
 Yes
 "Ja"
-
-ConsolePause {
-    Message
-    "<%ConsolePauseText%>"
-}
-
-LocateJavaRuntime {
-    PromptMessage
-    "Wijs uw Java Runtime locatie aan"
-
-    StatusMessage
-    "Java Runtime lokaliseren..."
-}
-
-TextWindow {
-    Title
-    "Scherm titel"
-
-    Caption
-    "Bijschrift"
-
-    Message
-    "Bericht gaat hier."
-
-    CloseButton
-    "<%Close%>"
-}
-
-UnzipFile {
-    StatusText
-    "<%FileBeingInstalledText%>"
-}

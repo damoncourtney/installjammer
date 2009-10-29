@@ -31,4 +31,4 @@ Home Page:
 http://www.installjammer.com/
 
 Downloads:
-http://www.installjammer.com/download/
+http://sourceforge.net/project/showfiles.php?group_id=148203

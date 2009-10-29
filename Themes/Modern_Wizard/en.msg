@@ -1,463 +1,279 @@
-ChooseComponents {
-    Title
-    "Select Components"
+ChooseComponents,Caption
+"Select the components you want to install and deselect the components you do not want to install."
 
-    Subtitle
-    "Select the components setup will install."
+ChooseComponents,DescriptionLabel
+"Description"
 
-    Caption
-    "Select the components you want to install and deselect the components\
-     you do not want to install."
+ChooseComponents,Message
+"<%SpaceRequiredText%> of space required"
 
-    Message
-    "<%SpaceRequiredText%> of space required"
+ChooseComponents,Subtitle
+"Select the components setup will install."
 
-    DescriptionLabel
-    "Description"
+ChooseComponents,Title
+"Select Components"
 
-    NextButton
-    "<%Next%> >"
+CopyFiles,Caption
+"Please wait while Setup installs <%AppName%> on your computer."
 
-    BackButton
-    "< <%Back%>"
+CopyFiles,FileLabel
+"<%Status%>"
 
-    CancelButton
-    "<%Cancel%>"
-}
+CopyFiles,Message
+""
 
-CopyFiles {
-    Title
-    "Installing"
+CopyFiles,ProgressValue
+"<%InstallPercentComplete%>"
 
-    Subtitle
-    "Installing <%AppName%>"
+CopyFiles,Subtitle
+"Installing <%AppName%>"
 
-    Caption
-    "Please wait while Setup installs <%AppName%> on your computer."
+CopyFiles,Title
+"Installing"
 
-    Message
-    ""
+CustomBlankPane1,Caption
+"Caption goes here."
 
-    FileLabel
-    "<%Status%>"
+CustomBlankPane1,Message
+"Message goes here."
 
-    ProgressValue
-    "<%InstallPercentComplete%>"
+CustomBlankPane2,Caption
+"Caption"
 
-    NextButton
-    "<%Next%> >"
+CustomBlankPane2,Message
+"Message"
 
-    BackButton
-    "< <%Back%>"
+CustomBlankPane2,Subtitle
+"Subtitle"
 
-    CancelButton
-    "<%Cancel%>"
-}
+CustomBlankPane2,Title
+"Title"
 
-CustomBlankPane1 {
-    Caption
-    "Caption goes here."
+CustomTextPane1,Caption
+"Caption"
 
-    Message
-    "Message goes here."
+CustomTextPane1,Message
+"Message"
 
-    NextButton
-    "<%Next%> >"
+CustomTextPane1,Subtitle
+"Subtitle"
 
-    BackButton
-    "< <%Back%>"
+CustomTextPane1,Text
+"Put your custom text here."
 
-    CancelButton
-    "<%Cancel%>"
-}
+CustomTextPane1,Title
+"Title"
 
-CustomBlankPane2 {
-    Title
-    "Title"
+InstallForAll,AllUsersText
+"Install for all users (requires root)"
 
-    Subtitle
-    "Subtitle"
+InstallForAll,Caption
+"Please select whether you would like to install this application only for the current user or for all users on this system."
 
-    Caption
-    "Caption"
+InstallForAll,CurrentUserText
+"Install only for <%Username%>"
 
-    Message
-    "Message"
+InstallForAll,Message
+""
 
-    NextButton
-    "<%Next%> >"
+InstallForAll,Subtitle
+"Choose who you want to install this application for."
 
-    BackButton
-    "< <%Back%>"
+InstallForAll,Title
+"Install For User"
 
-    CancelButton
-    "<%Cancel%>"
-}
+InstallPassword,Caption
+"Please enter a password."
 
-CustomTextPane1 {
-    Title
-    "Title"
+InstallPassword,Message
+""
 
-    Subtitle
-    "Subtitle"
+InstallPassword,Subtitle
+"This installation requires a password to continue."
 
-    Caption
-    "Caption"
+InstallPassword,Title
+"Install Password"
 
-    Message
-    "Message"
+License,AcceptRadiobutton
+"I accept the terms of the license agreement."
 
-    Text
-    "Put your custom text here."
+License,DeclineRadiobutton
+"I do not accept the terms of the license agreement."
 
-    NextButton
-    "<%Next%> >"
+License,Subtitle
+"Please read the following license agreement carefully."
 
-    BackButton
-    "< <%Back%>"
+License,Text
+"Put your license agreement here."
 
-    CancelButton
-    "<%Cancel%>"
-}
+License,Title
+"License Agreement"
 
-License {
-    Title
-    "License Agreement"
+Readme,Caption
+""
 
-    Subtitle
-    "Please read the following license agreement carefully."
+Readme,Message
+""
 
-    Text
-    "Put your license agreement here."
+Readme,Subtitle
+"Readme Information for <%AppName%>"
 
-    AcceptRadiobutton
-    "I accept the terms of the license agreement."
+Readme,Text
+"Put your readme information here."
 
-    DeclineRadiobutton
-    "I do not accept the terms of the license agreement."
+Readme,Title
+"Readme Information"
 
-    NextButton
-    "<%Yes%>"
+SelectDestination,BrowseButton
+"<%Browse%>"
 
-    BackButton
-    "< <%Back%>"
+SelectDestination,BrowseText
+"To continue, click Next.  If you would like to select a different folder, click Browse."
 
-    CancelButton
-    "<%No%>"
-}
+SelectDestination,Caption
+"Setup will install <%AppName%> in the following folder.
 
-Readme {
-    Title
-    "Readme Information"
+To install to this folder, click Next.  To install to a different folder, click Browse and select another folder."
 
-    Subtitle
-    "Readme Information for <%AppName%>"
+SelectDestination,DestinationLabel
+"Destination Folder"
 
-    Caption
-    ""
+SelectDestination,Message
+""
 
-    Message
-    ""
+SelectDestination,Subtitle
+"Where should <%AppName%> be installed?"
 
-    Text
-    "Put your readme information here."
+SelectDestination,Title
+"Choose Destination Location"
 
-    NextButton
-    "<%Next%> >"
+SelectProgramFolder,AllUsersCheckbutton
+"Create program folder for all users"
 
-    BackButton
-    "< <%Back%>"
+SelectProgramFolder,Caption
+"Setup will add the program icons to the Program Folder listed below.  You may type a new folder name or select from the existing folders list.  Click Next to continue."
 
-    CancelButton
-    "<%Cancel%>"
-}
+SelectProgramFolder,FolderListLabel
+"Exising Folders:"
 
-SelectDestination {
-    Title
-    "Choose Destination Location"
+SelectProgramFolder,Message
+""
 
-    Subtitle
-    "Where should <%AppName%> be installed?"
+SelectProgramFolder,ProgramFolderLabel
+"Program Folder:"
 
-    Caption
-    "Setup will install <%AppName%> in the following folder.\n\nTo install\
-     to this folder, click Next.  To install to a different folder, click\
-     Browse and select another folder."
+SelectProgramFolder,Subtitle
+"Please select a program folder."
 
-    Message
-    ""
+SelectProgramFolder,Title
+"Select Program Folder"
 
-    BrowseText
-    "To continue, click Next.  If you would like to select a different\
-     folder, click Browse."
+SetupComplete,Caption
+"InstallJammer Wizard Complete"
 
-    NextButton
-    "<%Next%> >"
+SetupComplete,Message
+"The InstallJammer Wizard has successfully installed <%AppName%>.  Click Finish to exit the wizard."
 
-    BackButton
-    "< <%Back%>"
+SetupComplete,NextButton
+"<%Finish%>"
 
-    CancelButton
-    "<%Cancel%>"
+SetupType,Caption
+"Click the type of Setup you prefer."
 
-    BrowseButton
-    "<%Browse%>"
+SetupType,DescriptionLabel
+"Description"
 
-    DestinationLabel
-    "Destination Folder"
-}
+SetupType,Message
+""
 
-SelectProgramFolder {
-    Title
-    "Select Program Folder"
+SetupType,Subtitle
+"Select the setup type that best suits your needs."
 
-    Subtitle
-    "Please select a program folder."
+SetupType,Title
+"Setup Type"
 
-    Caption
-    "Setup will add the program icons to the Program Folder listed below. \
-     You may type a new folder name or select from the existing folders list. \
-     Click Next to continue."
+StartCopyingFiles,Caption
+"Setup has enough information to start copying the program files.  If you want to review or change any settings, click Back.  If you are satisfied with the settings, click Next to begin copying files."
 
-    Message
-    ""
+StartCopyingFiles,Message
+""
 
-    ProgramFolderLabel
-    "Program Folder:"
+StartCopyingFiles,Subtitle
+"Review settings before copying files"
 
-    FolderListLabel
-    "Exising Folders:"
+StartCopyingFiles,Text
+"Install Directory:
+        <%InstallDir%>
 
-    NextButton
-    "<%Next%> >"
+ Setup Type:
+        <%InstallType%>"
 
-    BackButton
-    "< <%Back%>"
+StartCopyingFiles,Title
+"Start Copying Files"
 
-    CancelButton
-    "<%Cancel%>"
+Uninstall,Caption
+"<%GroupBeingUninstalledText%>"
 
-    AllUsersCheckbutton
-    "Create program folder for all users"
-}
+Uninstall,FileValue
+"<%Status%>"
 
-SetupComplete {
-    Caption
-    "InstallJammer Wizard Complete"
+Uninstall,Message
+""
 
-    Message
-    "The InstallJammer Wizard has successfully installed <%AppName%>. \
-     Click Finish to exit the wizard."
+Uninstall,ProgressValue
+"<%UninstallPercentComplete%>"
 
-    NextButton
-    "<%Finish%>"
+Uninstall,Subtitle
+"Uninstalling <%AppName%>"
 
-    BackButton
-    "< <%Back%>"
+Uninstall,Title
+"Uninstalling"
 
-    CancelButton
-    "<%Cancel%>"
-}
+UninstallComplete,Caption
+"Uninstall Complete"
 
-SetupType {
-    Title
-    "Setup Type"
+UninstallComplete,Message
+"<%AppName%> has been removed from your system."
 
-    Subtitle
-    "Select the setup type that best suits your needs."
+UninstallDetails,Caption
+"The following errors occurred during removal:"
 
-    Caption
-    "Click the type of Setup you prefer."
+UninstallDetails,Message
+""
 
-    Message
-    ""
+UninstallDetails,Subtitle
+"Errors occurred during removal"
 
-    DescriptionLabel
-    "Description"
+UninstallDetails,Text
+"<%Errors%>"
 
-    NextButton
-    "<%Next%> >"
+UninstallDetails,Title
+"Uninstall Details"
 
-    BackButton
-    "< <%Back%>"
+UserInformation,Caption
+"Please enter your name and the name of the company for which you work."
 
-    CancelButton
-    "<%Cancel%>"
-}
+UserInformation,CompanyLabel
+"Company:"
 
-StartCopyingFiles {
-    Title
-    "Start Copying Files"
+UserInformation,Message
+""
 
-    Subtitle
-    "Review settings before copying files"
+UserInformation,Subtitle
+"Please enter your information."
 
-    Caption
-    "Setup has enough information to start copying the program files.  If\
-     you want to review or change any settings, click Back.  If you are\
-     satisfied with the settings, click Next to begin copying files."
+UserInformation,Title
+"Customer Information"
 
-    Message
-    ""
+UserInformation,UserNameLabel
+"User Name:"
 
-    Text
-    "Install Directory:
-            <%InstallDir%>
+Welcome,Caption
+"Welcome to the InstallJammer Wizard for <%AppName%>"
 
-    Setup Type:
-            <%InstallType%>"
+Welcome,Message
+"This will install <%AppName%> version <%Version%> on your computer.  
 
-    NextButton
-    "<%Next%> >"
+It is recommended that you close all other applications before continuing.
 
-    BackButton
-    "< <%Back%>"
-
-    CancelButton
-    "<%Cancel%>"
-}
-
-Uninstall {
-    Title
-    "Uninstalling"
-
-    Subtitle
-    "Uninstalling <%AppName%>"
-
-    Caption
-    "<%GroupBeingUninstalledText%>"
-
-    Message
-    ""
-
-    FileValue
-    "<%Status%>"
-
-    ProgressValue
-    "<%UninstallPercentComplete%>"
-
-    NextButton
-    "<%Next%> >"
-
-    BackButton
-    "< <%Back%>"
-
-    CancelButton
-    "<%Cancel%>"
-}
-
-UninstallComplete {
-    Caption
-    "Uninstall Complete"
-
-    Message
-    "<%AppName%> has been removed from your system."
-
-    NextButton
-    "<%Finish%>"
-
-    BackButton
-    "< <%Back%>"
-
-    CancelButton
-    "<%Cancel%>"
-}
-
-UninstallDetails {
-    Title
-    "Uninstall Details"
-
-    Subtitle
-    "Errors occurred during removal"
-
-    Caption
-    "The following errors occurred during removal:"
-
-    Message
-    ""
-
-    Text
-    "<%Errors%>"
-
-    NextButton
-    "<%Next%> >"
-
-    BackButton
-    "< <%Back%>"
-
-    CancelButton
-    "<%Cancel%>"
-}
-
-
-UserInformation {
-    Title
-    "Customer Information"
-
-    Subtitle
-    "Please enter your information."
-
-    Caption
-    "Please enter your name and the name of the company for which you work."
-
-    Message
-    ""
-
-    UserNameLabel
-    "User Name:"
-
-    CompanyLabel
-    "Company:"
-
-    NextButton
-    "<%Next%> >"
-
-    BackButton
-    "< <%Back%>"
-
-    CancelButton
-    "<%Cancel%>"
-}
-
-
-Welcome {
-    Caption
-    "Welcome to the InstallJammer Wizard for <%AppName%>"
-
-    Message
-    "This will install <%AppName%> version <%Version%> on your computer. \
-    \n\nIt is recommended that you close all other applications before\
-    continuing.\n\nClick Next to continue or Cancel to exit Setup."
-
-    NextButton
-    "<%Next%> >"
-
-    BackButton
-    "< <%Back%>"
-
-    CancelButton
-    "<%Cancel%>"
-}
-
-InstallPassword {
-    Title
-    "Install Password"
-
-    Subtitle
-    "This installation requires a password to continue."
-
-    Caption
-    "Please enter a password."
-
-    Message
-    ""
-
-    NextButton
-    "<%Next%> >"
-
-    BackButton
-    "< <%Back%>"
-
-    CancelButton
-    "<%Cancel%>"
-}
+Click Next to continue or Cancel to exit Setup."

@@ -22,17 +22,18 @@
 ## END LICENSE BLOCK
 
 proc ::ThemeInit {} {
-    variable info
+    global conf
+    global info
 
     ## Create the main wizard.
-    Wizard $info(Wizard) \
+    Wizard $info(Wizard) -transient 0 \
         -raisecommand [list RaiseStep %W %S] \
         -width [::InstallJammer::SubstText "<%WizardWidth%>"] \
         -height [::InstallJammer::SubstText "<%WizardHeight%>"] \
         -title [::InstallJammer::SubstText "<%InstallTitleText%>"] \
         -separatortext [::InstallJammer::SubstText "<%SeparatorText%>"]
 
-    if {$::tcl_platform(platform) eq "unix"} {
+    if {$conf(unix) && !$conf(osx)} {
         $info(Wizard) configure -bg [style configure . -background]
     }
 }

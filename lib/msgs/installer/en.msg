@@ -4,6 +4,9 @@ ApplicationReadmeText
 Back
 "Back"
 
+BackButtonText
+"< <%Back%>"
+
 Browse
 "Browse..."
 
@@ -16,11 +19,17 @@ BuildUninstallText
 Cancel
 "Cancel"
 
+CancelButtonText
+"<%Cancel%>"
+
 CleanupInstallText
 "Cleaning up install..."
 
 Close
 "Close"
+
+ConsolePause,Message
+"<%ConsolePauseText%>"
 
 ConsolePauseQuitText
 "-- Press space to continue or 'q' to quit --"
@@ -42,7 +51,7 @@ CustomInstallDescription
 
 DirectoryNameErrorText
 "A directory name cannot contain any of the following characters:
-        \\ / : * ? \" < > |"
+        \ / : * ? \" < > |"
 
 DirectoryPermissionText
 "You do not have permission to write to <%Dir%>."
@@ -89,11 +98,11 @@ InstallationCompleteText
 InstallCompleteText
 "File installation complete..."
 
-InstallingApplicationText
-"Installing <%AppName%>..."
-
 InstallErrorText
 "An error has occurred during installation."
+
+InstallingApplicationText
+"Installing <%AppName%>..."
 
 InstallPrepareText
 "Preparing to install..."
@@ -107,8 +116,17 @@ InstallTitleText
 LaunchApplicationText
 "Launch <%AppName%>"
 
+LocateJavaRuntime,PromptMessage
+"Please tell us where your Java Runtime is located"
+
+LocateJavaRuntime,StatusMessage
+"Locating Java Runtime..."
+
 Next
 "Next"
+
+NextButtonText
+"<%Next%> >"
 
 No
 "No"
@@ -140,11 +158,29 @@ RequireAdministratorText
 RequireRootText
 "You must be root to run this installer."
 
+RestartAsRoot,FailureMessage
+"<%RequireRootText%>"
+
+RestartAsRoot,PromptMessage
+"<%PromptForRootText%>"
+
 SelectLanguageText
 "Please select the installation language"
 
 SeparatorText
 "InstallJammer"
+
+TextWindow,Caption
+"Caption"
+
+TextWindow,CloseButton
+"<%Close%>"
+
+TextWindow,Message
+"Message goes here."
+
+TextWindow,Title
+"Window Title"
 
 TypicalInstallDescription
 "A typical installation."
@@ -152,31 +188,35 @@ TypicalInstallDescription
 UninstallApplicationText
 "Uninstall <%AppName%>"
 
-UninstallPrepareText
-"Preparing to uninstall..."
-
-UpdateRegistryText
-"Updating Windows Registry..."
+UninstallCompleteText
+"Uninstall complete."
 
 UninstallingApplicationText
 "Uninstalling <%AppName%>..."
 
-UninstallCompleteText
-"Uninstall complete."
+UninstallLeftoverText
+"Some components could not be removed.  Do you wish to delete them anyway (not recommended)?"
+
+UninstallPrepareText
+"Preparing to uninstall..."
 
 UninstallStartupText
-"This will completely remove <%AppName%> from your system.  Are you sure\
- you want to do this?"
-
-UninstallLeftoverText
-"Some components could not be removed.  Do you wish to delete them anyway\
- (not recommended)?"
+"This will completely remove <%AppName%> from your system.  Are you sure you want to do this?"
 
 UninstallTitleText
 "Uninstall <%AppName%>"
 
 UnpackingFilesText
 "Unpacking files..."
+
+UnpackingFileText
+"Unpacking <%CurrentFile%>..."
+
+UnzipFile,StatusText
+"<%FileBeingInstalledText%>"
+
+UpdateRegistryText
+"Updating Windows Registry..."
 
 VersionHelpText
 "This program will install <%AppName%> version <%Version%>."
@@ -186,35 +226,3 @@ ViewReadmeText
 
 Yes
 "Yes"
-
-ConsolePause {
-    Message
-    "<%ConsolePauseText%>"
-}
-
-LocateJavaRuntime {
-    PromptMessage
-    "Please tell us where your Java Runtime is located"
-
-    StatusMessage
-    "Locating Java Runtime..."
-}
-
-TextWindow {
-    Title
-    "Window Title"
-
-    Caption
-    "Caption"
-
-    Message
-    "Message goes here."
-
-    CloseButton
-    "<%Close%>"
-}
-
-UnzipFile {
-    StatusText
-    "<%FileBeingInstalledText%>"
-}

@@ -23,6 +23,19 @@
 
 namespace eval ::InstallAPI {}
 
+proc ::InstallAPI::AddExitScript { args } {
+    global conf
+
+    ::InstallAPI::ParseArgs _args $args {
+        -script  { string 1 }
+    }
+
+    set script [string trim $_args(-script)]
+    if {[lsearch -exact $conf(ExitScripts) $script] < 0} {
+        lappend conf(ExitScripts) $script
+    }
+}
+
 proc ::InstallAPI::AddInstallInfo { args } {
     ::InstallAPI::ParseArgs _args $args {
         -key   { string 1 }
@@ -72,16 +85,17 @@ proc ::InstallAPI::ComponentAPI { args } {
     }
 
     global conf
+    variable ::InstallJammer::Components
 
     set components $_args(-components)
-    if {$components eq "all"} { set components [Components children recursive] }
+    if {![llength $components]} { return }
+
+    set allComponents [Components children recursive]
+    if {$components eq "all"} { set components $allComponents }
 
     foreach component $components {
         set component [string trim $component]
-        set id [::InstallAPI::FindObjects -alias $component]
-        if {$id eq ""} {
-            set id [::InstallAPI::FindObjects -type component -name $component]
-        }
+        set id [::InstallAPI::FindComponent -component $component]
         if {$id eq ""} {
             return -code error "invalid component \"$component\""
         }
@@ -95,36 +109,85 @@ proc ::InstallAPI::ComponentAPI { args } {
                 debug "Deactivating component $component"
             }
             $id active $_args(-active)
+
+            set include [$id get IncludeComponents]
+            if {$include ne ""} {
+                foreach comp [split $include \;] {
+                    ## A ! applied to the component means that it should
+                    ## be tightly-coupled with the primary component and
+                    ## should be deactivated as the primary is deactivated.
+                    ## Any other component will be activated when the primary
+                    ## is activated, but its state will not change if the
+                    ## primary is deactivated.
+                    set comp [string trim $comp]
+                    set hard [expr {[string index $comp 0] eq "+"}]
+                    set realhard [expr {[string index $comp 0] eq "!"}]
+                    if {$hard || $realhard} {
+                        set comp [string range $comp 1 end]
+                    }
+                    set comp [::InstallAPI::FindComponent -component $comp]
+                    if {$comp eq ""} { continue }
+                    if {$_args(-active)} {
+                        debug "Activating included component $comp"
+                        lappend componentIds $comp
+                        $comp active $_args(-active)
+                        if {$realhard && [info exists conf(ComponentTree)]} {
+                            set tree $conf(ComponentTree)
+                            if {[$tree exists $comp]} {
+                                $tree itemconfigure $comp -state disabled
+                            }
+                        }
+                    } elseif {$hard || $realhard} {
+                        debug "Deactivating included component $comp"
+                        lappend componentIds $comp
+                        $comp active $_args(-active)
+                        if {$realhard && [info exists conf(ComponentTree)]} {
+                            set tree $conf(ComponentTree)
+                            if {[$tree exists $comp]} {
+                                $tree itemconfigure $comp -state normal
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
-    variable ::InstallJammer::Components
+    foreach component $componentIds {
+        set group [$component get ComponentGroup]
 
-    foreach tree $conf(ComponentTrees) {
-        if {![winfo exists $tree]} { continue }
+        set var $component
+        if {$group ne ""} { set var $group }
 
-        foreach component $componentIds {
-            set group [$component get ComponentGroup]
+        if {![info exists Components($var)] || $Components($var) eq ""} {
+            set checked [$component get Checked]
+            if {[$component get RequiredComponent]} { set checked 1 }
 
-            set var $tree,$component
-            if {$group ne ""} { set var $tree,$group }
+            if {$group eq ""} {
+                set Components($var) [string is true $checked]
+            } elseif {$checked} {
+                set Components($var) $component
+            }
+        } else {
+            if {$group eq ""} {
+                set Components($var) [string is true [$component active]]
+            } elseif {[$component active]} {
+                set Components($var) $component
+            }
+        }
 
-            if {![info exists Components($var)] || $Components($var) eq ""} {
-                set checked [$component get Checked]
-                if {[$component get RequiredComponent]} { set checked 1 }
-
-                if {$group eq ""} {
-                    set Components($var) [string is true $checked]
-                } elseif {$checked} {
-                    set Components($var) $component
-                }
-            } else {
-                if {$group eq ""} {
-                    set Components($var) [string is true [$component active]]
-                } elseif {[$component active]} {
-                    set Components($var) $component
+        if {[$component active] && $group ne ""} {
+            ## If this component is active and part of a group, we need
+            ## to walk all of the other components and disable any that
+            ## share the same group.
+            set grouped {}
+            foreach obj $allComponents {
+                if {$obj eq $component} { continue }
+                if {$group eq [$obj get ComponentGroup]} {
+                    lappend grouped $obj
                 }
             }
+            ::InstallAPI::ComponentAPI -components $grouped -active 0 
         }
     }
 
@@ -268,6 +331,14 @@ proc ::InstallAPI::ErrorMessage { args } {
         -title $_args(-title) -message $_args(-message)
 }
 
+proc ::InstallAPI::EnvironmentVariableExists { args } {
+    ::InstallAPI::ParseArgs _args $args {
+        -variable { string 1 }
+    }
+
+    return [info exists ::env($_args(-variable))]
+}
+
 proc ::InstallAPI::ExecuteAction { args } {
     ::InstallAPI::ParseArgs _args $args {
         -action          { string  1 }
@@ -277,6 +348,24 @@ proc ::InstallAPI::ExecuteAction { args } {
 
     ::InstallJammer::ExecuteActions $_args(-action) \
         -parent $_args(-parent) -conditions $_args(-checkconditions)
+}
+
+proc ::InstallAPI::Exit { args } {
+    global info
+
+    ::InstallAPI::ParseArgs _args $args {
+        -exittype { choice 0 "finish" {cancel finish} }
+    }
+
+    if {$_args(-exittype) eq "cancel"} {
+        set info(WizardCancelled) 1
+    }
+
+    foreach command {::Exit ::InstallJammer::exit ::exit} {
+        if {[::InstallJammer::CommandExists $command]} {
+            $command
+        }
+    }
 }
 
 proc ::InstallAPI::FetchURL { args } {
@@ -418,6 +507,107 @@ proc ::InstallAPI::FetchURL { args } {
     return 1
 }
 
+proc ::InstallAPI::FindApplication { args } {
+    ::InstallAPI::ParseArgs _args $args {
+        -all            { boolean 0 0 }
+        -prompt         { boolean 0 0 }
+        -separator      { string  0 }
+        -searchpath     { string  1 }
+        -expression     { string  0 }
+        -promptmessage  { string  0 ""}
+    }
+
+    global info 
+
+    if {[info exists _args(-versionvar)]} {
+        upvar 1 $_args(-versionvar) versions
+        set versions {}
+    }
+
+    set dirs {}
+    foreach path [split [::InstallJammer::SubstText $_args(-searchpath)] \;] {
+        set path [string trim $path]
+        if {$path eq ""} { continue }
+
+        if {[string match "HKEY_*" $path]} {
+            set list [split $path \\]
+            set key  [join [lrange $list 0 end-1] \\]
+            set val  [lindex $list end]
+
+            set keys [list $key]
+            if {[string first "*" $key] > -1 || [string first "|" $key] > -1} {
+                set keys [::InstallAPI::GetWindowsRegistryKeys -key $key]
+            }
+
+            foreach key $keys {
+                if {[catch { registry get $key $val } dir]} { continue }
+                if {[file exists $dir]} { lappend dirs $dir }
+            }
+        } elseif {[string match "ENV *" $path]} {
+            set var [lindex $path 1]
+            set sep [lindex $path 2]
+            if {$sep eq ""} { set sep $info(PathSeparator) }
+            if {$sep eq "colon"} { set sep : }
+            if {$sep eq "semicolon"} { set sep \; }
+            if {[info exists ::env($var)]} {
+                eval lappend dirs [split $::env($var) $sep]
+            }
+        } elseif {[file exists $path]} {
+            lappend dirs $path
+        } else {
+            foreach dir [glob -nocomplain -type d $path] {
+                lappend dirs $dir
+            }
+        }
+    }
+
+    set args {}
+    if {[info exists _args(-separator)]} {
+        lappend args -separator $_args(-separator)
+    }
+    if {[info exists _args(-expression)]} {
+        lappend args -expression $_args(-expression)
+    }
+    
+    set return {}
+    foreach dir $dirs {
+        set path [file normalize $dir]
+        if {[info exists done($path)]} { continue }
+        set done($path) 1
+
+        set vargs [concat [list -path $path] $args]
+        if {[eval ::InstallAPI::ValidateApplication $vargs]} {
+            lappend return $dir
+            if {!$_args(-all)} { return $return }
+        }
+    }
+
+    if {[llength $return]} { return $return }
+
+    if {$_args(-prompt)} {
+        set msg $_args(-promptmessage)
+        set dir [::InstallAPI::PromptForDirectory -message $msg]
+
+        set vargs [concat [list -path $dir] $args]
+        if {[eval ::InstallAPI::ValidateApplication $vargs]} {
+            return [list $dir]
+        }
+    }
+}
+
+proc ::InstallAPI::FindComponent { args } {
+    ::InstallAPI::ParseArgs _args $args {
+        -component { string 1 }
+    }
+
+    set comp [string trim $_args(-component)]
+    set obj [::InstallAPI::FindObjects -alias $comp]
+    if {$obj eq ""} {
+        set obj [::InstallAPI::FindObjects -type component -name $comp]
+    }
+    return $obj
+}
+
 proc ::InstallAPI::FindObjects { args } {
     ::InstallAPI::ParseArgs _args $args {
         -active    { boolean 0 }
@@ -447,22 +637,20 @@ proc ::InstallAPI::FindObjects { args } {
 
     if {!$chktype} {
         set type "all"
-        set objects [::itcl::find objects]
+        set objects [::obj::object instances]
     } else {
         set type [string tolower $type]
         incr check -1
         set chktype 0
         switch -- $type {
-            "file" { set class ::File }
-            "filegroup" { set class ::FileGroup }
-            "component" { set class ::Component }
-            "setuptype" { set class ::SetupType }
-            "condition" { set class ::Condition }
-            "action" - "actiongroup" - "pane" {
-                incr check
-                set chktype 1
-                set class ::InstallComponent
-            }
+            "file" { set class File }
+            "pane" { set class Pane }
+            "action" { set class Action }
+            "filegroup" { set class FileGroup }
+            "component" { set class Component }
+            "setuptype" { set class SetupType }
+            "condition" { set class Condition }
+            "actiongroup" { set class ActionGroup }
 
             default {
                 return -code error [BWidget::badOptionString type $_args(-type)\
@@ -470,9 +658,8 @@ proc ::InstallAPI::FindObjects { args } {
                         setuptype condition}]
             }
         }
-        set objects [::itcl::find objects -class $class]
+        set objects [::obj::object instances $class]
         if {$type eq "file"} {
-            set objects [::itcl::find objects -class $class]
             if {$chkcomponent} {
                 ## Files don't have a component.
                 incr check -1
@@ -481,11 +668,12 @@ proc ::InstallAPI::FindObjects { args } {
         } else {
             ## All other types besides files have a root
             ## parent object that we don't want to show up.
-            set objects {}
-            foreach obj [::itcl::find objects -class $class] {
+            set list {}
+            foreach obj $objects {
                 if {[$obj parent] eq ""} { continue }
-                lappend objects $obj
+                lappend list $obj
             }
+            set objects $list
         }
     }
 
@@ -827,17 +1015,83 @@ proc ::InstallAPI::GetWindowsRegistryKeys { args } {
         -key { string 1 }
     }
 
-    if {![catch { registry keys $_args(-key) } keys]} {
+    set key $_args(-key)
+
+    if {[string first "*" $key] < 0 && [string first "|" $key] < 0} {
+        if {[catch { registry keys $_args(-key) } keys]} { return }
         return $keys
     }
-}
 
-proc ::InstallAPI::EnvironmentVariableExists { args } {
-    ::InstallAPI::ParseArgs _args $args {
-        -variable { string 1 }
+    set len    [llength [split $key \\]]
+    set keys   [list $key]
+    set return {}
+    for {set i 0} {$i < [llength $keys]} {incr i} {
+        set key  [lindex $keys $i]
+        set list [split $key \\]
+
+        if {[string first "*" $key] < 0 && [string first "|" $key] < 0} {
+            if {[llength $list] == $len} { lappend return $key }
+            continue
+        }
+
+        set key [lindex $list 0]
+        for {set j 1} {$j < [llength $list]} {incr j} {
+            set elem [lindex $list $j]
+
+            if {[string first "|" $elem] > -1} {
+                set list [concat {{}} [lrange $list [incr j] end]]
+                foreach found [split $elem |] {
+                    lappend keys $key\\$found[join $list \\]
+                }
+                break
+            }
+
+            if {[string first "*" $elem] > -1} {
+                if {![catch {registry keys $key} foundkeys]} {
+                    set list [concat {{}} [lrange $list [incr j] end]]
+                    foreach found $foundkeys {
+                        if {$elem eq "*" || [string match $elem $found]} {
+                            lappend keys $key\\$found[join $list \\]
+                        }
+                    }
+                }
+                break
+            }
+            
+            append key "\\$elem"
+        }
     }
 
-    return [info exists ::env($_args(-variable))]
+    return $return
+}
+
+proc ::InstallAPI::KillProcess { args } {
+    global conf
+    global info
+
+    ::InstallAPI::ParseArgs _args $args {
+        -pid    { string  0 }
+        -glob   { boolean 0 0}
+        -name   { string  0 }
+        -user   { string  0 }
+        -group  { string  0 }
+        -signal { string  0 "TERM"}
+    }
+
+    set signal [string toupper [string trimleft $_args(-signal) -]]
+    unset _args(-signal)
+
+    foreach pid [eval ::InstallAPI::FindProcesses $args] {
+        if {$conf(windows)} {
+            if {$signal eq "FORCE" || $signal eq "KILL" || $signal eq "9"} {
+                twapi::end_process $pid -force
+            } else {
+                twapi::end_process $pid
+            }
+        } else {
+            exec kill -$signal $pid
+        }
+    }
 }
 
 proc ::InstallAPI::Exit { args } {
@@ -862,6 +1116,47 @@ proc ::InstallAPI::Exit { args } {
             $command
         }
     }
+}
+
+proc ::InstallAPI::InstallInstallTool { args } {
+    ::InstallAPI::ParseArgs _args $args {
+        -file  { string  1 }
+    }
+
+    global conf
+    global info
+
+    set binary $_args(-file)
+
+    set info(FileBeingInstalled) $binary
+    set info(Status) "<%BuildFileText%>"
+
+    set opts   [list -noinstall -o $binary -w [::InstallJammer::BaseInstallkit]]
+    set script [::InstallJammer::TmpFile]
+
+    set fp [open $script w]
+    puts $fp "set info(ApplicationID) [list $info(ApplicationID)]"
+    puts $fp "set info(Version) [list $info(InstallVersion)]"
+    foreach file {common.tcl installtool.tcl} {
+        puts $fp $::InstallJammer::files($file)
+    }
+    close $fp
+
+    if {$conf(windows)} {
+        lappend opts -company "InstallJammer.com"
+        lappend opts -fileversion 1.0
+        lappend opts -filedescription "InstallJammer Install Tool"
+    }
+    lappend opts $script
+
+    ::InstallJammer::CreateDir [file dirname $binary]
+    eval ::InstallJammer::Wrap $opts
+
+    if {[file exists $binary]} {
+        ::InstallJammer::SetPermissions $binary 00755
+        return 1
+    }
+    return 0
 }
 
 proc ::InstallAPI::LanguageAPI { args } {
@@ -982,6 +1277,149 @@ proc ::InstallAPI::LoadMessageCatalog { args } {
     return [lsort -unique $langs]
 }
 
+proc ::InstallAPI::LocateJavaRuntime { args } {
+    global conf
+    global info
+
+    ::InstallAPI::ParseArgs _args $args {
+        -all           { boolean 0 0 }
+        -prefix        { string  0 "Java" }
+        -searchpath    { string  0 "Default Search Path" }
+        -minversion    { string  0 "" }
+        -maxversion    { string  0 "" }
+        -requirejdk    { boolean 0 0 }
+        -expression    { string  0 "" }
+        -validversions { string  0 "" }
+        -promptmessage { string  0 "<%LocateJavaRuntime,PromptMessage%>"}
+        -statusmessage { string  0 "<%LocateJavaRuntime,StatusMessage%>"}
+    }
+
+    set info(Status) [::InstallJammer::SubstText $_args(-statusmessage)]
+
+    set prefix $_args(-prefix)
+    set info(${prefix}Found)        0
+    set info(${prefix}Home)         ""
+    set info(${prefix}Version)      ""
+    set info(${prefix}VersionMajor) ""
+    set info(${prefix}Executable)   ""
+    set info(${prefix}wExecutable)  ""
+    set info(${prefix}cExecutable)  ""
+
+    set args {}
+    if {$_args(-all)} { lappend args -all 1 }
+
+    set expression {}
+    lappend expression "collect _ver in variable versions"
+    lappend expression "collect _path in variable foundPaths"
+
+    if {$_args(-requirejdk)} {
+        set file "bin/javac"
+        if {$conf(windows)} { append file ".exe" }
+        lappend expression "exists $file"
+    }
+
+    set file "bin/java"
+    if {$conf(windows)} { append file ".exe" }
+    lappend expression "execute $file -version"
+    lappend expression {regexp {java version "([^"]+)} _match _ver}
+
+    if {$_args(-minversion) ne ""} {
+        lappend expression "version \$_ver >= $_args(-minversion)"
+    }
+
+    if {$_args(-maxversion) ne ""} {
+        lappend expression "version \$_ver <= $_args(-maxversion)"
+    }
+
+    if {$_args(-validversions) ne ""} {
+        lappend expression "test \$_ver in $_args(-validversions)"
+    }
+
+    if {$_args(-expression) ne ""} { append expression "\n$_args(-expression)" }
+
+    set paths {}
+    foreach path [split $_args(-searchpath) \;] {
+        set path [string trim $path]
+
+        if {$path eq "Default Search Path"} {
+            foreach var {JAVA_HOME JAVAHOME JDK_HOME JRE_HOME JAVA_ROOT} {
+                lappend paths "ENV $var"
+            }
+
+            set which [auto_execok java]
+            if {$which ne ""} {
+                ## Strip the bin/java off.
+                lappend paths [file dirname [file dirname $which]]
+            }
+
+            if {$conf(windows)} {
+                set    key {HKEY_LOCAL_MACHINE\Software\JavaSoft}
+                append key {\Java Development Kit|Java Runtime Environment\*}
+                lappend paths $key
+
+                set prog [::InstallJammer::WindowsDir PROGRAM_FILES]
+                lappend paths [file join $prog Java jdk*]
+                lappend paths [file join $prog Java jre*]
+            } else {
+                lappend paths \
+                    /usr/java/jdk \
+                    /usr/lib/java \
+                    /usr/lib/jvm \
+                    /usr/lib/jvm/jre \
+                    /usr/lib/java-1.4.0 \
+                    /usr/lib/java-1.4.1 \
+                    /usr/lib/java-1.4.2 \
+                    /usr/lib/java-1.5.0
+            }
+        } elseif {$path eq "Prompt User"} {
+            lappend args -prompt 1
+            lappend args -promptmessage \
+                [::InstallJammer::SubstText $_args(-promptmessage)]
+        } else {
+            lappend paths $path
+        }
+    }
+
+    lappend args -expression $expression
+    lappend args -searchpath [join $paths \;]
+
+    set dirs [eval ::InstallAPI::FindApplication $args]
+
+    if {[llength $dirs]} {
+        set info(${prefix}AvailableVersions) [lsort -dict -unique $versions]
+
+        set dir  [lindex $dirs 0]
+        set ver  [lindex $versions 0]
+        set java [file join $dir bin java]
+        if {$conf(windows)} { append java ".exe" }
+
+        set info(${prefix}Found)        1
+        set info(${prefix}Home)         $dir
+        set info(${prefix}Version)      $ver
+        set info(${prefix}VersionMajor) [join [lrange [split $ver .] 0 1] .]
+        set info(${prefix}Executable)   $java
+        set info(${prefix}wExecutable)  $java
+
+        set javaw [file join [file dirname $java] javaw]
+        if {$conf(windows)} { append javaw .exe }
+
+        if {[file exists $javaw]} {
+            set info(${prefix}wExecutable) $javaw
+        }
+
+        set javac [file join [file dirname $java] javac]
+        if {$conf(windows)} { append javac .exe }
+
+        if {[file exists $javac]} {
+            set info(${prefix}cExecutable) $javac
+        }
+
+        return 1
+    }
+
+    return 0
+}
+
 proc ::InstallAPI::ModifyWidget { args } {
     global conf
     global info
@@ -1024,7 +1462,7 @@ proc ::InstallAPI::ModifyWidget { args } {
 }
 
 proc ::InstallAPI::ParseArgs { _arrayName _arglist optionspec } {
-    if {[verbose]} { debug "API Call: [info level -1]" }
+    if {[debugging ison] >= 2} { debug "API Call: [info level -1]" }
 
     upvar 1 $_arrayName array
 
@@ -1274,6 +1712,53 @@ proc ::InstallAPI::PromptForFile { args } {
     }
 }
 
+proc ::InstallAPI::RestartAsRoot { args } {
+    global conf
+    global info
+
+    ::InstallAPI::ParseArgs _args $args {
+        -promptmessage  { string 0 "<%PromptForRootText%>" }
+        -failuremessage { string 0 "<%RequireRootText%>" }
+    }
+
+    if {$conf(windows) || $info(UserIsRoot)} { return }
+
+    set cmd [concat [list [info nameofexecutable]] $::argv]
+    set msg [::InstallAPI::SubstVirtualText -virtualtext $_args(-promptmessage)]
+    
+    if {![::InstallJammer::ExecAsRoot $cmd -message $msg]} {
+        ::InstallJammer::Message -title "Root Required" -message \
+            [::InstallJammer::SubstText $_args(-failuremessage)]
+        ::exit 1
+    }
+
+    ::exit 0
+}
+
+proc ::InstallAPI::RestartProcess { args } {
+    global conf
+
+    ::InstallAPI::ParseArgs _args $args {
+        -pid    { string  0 }
+        -glob   { boolean 0 0}
+        -name   { string  0 }
+        -user   { string  0 }
+        -group  { string  0 }
+    }
+
+    set pids [eval ::InstallAPI::FindProcesses $args]
+
+    foreach pid $pids {
+        if {$conf(windows)} {
+            set cmd [twapi::get_process_commandline $pid]
+            twapi::end_process $pid -force
+            after 1000 [list twapi::create_process "" -cmdline $cmd]
+        } else {
+            exec kill -HUP $pid
+        }
+    }
+}
+
 proc ::InstallAPI::ReadInstallInfo { args } {
     global info
 
@@ -1397,6 +1882,53 @@ proc ::InstallAPI::RollbackInstall { args } {
     ::InstallJammer::CleanupCancelledInstall
 }
 
+proc ::InstallAPI::SendWindowsNotification { args } {
+    global conf
+
+    ::InstallAPI::ParseArgs _args $args {
+        -force        { boolean 0 0 }
+        -environment  { boolean 0 0 }
+        -assocchanged { boolean 0 0 }
+    }
+
+    if {!$conf(windows)} { return }
+
+    if {!$_args(-force)} {
+        if {$_args(-environment)} {
+            ::InstallAPI::AddExitScript -script {
+                ::InstallAPI::SendWindowsNotification -force 1 -environment 1
+            }
+        }
+
+        if {$_args(-assocchanged)} {
+            ::InstallAPI::AddExitScript -script {
+                ::InstallAPI::SendWindowsNotification -force 1 -assocchanged 1
+            }
+        }
+
+        return
+    }
+
+    if {$_args(-environment)} {
+        registry broadcast Environment -timeout 1
+    }
+
+    if {$_args(-assocchanged)} {
+        package require Ffidl
+
+        if {[info commands ffidl::SHChangeNotify] eq ""} {
+            set symbol [ffidl::symbol shell32 SHChangeNotify]
+            ffidl::callout ffidl::SHChangeNotify \
+                {long unsigned pointer pointer} void $symbol
+        }
+
+        set SHCNE_ASSOCCHANGED 0x08000000
+        set SHCNF_FLUSH        0x1000
+
+        ffidl::SHChangeNotify $SHCNE_ASSOCCHANGED $SHCNF_FLUSH 0 0
+    }
+}
+
 proc ::InstallAPI::SetActiveSetupType { args } {
     global conf
     global info
@@ -1493,12 +2025,25 @@ proc ::InstallAPI::SetUpdateWidgets { args } {
     if {![::InstallJammer::InGuiMode]} { return }
 
     ::InstallAPI::ParseArgs _args $args {
-        -widgets  { string 1 }
+        -save     { boolean 0 0 }
+        -restore  { boolean 0 0 }
+        -widgets  { string  0 }
     }
 
-    set conf(UpdateWidgets) {}
-    foreach widget $_args(-widgets) {
-        lappend conf(UpdateWidgets) [join $widget ""]
+    if {$_args(-save)} {
+        set conf(SavedUpdateWidgets) $conf(UpdateWidgets)
+    }
+
+    if {$_args(-restore) && [info exists conf(SavedUpdateWidgets)]} {
+        set conf(UpdateWidgets) $conf(SavedUpdateWidgets)
+        unset conf(SavedUpdateWidgets)
+    }
+
+    if {[info exists _args(-widgets)]} {
+        set conf(UpdateWidgets) {}
+        foreach widget $_args(-widgets) {
+            lappend conf(UpdateWidgets) [join $widget ""]
+        }
     }
 }
 
@@ -1525,6 +2070,7 @@ proc ::InstallAPI::SetVirtualText { args } {
         upvar #0 ::InstallJammer::AutoUpdateVars vars
     } else {
         if {[string equal -nocase $lang "all"]} {
+            set lang  "all"
             set langs [::InstallJammer::GetLanguageCodes]
         } else {
             set langs [::InstallJammer::GetLanguageCode $lang]
@@ -1546,6 +2092,8 @@ proc ::InstallAPI::SetVirtualText { args } {
 
         if {$lang eq "None"} {
             set ::info($var) $val
+        } elseif {$lang eq "all" && [info exists object]} {
+            $object set $_args(-virtualtext) $val
         } else {
             foreach lang $langs {
                 ::msgcat::mcset $lang $var $val
@@ -1601,6 +2149,104 @@ proc ::InstallAPI::SubstVirtualText { args } {
     return [::InstallJammer::SubstText $_args(-virtualtext)]
 }
 
+proc ::InstallAPI::UnpackArchive { args } {
+    global info
+
+    ::InstallAPI::ParseArgs _args $args {
+        -file                 { string  1 }
+        -format               { string  0 }
+        -destination          { string  1 }
+        -deletearchive        { boolean 0 0 }
+        -statusvirtualtext    { string  0 "PercentComplete" }
+        -progressvirtualtext  { string  0 "CurrentFile" }
+    }
+
+    set file $_args(-file)
+    set dest $_args(-destination)
+
+    if {[info exists _args(-format)]} {
+        set format $_args(-format)
+    } else {
+        set _args(-format) [string range [file extension $file] 1 end]
+    }
+    set format [string tolower $format]
+
+    if {$format eq "zip"} {
+        set mnt [::InstallJammer::TmpMount]
+        set map [list $mnt/ ""]
+
+        zvfs::mount $file $mnt
+
+        set status      $_args(-statusvirtualtext)
+        set progress    $_args(-progressvirtualtext)
+        set doStatus    [string length $status]
+        set doProgress  [string length $progress]
+        set virtualtext {}
+
+        if {$doStatus} {
+            lappend virtualtext $status
+            set info($status) "<%UnpackingFilesText%>"
+        }
+
+        if {$doProgress} {
+            lappend virtualtext $progress
+            set info($progress) 0
+        }
+
+        ::InstallJammer::UpdateWidgets -updateidletasks 1
+
+        set files [recursive_glob $mnt *]
+
+        if {$doStatus} {
+            set info($status) "<%UnpackingFileText%>"
+        }
+
+        ::InstallAPI::SetUpdateWidgets -save 1 -widgets \
+            [::InstallJammer::FindUpdateWidgets $virtualtext]
+
+        set count   0
+        set total   [llength $files]
+        set lastpct 0
+        foreach file $files {
+            set update 0
+
+            set new [file join $dest [string map $map $file]]
+            set dir [file dirname $new]
+
+            if {![file exists $dir]} { file mkdir $dir }
+
+            if {$doStatus} {
+                set update 1
+                set info(CurrentFile) $new
+            }
+
+            if {$doStatus} {
+                set pct [expr {([incr count] * 100) / $total}]
+                if {$pct != $lastpct} {
+                    set update 1
+                    set lastpct $pct
+                    set info($progress) $pct
+                }
+            }
+
+            if {$update} {
+                ::InstallJammer::UpdateSelectedWidgets
+                update
+            }
+
+            file copy -force $file $new
+        }
+
+        zvfs::unmount $mnt
+
+        if {$_args(-deletearchive)} {
+            catch { file delete $_args(-file) }
+        }
+        
+        ::InstallAPI::SetUpdateWidgets -restore 1
+    }
+}
+
 proc ::InstallAPI::URLIsValid { args } {
     ::InstallAPI::ParseArgs _args $args {
         -proxyhost           { string 0 "" }
@@ -1648,6 +2294,130 @@ proc ::InstallAPI::URLIsValid { args } {
     http::cleanup $tok
 
     return $return
+}
+
+proc ::InstallAPI::ValidateApplication { args } {
+    ::InstallAPI::ParseArgs _args $args {
+        -path           { string  1 }
+        -separator      { string  0 "" }
+        -expression     { string  0 }
+    }
+
+    set _path $_args(-path)
+    if {![file exists $_path]} { return 0 }
+    if {![info exists _args(-expression)]} { return 1 }
+
+    set result $_args(-path)
+    if {$_args(-separator) eq ""} {
+        set lines $_args(-expression)
+    } else {
+        set lines [split $_args(-expression) $_args(-separator)]
+    }
+
+    foreach exp $lines {
+        set exp [string trim $exp]
+        if {$exp eq ""} { continue }
+        if {[string index $exp 0] eq "#"} { continue }
+
+        switch -- [string tolower [lindex $exp 0]] {
+            "collect" {
+                lassign $exp x var "in" what varName
+
+                if {$what eq "virtualtext"} { set varName ::info($varName) }
+                set collect($var) ""
+                set collectVars($var) $varName
+                if {$var eq "_path"} { lappend collect($var) $_path }
+            }
+
+            "execute" {
+                set file [subst [lindex $exp 1]]
+
+                set file [file join $_path $file]
+                if {![file exists $file]} { return 0 }
+                set args [lrange $exp 2 end]
+                set _exitcode 0
+                if {[catch { eval exec [list $file] $args } _result]} {
+                    set _exitcode [lindex $::errorCode 2]
+                }
+            }
+
+            "exists" {
+                set file [subst [lindex $exp 1]]
+
+                set file [file join $_path $file]
+                if {![file exists $file]} { return 0 }
+            }
+
+            "read" {
+                set file [subst [lindex $exp 1]]
+                set var  [lindex $exp 3]
+
+                set file [file join $_path $file]
+                if {![file exists $file]} { return 0 }
+                set $var [read_file $file]
+                if {[info exists collect($var)]} {
+                    lappend collect($var) [set $var]
+                }
+            }
+
+            "regexp" {
+                set pattern [lindex $exp 1]
+                set vars    [lrange $exp 2 end]
+
+                if {![eval [list regexp $pattern $_result] $vars]} { return 0 }
+                foreach var $vars {
+                    if {[info exists collect($var)]} {
+                        lappend collect($var) [set $var]
+                    }
+                }
+            }
+
+            "test" {
+                set val1 [subst [lindex $exp 1]]
+                set op   [lindex $exp 2]
+                set val2 [subst [lindex $exp 3]]
+
+                switch -- $op {
+                    "eq" { if {![string equal $val1 $val2]} { return 0 } }
+                    "ne" { if {[string equal $val1 $val2]} { return 0 } }
+                    "in" {
+                        set val2 [lrange $exp 3 end]
+                        if {[lsearch -exact $val2 $val1] < 0} { return 0 }
+                    }
+                    "ni" {
+                        set val2 [lrange $exp 3 end]
+                        if {[lsearch -exact $val2 $val1] > -1} { return 0 }
+                    }
+
+                    default {
+                        if {![expr $val1 $op $val2]} { return 0 }
+                    }
+                }
+            }
+
+            "version" {
+                set ver1 [subst [lindex $exp 1]]
+                set op   [lindex $exp 2]
+                set ver2 [subst [lindex $exp 3]]
+
+                set res [vercmp $ver1 $ver2]
+                if {![expr $res $op 0]} { return 0 }
+            }
+
+            default {
+                return -code error "invalid expression $exp"
+            }
+        }
+    }
+
+    set level 1
+    if {![catch {info level -1} info]
+        && [string match "::InstallAPI::*" [lindex $info 0]]} { set level 2 }
+    foreach {var value} [array get collect] {
+        uplevel $level lappend $collectVars($var) $value
+    }
+
+    return 1
 }
 
 proc ::InstallAPI::VirtualTextAPI { args } {

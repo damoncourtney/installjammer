@@ -97,7 +97,7 @@ namespace eval TableList {
             -highlightthickness 0 -padx 2 -pady 1
         }
 
-    BWidget::bindMouseWheel TableListTable
+    # BWidget::bindMouseWheel TableListTable
 
     bind TableList <FocusIn> [list after idle [list BWidget::refocus %W %W.t]]
     bind TableList <Destroy> [list TableList::_destroy %W]

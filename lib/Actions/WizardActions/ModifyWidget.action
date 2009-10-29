@@ -31,11 +31,11 @@ Help State "Modify the state of the given widget (readonly on applies to\
 
 Property Text   shorttext "Text"   ""
 
-proc ::InstallJammer::actions::ModifyWidget { obj } {
+Script {
     global conf
     global info
 
-    variable hidden
+    upvar #0 ::InstallJammer::HiddenWidgets hidden
 
     set id     [$obj id]
     set parent [$obj parent]
@@ -61,23 +61,8 @@ proc ::InstallJammer::actions::ModifyWidget { obj } {
 
     set widgets [split $props(Widget) \;]
 
-    for {set i 0} {$i < [llength $widgets]} {incr i} {
-        set name [string trim [lindex $widgets $i]]
-        set name [::InstallJammer::ID $name]
-        set w [join $name ""]
-        set widget $w
-
-        set button 0
-        if {[lsearch -exact $conf(ButtonWidgets) $widget] > -1} {
-            set button 1
-            set w [string tolower [string map {Button ""} $widget]]
-        }
-
-        if {$button} {
-            set w [$info(Wizard) widget get $w]
-        } else {
-            set w [$parent widget get $widget]
-        }
+    foreach widget [split $props(Widget) \;] {
+        set w [::InstallAPI::GetWidgetPath -widget $widget -window $parent]
 
         if {$w eq ""} {
             return -code error "bad widget \"$name\""
@@ -111,7 +96,10 @@ proc ::InstallJammer::actions::ModifyWidget { obj } {
             }
 	}
 
-        if {$props(State) eq "hidden" && ![info exists hidden($w)]} {
+        if {[::InstallJammer::IsButtonWidget $widget name]} {
+            set hidden($name) [expr {$props(State) eq "hidden"}]
+            $info(Wizard) itemconfigure $name -hide $hidden($name)
+        } elseif {$props(State) eq "hidden" && ![info exists hidden($w)]} {
             set manager [winfo manager $w]
             set options [$manager info $w]
             set hidden($w) [concat $manager configure $w $options]

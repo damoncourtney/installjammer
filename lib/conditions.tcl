@@ -73,6 +73,11 @@ proc ::InstallJammer::loadconditions::Property { args } {
     eval $condition property $args
 }
 
+proc ::InstallJammer::loadconditions::Script { body } {
+    variable condition
+    proc ::InstallJammer::conditions::[$condition name] {obj} $body
+}
+
 proc ::InstallJammer::loadconditions::Text { args } {
     variable condition
     lassign $args name pretty subst
@@ -159,9 +164,9 @@ proc ::InstallJammer::ConditionsWizard { id } {
             set text "[::InstallJammer::StringToTitle $group]   "
             $menu add cascade -label $text -menu $m
             foreach condition $conditiongroups($group) {
-                set allconditions([$condition condition]) $condition
+                set allconditions([$condition name]) $condition
                 $m add command -label [$condition title] \
-                    -command [list $command [$condition condition]]
+                    -command [list $command [$condition name]]
             }
         }
 
@@ -279,7 +284,7 @@ proc ::InstallJammer::conditions::SaveConditionProperties {} {
         lappend props $prop,subst $active($prop,subst)
     }
 
-    eval [list ::InstallJammer::SetObjectProperties $id] $props
+    $id set $props
 }
 
 proc ::InstallJammer::conditions::RaiseConditionNode { node } {
@@ -316,12 +321,12 @@ proc ::InstallJammer::conditions::RaiseConditionNode { node } {
     unset -nocomplain active
 
     foreach property [$obj properties] {
-        set active($property) [::InstallJammer::GetObjectProperty $id $property]
+        set active($property) [$id get $property]
     }
 
     foreach property [$obj textfields] {
         set text  [::InstallJammer::GetText $id $property -subst 0 -label 1]
-        set subst [::InstallJammer::GetObjectProperty $id $property,subst]
+        set subst [$id get $property,subst]
         set active($property)       $text
         set active($property,subst) $subst
     }
@@ -366,17 +371,7 @@ proc ::InstallJammer::conditions::RaiseConditionNode { node } {
 
 proc ::InstallJammer::conditions::AddCondition { condition } {
     variable id
-    variable listbox
-
-    variable ::InstallJammer::conditions
-
-    set obj $conditions($condition)
-
-    set idx end
-    #set sel [$listbox selection get] 
-    #if {[string length $sel]} { set idx [$listbox index $sel] }
-
-    set cid [::InstallJammer::AddCondition $condition -parent $id -index $idx]
+    set cid [::InstallJammer::AddCondition $condition -parent $id]
 }
 
 proc ::InstallJammer::conditions::DeleteCondition {} {
@@ -469,6 +464,7 @@ proc ::InstallJammer::AddCondition { condition args } {
     array set _args $args
 
     set cid    $_args(-id)
+    set idx    $_args(-index)
     set parent $_args(-parent)
 
     if {$parent eq ""} {
@@ -477,9 +473,9 @@ proc ::InstallJammer::AddCondition { condition args } {
 
     if {$cid eq ""} {
         set cid [::InstallJammer::uuid]
-        $parent conditions insert $_args(-index) $cid
         ::Condition ::$cid -parent $parent -component $condition \
             -title $_args(-title)
+        if {$idx ne "end"} { $parent conditions move $cid $idx }
 
         if {[$parent is action actiongroup]} {
             $cid set CheckCondition "Before Action is Executed"

@@ -25,7 +25,7 @@ Action DestroyWidget "Destroy Widget"
 
 Property WidgetId widget "Widget ID"
 
-proc ::InstallJammer::actions::DestroyWidget { obj } {
+Script {
     $obj properties props -subst 1
     ::InstallAPI::DestroyWidget -widgets [split $props(WidgetId) \;]
 }

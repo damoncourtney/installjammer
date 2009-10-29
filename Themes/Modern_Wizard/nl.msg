@@ -1,460 +1,414 @@
-ChooseComponents {
-    Title
-    "Selecteer Componenten"
+ChooseComponents,BackButton
+"< <%Back%>"
 
-    Subtitle
-    "Selecteer de componenten die het installatie programma zal installeren."
+ChooseComponents,CancelButton
+"<%Cancel%>"
 
-    Caption
-    "Selecteer de componenten die u wilt installeren en deselecteer de componenten\
-     die u niet wilt installeren."
+ChooseComponents,Caption
+"Selecteer de componenten die u wilt installeren en deselecteer de componenten die u niet wilt installeren."
 
-    Message
-    "<%SpaceRequiredText%> aan ruimte benodigd"
+ChooseComponents,DescriptionLabel
+"Omschrijving"
 
-    DescriptionLabel
-    "Omschrijving"
+ChooseComponents,Message
+"<%SpaceRequiredText%> aan ruimte benodigd"
 
-    NextButton
-    "<%Next%> >"
+ChooseComponents,NextButton
+"<%Next%> >"
 
-    BackButton
-    "< <%Back%>"
+ChooseComponents,Subtitle
+"Selecteer de componenten die het installatie programma zal installeren."
 
-    CancelButton
-    "<%Cancel%>"
-}
+ChooseComponents,Title
+"Selecteer Componenten"
 
-CopyFiles {
-    Title
-    "Installeren"
+CopyFiles,BackButton
+"< <%Back%>"
 
-    Subtitle
-    "<%AppName%> installeren"
+CopyFiles,CancelButton
+"<%Cancel%>"
 
-    Caption
-    "Een ogenblik geduld terwijl <%AppName%> wordt geïnstalleerd op uw computer."
+CopyFiles,Caption
+"Een ogenblik geduld terwijl <%AppName%> wordt geïnstalleerd op uw computer."
 
-    Message
-    ""
+CopyFiles,FileLabel
+"<%Status%>"
 
-    FileLabel
-    "<%Status%>"
+CopyFiles,Message
+""
 
-    ProgressValue
-    "<%InstallPercentComplete%>"
+CopyFiles,NextButton
+"<%Next%> >"
 
-    NextButton
-    "<%Next%> >"
+CopyFiles,ProgressValue
+"<%InstallPercentComplete%>"
 
-    BackButton
-    "< <%Back%>"
+CopyFiles,Subtitle
+"<%AppName%> installeren"
 
-    CancelButton
-    "<%Cancel%>"
-}
+CopyFiles,Title
+"Installeren"
 
-CustomBlankPane1 {
-    Caption
-    "Bijschrift hier."
+CustomBlankPane1,BackButton
+"< <%Back%>"
 
-    Message
-    "Bericht hier."
+CustomBlankPane1,CancelButton
+"<%Cancel%>"
 
-    NextButton
-    "<%Next%> >"
+CustomBlankPane1,Caption
+"Bijschrift hier."
 
-    BackButton
-    "< <%Back%>"
+CustomBlankPane1,Message
+"Bericht hier."
 
-    CancelButton
-    "<%Cancel%>"
-}
+CustomBlankPane1,NextButton
+"<%Next%> >"
 
-CustomBlankPane2 {
-    Title
-    "Titel"
+CustomBlankPane2,BackButton
+"< <%Back%>"
 
-    Subtitle
-    "Ondertitel"
+CustomBlankPane2,CancelButton
+"<%Cancel%>"
 
-    Caption
-    "Bijschrift"
+CustomBlankPane2,Caption
+"Bijschrift"
 
-    Message
-    "Bericht"
+CustomBlankPane2,Message
+"Bericht"
 
-    NextButton
-    "<%Next%> >"
+CustomBlankPane2,NextButton
+"<%Next%> >"
 
-    BackButton
-    "< <%Back%>"
+CustomBlankPane2,Subtitle
+"Ondertitel"
 
-    CancelButton
-    "<%Cancel%>"
-}
+CustomBlankPane2,Title
+"Titel"
 
-CustomTextPane1 {
-    Title
-    "Titel"
+CustomTextPane1,BackButton
+"< <%Back%>"
 
-    Subtitle
-    "Ondertitel"
+CustomTextPane1,CancelButton
+"<%Cancel%>"
 
-    Caption
-    "Bijschrift"
+CustomTextPane1,Caption
+"Bijschrift"
 
-    Message
-    "Bericht"
+CustomTextPane1,Message
+"Bericht"
 
-    Text
-    "Zet uw eigen tekst hier."
+CustomTextPane1,NextButton
+"<%Next%> >"
 
-    NextButton
-    "<%Next%> >"
+CustomTextPane1,Subtitle
+"Ondertitel"
 
-    BackButton
-    "< <%Back%>"
+CustomTextPane1,Text
+"Zet uw eigen tekst hier."
 
-    CancelButton
-    "<%Cancel%>"
-}
+CustomTextPane1,Title
+"Titel"
 
-License {
-    Title
-    "Licentie Overeenkomst"
+InstallPassword,BackButton
+"< <%Back%>"
 
-    Subtitle
-    "Lees de licentie overeenkomst aandachtig."
+InstallPassword,CancelButton
+"<%Cancel%>"
 
-    AcceptRadiobutton
-    "Ik ga akkoord met de licentie overeenkomst."
+InstallPassword,Caption
+"Vul uw wachtwoord in."
 
-    DeclineRadiobutton
-    "Ik ga NIET akkoord met de licentie overeenkomst."
+InstallPassword,Message
+""
 
-    NextButton
-    "<%Yes%>"
+InstallPassword,NextButton
+"<%Next%> >"
 
-    BackButton
-    "< <%Back%>"
+InstallPassword,Subtitle
+"Deze installatie vereist een wachtwoord om door te kunnen gaan."
 
-    CancelButton
-    "Stop Installatie"
-}
+InstallPassword,Title
+"Installatie Wachtwoord"
 
-Readme {
-    Title
-    "Readme Informatie"
+License,AcceptRadiobutton
+"Ik ga akkoord met de licentie overeenkomst."
 
-    Subtitle
-    "Readme Informatie voor <%AppName%>"
+License,BackButton
+"< <%Back%>"
 
-    Caption
-    ""
+License,CancelButton
+"Stop Installatie"
 
-    Message
-    ""
+License,DeclineRadiobutton
+"Ik ga NIET akkoord met de licentie overeenkomst."
 
-    Text
-    ""
+License,NextButton
+"<%Yes%>"
 
-    NextButton
-    "<%Next%> >"
+License,Subtitle
+"Lees de licentie overeenkomst aandachtig."
 
-    BackButton
-    "< <%Back%>"
+License,Title
+"Licentie Overeenkomst"
 
-    CancelButton
-    "<%Cancel%>"
-}
+Readme,BackButton
+"< <%Back%>"
 
-SelectDestination {
-    Title
-    "Kies de installatie map"
+Readme,CancelButton
+"<%Cancel%>"
 
-    Subtitle
-    "Waar moet <%AppName%> worden geïnstalleerd?"
+Readme,Caption
+""
 
-    Caption
-    "Dit installatie programma zal <%AppName%> in de onderstaande map installeren."
+Readme,Message
+""
 
+Readme,NextButton
+"<%Next%> >"
 
-    Message
-    ""
+Readme,Subtitle
+"Readme Informatie voor <%AppName%>"
 
-    BrowseText
-    "Als u de installatie locatie wilt wijzigen klikt u op 'Selecteer map' en selecteert u een nieuwe locatie.
-     Om verder te gaan met het installatieproces klikt u op Volgende."
+Readme,Text
+""
 
-    NextButton
-    "<%Next%> >"
+Readme,Title
+"Readme Informatie"
 
-    BackButton
-    "< <%Back%>"
+SelectDestination,BackButton
+"< <%Back%>"
 
-    CancelButton
-    "<%Cancel%>"
+SelectDestination,BrowseButton
+"<%Browse%>"
 
-    BrowseButton
-    "<%Browse%>"
+SelectDestination,BrowseText
+"Als u de installatie locatie wilt wijzigen klikt u op 'Selecteer map' en selecteert u een nieuwe locatie.
+ Om verder te gaan met het installatieproces klikt u op Volgende."
 
-    DestinationLabel
-    "Installatie map"
-}
+SelectDestination,CancelButton
+"<%Cancel%>"
 
-SelectProgramFolder {
-    Title
-    "Selecteer Programma Map"
+SelectDestination,Caption
+"Dit installatie programma zal <%AppName%> in de onderstaande map installeren."
 
-    Subtitle
-    "U kunt de Programma map selecteren."
+SelectDestination,DestinationLabel
+"Installatie map"
 
-    Caption
-    "Het installatie programma zal de programma iconen toevoegen aan de onderstaande Programma map. \
-     U kunt een nieuwe map aanmaken of een bestaande map selecteren uit de lijst. \
-     Klik op Volgende om door te gaan."
+SelectDestination,Message
+""
 
-    Message
-    ""
+SelectDestination,NextButton
+"<%Next%> >"
 
-    ProgramFolderLabel
-    "Programma map:"
+SelectDestination,Subtitle
+"Waar moet <%AppName%> worden geïnstalleerd?"
 
-    FolderListLabel
-    "Huidige mappen:"
+SelectDestination,Title
+"Kies de installatie map"
 
-    NextButton
-    "<%Next%> >"
+SelectProgramFolder,AllUsersCheckbutton
+"Maak programma map voor alle gebruikers"
 
-    BackButton
-    "< <%Back%>"
+SelectProgramFolder,BackButton
+"< <%Back%>"
 
-    CancelButton
-    "<%Cancel%>"
+SelectProgramFolder,CancelButton
+"<%Cancel%>"
 
-    AllUsersCheckbutton
-    "Maak programma map voor alle gebruikers"
-}
+SelectProgramFolder,Caption
+"Het installatie programma zal de programma iconen toevoegen aan de onderstaande Programma map.  U kunt een nieuwe map aanmaken of een bestaande map selecteren uit de lijst.  Klik op Volgende om door te gaan."
 
-SetupComplete {
-    Caption
-    "Installatie Programma Afgerond"
+SelectProgramFolder,FolderListLabel
+"Huidige mappen:"
 
-    Message
-    "Het installatie programma heeft <%AppName%> succesvol geïnstalleerd. \
-     Klik op <%Finish%> om het installatie programma te sluiten."
+SelectProgramFolder,Message
+""
 
-    NextButton
-    "<%Finish%>"
+SelectProgramFolder,NextButton
+"<%Next%> >"
 
-    BackButton
-    "< <%Back%>"
+SelectProgramFolder,ProgramFolderLabel
+"Programma map:"
 
-    CancelButton
-    "<%Cancel%>"
-}
+SelectProgramFolder,Subtitle
+"U kunt de Programma map selecteren."
 
-SetupType {
-    Title
-    "Setup Type"
+SelectProgramFolder,Title
+"Selecteer Programma Map"
 
-    Subtitle
-    "Kies het type setup dat u prefereerd."
+SetupComplete,BackButton
+"< <%Back%>"
 
-    Caption
-    "Kies het type setup dat u prefereerd."
+SetupComplete,CancelButton
+"<%Cancel%>"
 
-    Message
-    ""
+SetupComplete,Caption
+"Installatie Programma Afgerond"
 
-    DescriptionLabel
-    "Omschrijving"
+SetupComplete,Message
+"Het installatie programma heeft <%AppName%> succesvol geïnstalleerd.  Klik op <%Finish%> om het installatie programma te sluiten."
 
-    NextButton
-    "<%Next%> >"
+SetupComplete,NextButton
+"<%Finish%>"
 
-    BackButton
-    "< <%Back%>"
+SetupType,BackButton
+"< <%Back%>"
 
-    CancelButton
-    "<%Cancel%>"
-}
+SetupType,CancelButton
+"<%Cancel%>"
 
-StartCopyingFiles {
-    Title
-    "Start Kopiëren Bestanden"
+SetupType,Caption
+"Kies het type setup dat u prefereerd."
 
-    Subtitle
-    "Bekijk uw instellingen voordat het installeren begint"
+SetupType,DescriptionLabel
+"Omschrijving"
 
-    Caption
-    "Het installatie programma heeft genoeg informatie om het kopiëren te starten. \
-     Als u de instellingen wilt bekijken of wijzigen kunt op <%Back%> klikken.  Als u\
-     tevreden bent met de instellingen klikt u op <%Next%> om het kopiëren te starten."
+SetupType,Message
+""
 
-    Message
-    ""
+SetupType,NextButton
+"<%Next%> >"
 
-    Text
-    "Installatie directory:
-            <%InstallDir%>
+SetupType,Subtitle
+"Kies het type setup dat u prefereerd."
 
-    Setup type:
-            <%InstallType%>"
+SetupType,Title
+"Setup Type"
 
-    NextButton
-    "<%Next%> >"
+StartCopyingFiles,BackButton
+"< <%Back%>"
 
-    BackButton
-    "< <%Back%>"
+StartCopyingFiles,CancelButton
+"<%Cancel%>"
 
-    CancelButton
-    "<%Cancel%>"
-}
+StartCopyingFiles,Caption
+"Het installatie programma heeft genoeg informatie om het kopiëren te starten.  Als u de instellingen wilt bekijken of wijzigen kunt op <%Back%> klikken.  Als u tevreden bent met de instellingen klikt u op <%Next%> om het kopiëren te starten."
 
-Uninstall {
-    Title
-    "Deïnstalleren"
+StartCopyingFiles,Message
+""
 
-    Subtitle
-    "<%AppName%> deïnstalleren"
+StartCopyingFiles,NextButton
+"<%Next%> >"
 
-    Caption
-    "<%GroupBeingUninstalledText%>"
+StartCopyingFiles,Subtitle
+"Bekijk uw instellingen voordat het installeren begint"
 
-    Message
-    ""
+StartCopyingFiles,Text
+"Installatie directory:
+ <%InstallDir%>
 
-    FileValue
-    "<%Status%>"
+ Setup type:
+ <%InstallType%>"
 
-    ProgressValue
-    "<%UninstallPercentComplete%>"
+StartCopyingFiles,Title
+"Start Kopiëren Bestanden"
 
-    NextButton
-    "<%Next%> >"
+Uninstall,BackButton
+"< <%Back%>"
 
-    BackButton
-    "< <%Back%>"
+Uninstall,CancelButton
+"<%Cancel%>"
 
-    CancelButton
-    "<%Cancel%>"
-}
+Uninstall,Caption
+"<%GroupBeingUninstalledText%>"
 
-UninstallComplete {
-    Caption
-    "Deïnstallatie afgerond"
+Uninstall,FileValue
+"<%Status%>"
 
-    Message
-    "<%AppName%> is van uw systeem verwijderd."
+Uninstall,Message
+""
 
-    NextButton
-    "<%Finish%>"
+Uninstall,NextButton
+"<%Next%> >"
 
-    BackButton
-    "< <%Back%>"
+Uninstall,ProgressValue
+"<%UninstallPercentComplete%>"
 
-    CancelButton
-    "<%Cancel%>"
-}
+Uninstall,Subtitle
+"<%AppName%> deïnstalleren"
 
-UninstallDetails {
-    Title
-    "Deïnstallatie Details"
+Uninstall,Title
+"Deïnstalleren"
 
-    Subtitle
-    "Er hebben zich fouten voorgedaan tijdens de deïnstallatie"
+UninstallComplete,BackButton
+"< <%Back%>"
 
-    Caption
-    "De volgende fouten hebben zicht voorgedaan tijdens de deïnstallatie:"
+UninstallComplete,CancelButton
+"<%Cancel%>"
 
-    Message
-    ""
+UninstallComplete,Caption
+"Deïnstallatie afgerond"
 
-    Text
-    "<%Errors%>"
+UninstallComplete,Message
+"<%AppName%> is van uw systeem verwijderd."
 
-    NextButton
-    "<%Next%> >"
+UninstallComplete,NextButton
+"<%Finish%>"
 
-    BackButton
-    "< <%Back%>"
+UninstallDetails,BackButton
+"< <%Back%>"
 
-    CancelButton
-    "<%Cancel%>"
-}
+UninstallDetails,CancelButton
+"<%Cancel%>"
 
+UninstallDetails,Caption
+"De volgende fouten hebben zicht voorgedaan tijdens de deïnstallatie:"
 
-UserInformation {
-    Title
-    "Gebruikers Informatie"
+UninstallDetails,Message
+""
 
-    Subtitle
-    "Vul uw informatie in."
+UninstallDetails,NextButton
+"<%Next%> >"
 
-    Caption
-    "Vul uw naam en uw bedrijfsnaam in."
+UninstallDetails,Subtitle
+"Er hebben zich fouten voorgedaan tijdens de deïnstallatie"
 
-    Message
-    ""
+UninstallDetails,Text
+"<%Errors%>"
 
-    UserNameLabel
-    "Naam:"
+UninstallDetails,Title
+"Deïnstallatie Details"
 
-    CompanyLabel
-    "Bedrijfsnaam:"
+UserInformation,BackButton
+"< <%Back%>"
 
-    NextButton
-    "<%Next%> >"
+UserInformation,CancelButton
+"<%Cancel%>"
 
-    BackButton
-    "< <%Back%>"
+UserInformation,Caption
+"Vul uw naam en uw bedrijfsnaam in."
 
-    CancelButton
-    "<%Cancel%>"
-}
+UserInformation,CompanyLabel
+"Bedrijfsnaam:"
 
+UserInformation,Message
+""
 
-Welcome {
-    Caption
-    "Welkom bij het <%AppName%> installatie programma.  Dit programma zal\
-     <%AppName%> op uw computer installeren."
+UserInformation,NextButton
+"<%Next%> >"
 
-    Message
-    "Het is aan te raden alle overige applicaties te sluiten alvorens\
-     verder te gaan met deze installatie.\n\nKlik op <%Next%> om verder\
-     te gaan of op <%Cancel%> om deze installatie af te breken"
+UserInformation,Subtitle
+"Vul uw informatie in."
 
-    NextButton
-    "<%Next%> >"
+UserInformation,Title
+"Gebruikers Informatie"
 
-    BackButton
-    "< <%Back%>"
+UserInformation,UserNameLabel
+"Naam:"
 
-    CancelButton
-    "<%Cancel%>"
-}
+Welcome,BackButton
+"< <%Back%>"
 
-InstallPassword {
-    Title
-    "Installatie Wachtwoord"
+Welcome,CancelButton
+"<%Cancel%>"
 
-    Subtitle
-    "Deze installatie vereist een wachtwoord om door te kunnen gaan."
+Welcome,Caption
+"Welkom bij het <%AppName%> installatie programma.  Dit programma zal <%AppName%> op uw computer installeren."
 
-    Caption
-    "Vul uw wachtwoord in."
+Welcome,Message
+"Het is aan te raden alle overige applicaties te sluiten alvorens verder te gaan met deze installatie.
 
-    Message
-    ""
+Klik op <%Next%> om verder te gaan of op <%Cancel%> om deze installatie af te breken"
 
-    NextButton
-    "<%Next%> >"
-
-    BackButton
-    "< <%Back%>"
-
-    CancelButton
-    "<%Cancel%>"
-}
+Welcome,NextButton
+"<%Next%> >"
