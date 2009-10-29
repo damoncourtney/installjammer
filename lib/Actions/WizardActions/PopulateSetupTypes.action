@@ -1,0 +1,54 @@
+## $Id$
+##
+## BEGIN LICENSE BLOCK
+##
+## Copyright (C) 2002  Damon Courtney
+## 
+## This program is free software; you can redistribute it and/or
+## modify it under the terms of the GNU General Public License
+## version 2 as published by the Free Software Foundation.
+## 
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License version 2 for more details.
+## 
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, write to the
+##     Free Software Foundation, Inc.
+##     51 Franklin Street, Fifth Floor
+##     Boston, MA  02110-1301, USA.
+##
+## END LICENSE BLOCK
+
+Action PopulateSetupTypes
+
+proc ::InstallJammer::actions::PopulateSetupTypes { obj } {
+    global info
+
+    set step [$obj parent]
+
+    set text    [$step widget get DescriptionText]
+    set listbox [$step widget get SetupTypeListBox]
+    
+    $listbox clear
+
+    foreach id [SetupTypes children] {
+        if {![$id active] || ![$id get ShowSetupType]} { continue }
+
+        set text [::InstallJammer::GetText $id DisplayName]
+        if {$text eq ""} { set text [$id name] }
+
+        $listbox insert end $id -text $text -data [$id name]
+        if {[$id name] eq $info(InstallType)} {
+            $listbox selection set $id
+            set desc [::InstallJammer::GetText $id Description]
+            ::InstallJammer::SetText $text $desc
+            ::InstallJammer::SetVirtualText $info(Language) $step \
+                [list DescriptionText $desc]
+        }
+    }
+
+    $listbox bindText  <1> ::InstallJammer::SelectSetupType
+    $listbox bindImage <1> ::InstallJammer::SelectSetupType
+}

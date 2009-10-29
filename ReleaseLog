@@ -1,0 +1,8 @@
+1.2.12 (December 2nd, 2008)
+
+This is a minor bug fix release.
+
+
+Minor Bug Fixes
+Fixed a bug in the URLIsValid API.
+Fixed a bug in the Windows installkits that was causing installers signed with a digital signature to fail.
