@@ -116,7 +116,7 @@ proc ::InstallJammer::ToggleComponent { tree id node } {
                 ## that all of the radiobuttons turn off.
                 if {[$tree itemcget $component -type] eq "radiobutton"} {
                     set group [$component get ComponentGroup]
-                    set ::InstallJammer::Components($type,$group) ""
+                    set ::InstallJammer::Components($tree,$group) ""
                 }
             }
         }
@@ -134,7 +134,7 @@ proc ::InstallJammer::ToggleComponent { tree id node } {
                 if {[$tree itemcget $component -type] eq "radiobutton"} {
                     set group [$component get ComponentGroup]
                     if {[$component get Checked]} {
-                        set ::InstallJammer::Components($type,$group) $component
+                        set ::InstallJammer::Components($tree,$group) $component
                     } else {
                         $component active 0
                     }
@@ -147,7 +147,7 @@ proc ::InstallJammer::ToggleComponent { tree id node } {
         ## If this is a radiobutton, we need to deactivate
         ## all of the others in this group.
         set group [$node get ComponentGroup]
-        foreach comp $::InstallJammer::Components($type,$group,ids) {
+        foreach comp $::InstallJammer::Components($tree,$group,others) {
             if {$comp ne $node} { $comp active 0 }
         }
     }
@@ -276,8 +276,8 @@ proc ::InstallJammer::exit { {prompt 0} } {
     if {$prompt} {
         ::InstallJammer::PauseInstall
 
-        set title   "Exit Setup"
-        set message [::InstallJammer::SubstText "<%ExitText%>"]
+        set title   [sub "<%ExitTitle%>"]
+        set message [sub "<%ExitText%>"]
         set ans [MessageBox -type yesno -default no \
             -parent [::InstallJammer::TransientParent] \
             -title $title -message $message]

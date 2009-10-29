@@ -146,6 +146,13 @@ proc ::InstallJammer::DeleteVirtualText { listbox } {
         }
     }
 
+    set edit [$listbox edit editing]
+    if {$edit ne ""} {
+        set name [$listbox get $edit col 0]
+        ::msgcar::mcunset $lang $name
+        lappend items $edit
+    }
+
     if {[llength $items]} {
         eval [list $listbox delete] $items
         Modified

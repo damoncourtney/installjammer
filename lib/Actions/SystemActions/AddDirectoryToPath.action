@@ -121,7 +121,10 @@ proc ::InstallJammer::actions::AddDirectoryToPath { obj } {
                 $obj set CSHValue "[join $list $sep]${sep}`printenv $var`"
             }
 
+            set save $::env($var)
             ::InstallJammer::actions::AddEnvironmentVariable $obj
+            set ::env($var) $save
+
         }
     }
 }

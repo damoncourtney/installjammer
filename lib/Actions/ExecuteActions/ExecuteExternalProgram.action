@@ -276,16 +276,16 @@ proc ::InstallJammer::actions::ExecuteExternalProgram { obj } {
                     set title $props(ConsoleTitle)
                 }
 
-                set t       -T
-                set konsole 0
-                set desktop [::InstallJammer::GetDesktopEnvironment]
+                set konsole   0
+                set gnometerm 0
+                set desktop   [::InstallJammer::GetDesktopEnvironment]
 
                 if {$desktop eq "KDE" && [auto_execok konsole] ne ""} {
                     set konsole 1
                     set term konsole
                 } elseif {$desktop eq "Gnome"
                     && [auto_execok gnome-terminal] ne ""} {
-                    set t -t
+                    set gnometerm 1
                     set term gnome-terminal
                 } elseif {[info exists ::env(COLORTERM)]} {
                     set term $::env(COLORTERM)
@@ -321,9 +321,11 @@ proc ::InstallJammer::actions::ExecuteExternalProgram { obj } {
                 set cmd $tmpfile
 
                 if {$konsole} {
-                    set cmd [concat [list $term $t $title] -e $cmd]
+                    set cmd [concat [list $term -T $title] -e $cmd]
+                } elseif {$gnometerm} {
+                    set cmd [list $term -t $title -e $cmd]
                 } else {
-                    set cmd [list $term $t $title -e $cmd]
+                    set cmd [list $term -e $cmd]
                 }
             }
 

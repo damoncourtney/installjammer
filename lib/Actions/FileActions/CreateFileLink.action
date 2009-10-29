@@ -43,9 +43,9 @@ proc ::InstallJammer::actions::CreateFileLink { obj } {
         file link -$props(LinkType) $link $target
     } else {
         if {$props(LinkType) eq "hard"} {
-            exec ln $link $target
+            exec ln $target $link
         } else {
-            exec ln -s $link $target
+            exec ln -s $target $link
         }
     }
 }

@@ -105,8 +105,8 @@ namespace eval TableList {
     bind TableListTable <1> "TableList::_table_button_1 %W %x %y; break"
     bind TableListTable <Key> [list TableList::_handle_key_press %W %K]
     bind TableListTable <Double-1> [list TableList::_title_double_1 %W %x %y]
-    bind TableListTable <Shift-Button-1>   {#}
-    bind TableListTable <Control-Button-1> {#}
+    bind TableListTable <Shift-Button-1>   "TableList::_select_row %W %x %y 1"
+    bind TableListTable <Control-Button-1> "TableList::_select_row %W %x %y 2"
     bind TableListTable <ButtonRelease-1> [list TableList::selection %W update]
 
     bind TableListLabel <1> [list TableList::_title_button_1 %W %X %x %y]
@@ -141,6 +141,7 @@ proc TableList::create { path args } {
         selected        {}
         sortColumn      -1
         sortDirection   -1
+        selectionAnchor 0
     }
 
     set data(keyColumn) [Widget::getoption $path -keycolumn]
@@ -1542,10 +1543,13 @@ proc TableList::_table_button_1 { table x y } {
     foreach [list bx by bw bh] $bbox { break }
 
     TableList::edit $path finish
+    TableList::selection $path clear
 
     if {$row == $last && $y > [expr {$by + $bh}]} { return -code break }
 
     set item [lindex $data(items) $row]
+    set data(selectionAnchor) $row
+    TableList::selection $path set $item
     if {$item ne "" && ![info exists data(editing)]} {
         TableList::edit $path start $item $col
     }
@@ -1864,6 +1868,26 @@ proc TableList::_handle_tree_label_click { path row col } {
         TableList::toggle $path $item
     } else {
         TableList::edit $path start $item $col
+    }
+}
+
+
+proc TableList::_select_row { table x y which } {
+    set path [winfo parent $table]
+    Widget::getVariable $path data
+
+    set row [$table index @$x,$y row]
+
+    TableList::edit $path finish
+
+    if {$which == 1} {
+        ## Shift click
+        set anchor $data(selectionAnchor)
+        TableList::selection $path range \
+            [lindex $data(items) $anchor] [lindex $data(items) $row]
+    } elseif {$which == 2} {
+        ## Control click
+        TableList::selection $path toggle [lindex $data(items) $row]
     }
 }
 

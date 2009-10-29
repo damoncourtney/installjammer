@@ -133,13 +133,13 @@ License {
     "Je n'accepte pas les termes de cet accord de licence."
 
     NextButton
-    "<%Yes%>"
+    "<%Next%> >"
 
     BackButton
     "< <%Back%>"
 
     CancelButton
-    "<%No%>"
+    "<%Cancel%>"
 }
 
 Readme {

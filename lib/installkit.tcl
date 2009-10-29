@@ -22,7 +22,7 @@
 ## END LICENSE BLOCK
 
 ## Create a generic InstallKit from the current running process.
-proc ::installkit::base { {installkit ""} } {
+proc ::installkit::base { {installkit ""} args } {
     global conf
     global info
 
@@ -39,11 +39,16 @@ proc ::installkit::base { {installkit ""} } {
         set installkit [::InstallJammer::TmpDir installkit$info(Ext)]
     }
 
+    set res 0
     if {![file exists $installkit]} {
-        set installkit [::InstallJammer::Wrap -o $installkit]
+        set res [catch {
+            eval ::InstallJammer::Wrap -o [list $installkit] $args
+        } err]
     }
 
     unset conf(BuildingInstallkit)
+
+    if {$res} { return -code error $err }
 
     return [::InstallJammer::Normalize $installkit]
 }

@@ -27,6 +27,14 @@ Require xdg-utils/xdg-desktop-icon
 Require xdg-utils/xdg-desktop-menu
 
 Property AdditionalArguments longtext "Additional Arguments"
+Help AdditionalArguments "If this property is specified, the value of the\
+    property is appended directly to the .desktop file that is created on\
+    the target system.  This can be used to add extra lines of data to the\
+    file if you know the format of a .desktop file."
+
+Property CommandLineArguments short "Command Line Arguments"
+Help CommandLineArguments "These arguments are directly appended to the\
+    Target File Name to create a command line for the shortcut."
 
 Property FileName short "File Name" ""
 

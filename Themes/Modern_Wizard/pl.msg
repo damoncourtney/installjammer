@@ -1,3 +1,5 @@
+# -encoding utf-8
+
 ChooseComponents {
     Title
     "Wybierz komponenty"
@@ -134,13 +136,13 @@ License {
     "Nie akceptuję warunków licencji."
 
     NextButton
-    "<%Yes%>"
+    "<%Next%> >"
 
     BackButton
     "< <%Back%>"
 
     CancelButton
-    "<%No%>"
+    "<%Cancel%>"
 }
 
 Readme {

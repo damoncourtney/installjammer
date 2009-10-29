@@ -638,17 +638,18 @@ proc CheckPlatforms {} {
 proc ::NewInstall::AddConsoleInstall {} {
     ## Create the default Console install.
     set act [::InstallJammer::AddAction Install ConsoleAskYesOrNo \
-        -parent ConsoleInstall]
+        -parent ConsoleInstall -title "Prompt to continue installation"]
     $act set Prompt "<%InstallStartupText%>"
     $act set Default "Yes"
 
-    set act [::InstallJammer::AddAction Install Exit -parent ConsoleInstall]
+    set act [::InstallJammer::AddAction Install Exit -parent ConsoleInstall \
+        -title "Exit if they said no"]
         set con [::InstallJammer::AddCondition StringIsCondition -parent $act]
         $con set String   "<%Answer%>"
         $con set Operator "false"
 
     set act [::InstallJammer::AddAction Install ConsoleGetUserInput \
-        -parent ConsoleInstall]
+        -parent ConsoleInstall -title "Prompt for install destination"]
     $act set Prompt "<%ConsoleSelectDestinationText%>"
     $act set VirtualText InstallDir
 
@@ -660,15 +661,15 @@ proc ::NewInstall::AddConsoleInstall {} {
         $con set CheckCondition "Before Next Action is Executed"
 
     set act [::InstallJammer::AddAction Install ConsoleMessage \
-        -parent ConsoleInstall]
+        -parent ConsoleInstall -title "Output Installing Message"]
     $act setText all Message "<%InstallingApplicationText%>"
 
     set act [::InstallJammer::AddAction Install ExecuteAction \
-        -parent ConsoleInstall]
+        -parent ConsoleInstall -title "Install Everything"]
     $act set Action "Install Actions"
 
     set act [::InstallJammer::AddAction Install ConsoleMessage \
-        -parent ConsoleInstall]
+        -parent ConsoleInstall -title "Output Install Complete Message"]
     $act setText all Message "<%InstallationCompleteText%>"
 
     set act [::InstallJammer::AddAction Install Exit -parent ConsoleInstall]
@@ -878,7 +879,7 @@ proc Done {} {
         -parent "Install Actions"
 
     set id [::InstallJammer::AddAction Install ExecuteAction \
-        -parent SilentInstall]
+        -parent SilentInstall -title "Install Everything"]
     $id set Action "Install Actions"
 
     set act [::InstallJammer::AddAction Install Exit -parent SilentInstall]
@@ -926,7 +927,7 @@ proc Done {} {
         -parent "Uninstall Actions"
 
     set id [::InstallJammer::AddAction Uninstall ExecuteAction \
-        -parent SilentUninstall]
+        -parent SilentUninstall -title "Uninstall Everything"]
     $id set Action "Uninstall Actions"
 
     set act [::InstallJammer::AddAction Uninstall Exit -parent SilentUninstall]

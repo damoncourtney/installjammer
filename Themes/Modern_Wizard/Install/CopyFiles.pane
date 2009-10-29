@@ -32,7 +32,7 @@ InstallTypes Standard Default
 Action ModifyWidget <Title> "Disable Buttons" \
     State "disabled" Widget "Back Button;Next Button" \
     ExecuteAction "Before Pane is Displayed"
-Action ExecuteAction Action "Install Actions"
+Action ExecuteAction Action "Install Actions" <Title> "Install Everything"
 Action MoveForward
 
 Property Buttons buttons "Buttons" "Back/Next/Cancel"

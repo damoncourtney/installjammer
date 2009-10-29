@@ -712,6 +712,10 @@ proc ::InstallJammer::CommonInit {} {
                     break
                 }
             }
+
+            set info(InstallStartupDir) [pwd]
+        } elseif {$info(RunningUninstaller)} {
+            set info(UninstallStartupDir) [pwd]
         }
 
         if {$conf(windows)} {
@@ -804,7 +808,7 @@ proc ::InstallJammer::CommonPostInit {} {
         set bin    [file join $conf(vfs) lib bin]
         set tmpbin [::InstallJammer::TmpDir bin]
         if {[file exists $bin] && ![file exists $tmpbin]} {
-            append ::env(PATH) $info(PathSeparator)$tmpbin
+            set ::env(PATH) "$tmpbin$info(PathSeparator)$::env(PATH)"
             file copy -force $bin $tmpbin
             if {!$conf(windows)} {
                 foreach file [glob -dir $tmpbin *] {
@@ -1385,7 +1389,7 @@ proc ::InstallJammer::RaiseEventHandler { wizard } {
         }
 
         $wizard order [lrange [$wizard order] 0 end-1]
-        ::InstallJammer::Wizard next 1 0
+        ::InstallAPI::WizardAPI -do next
         return
     }
 
@@ -2147,13 +2151,8 @@ proc ::InstallJammer::DirIsWritable {dir} {
 
     ## Assume wine is always writable.
     if {$conf(wine)} { return 1 }
-
-    set res [catch {file attributes $dir}]
-    set writable [file writable $dir]
-
-    if {$conf(windows98)} { return [expr {!$res}] }
-    if {$conf(vista)} { return $writable }
-    return [expr {[file writable $dir] || $res == 0}]
+    if {$conf(windows98)} { return [expr {![catch {file attributes $dir}]}] }
+    return [file writable $dir]
 }
 
 proc ::InstallJammer::Normalize { file {style ""} } {
@@ -2569,6 +2568,14 @@ proc ::InstallJammer::subst::Tail { args } {
 
 proc ::InstallJammer::subst::Temp { args } {
     return [::InstallJammer::TmpDir]
+}
+
+proc ::InstallJammer::subst::Tolower { args } {
+    return [string tolower $args]
+}
+
+proc ::InstallJammer::subst::Toupper { args } {
+    return [string toupper $args]
 }
 
 proc ::InstallJammer::subst::UUID { args } {
@@ -3777,12 +3784,11 @@ proc ::InstallJammer::ParseCommandLineArguments { argv } {
 
             if {$conf(windows)} {
                 ::InstallJammer::MessageBox -default ok \
-                    -title "InstallJammer Installer" \
-                    -message [::InstallJammer::SubstText $message]
+                    -title "InstallJammer Installer" -message [sub $message]
             } else {
-                set version "<%Version%> (<%InstallVersion%>)\n"
-                puts [::InstallJammer::SubstText $version]
-                puts $msg
+                puts [sub "<%Version%> (<%InstallVersion%>)"]
+                puts ""
+                puts [sub $message]
             }
 
             ::exit 0
@@ -3919,7 +3925,7 @@ proc ::InstallJammer::SetupModeVariables {} {
     set info(ConsoleMode) [string equal $mode "Console"]
 }
 
-proc ::InstallJammer::CommonExit {} {
+proc ::InstallJammer::CommonExit { {cleanupTmp 1} } {
     global conf
 
     catch { 
@@ -3943,9 +3949,11 @@ proc ::InstallJammer::CommonExit {} {
         }
     }
 
-    catch {
-        ::InstallJammer::WriteDoneFile
-        ::InstallJammer::CleanupTmpDirs
+    if {$cleanupTmp} {
+        catch {
+            ::InstallJammer::WriteDoneFile
+            ::InstallJammer::CleanupTmpDirs
+        }
     }
 
     if {[info exists ::debugfp]} { catch { close $::debugfp } }
@@ -4012,8 +4020,9 @@ proc ::InstallJammer::DisplayConditionFailure { id } {
         ::InstallJammer::Message -icon $icon -title $title -message $message
     }
 
-    if {[::InstallJammer::InGuiMode]} {
-        set focus [::InstallJammer::GetWidget [$id get FailureFocus]]
+    set focus [string trim [$id get FailureFocus]]
+    if {$focus ne "" && [::InstallJammer::InGuiMode]} {
+        set focus [::InstallAPI::GetWidgetPath -widget $focus]
         if {[winfo exists $focus]} { focus -force $focus }
     }
 }
@@ -4130,11 +4139,24 @@ proc ::InstallJammer::MountSetupArchives {} {
     return $found
 }
 
-proc ::InstallJammer::GetCommonInstallkit {} {
+proc ::InstallJammer::GetCommonInstallkit { {base ""} } {
     global info
-    ::InstallJammer::TmpDir
-    set kit [file join $info(TempRoot) installkit$info(Ext)]
-    return [::installkit::base $kit]
+    ::InstallJammer::InstallInfoDir
+    set kit [file join $info(InstallJammerRegistryDir) \
+        $info(Platform) installkit$info(Ext)]
+    set opts [list -noinstall -o $kit]
+    if {$base ne ""} { lappend opts -w $base }
+    file mkdir [file dirname $kit]
+
+    set main [::InstallJammer::TmpDir main[pid].tcl]
+    set fp [open $main w]
+    puts $fp {
+        if {[llength $argv]} {
+            uplevel #0 [list source [lindex $argv end]]
+        }
+    }
+    close $fp
+    return  [eval ::InstallJammer::Wrap $opts [list $main]]
 }
 
 package require Itcl

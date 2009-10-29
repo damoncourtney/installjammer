@@ -53,8 +53,14 @@ DisplayName
 DownloadingFilesText
 "Downloading files..."
 
+ErrorTitle
+"Install Error"
+
 ExitText
 "Are you sure you want to exit this setup?"
+
+ExitTitle
+"Exit Setup"
 
 FileBeingInstalledText
 "Copying <%FileBeingInstalled%>"
@@ -146,6 +152,27 @@ SelectLanguageText
 SeparatorText
 "InstallJammer"
 
+String.database.entries
+"database entries"
+
+String.directories
+"directories"
+
+String.environment.variables
+"environment variables"
+
+String.files
+"files"
+
+String.package.entries
+"package entries"
+
+String.registry.entries
+"registry entries"
+
+String.shortcuts
+"shortcuts"
+
 TypicalInstallDescription
 "A typical installation."
 
@@ -171,6 +198,9 @@ UninstallStartupText
 UninstallLeftoverText
 "Some components could not be removed.  Do you wish to delete them anyway\
  (not recommended)?"
+
+UninstallPrepareText
+"Preparing to uninstall..."
 
 UninstallTitleText
 "Uninstall <%AppName%>"

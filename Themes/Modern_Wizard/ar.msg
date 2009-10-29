@@ -133,13 +133,13 @@ License {
     "\u202B\u0644\u0627 \u0623\u0648\u0627\u0641\u0642 \u0639\u0644\u0649 \u0634\u0631\u0648\u0637 \u0639\u0642\u062F \u0627\u0644\u0631\u062E\u0635\u0629."
 
     NextButton
-    "\u202B<%Yes%>"
+    "\u202B<%Next%> >"
 
     BackButton
     "\u202B< <%Back%>"
 
     CancelButton
-    "\u202B<%No%>"
+    "\u202B<%Cancel%>"
 }
 
 Readme {

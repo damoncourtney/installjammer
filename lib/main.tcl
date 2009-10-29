@@ -415,8 +415,8 @@ proc init {} {
     }
 
     array set conf {
-        Version                 1.2.13
-	InstallJammerVersion	1.2.13.8
+        Version                 1.2.14
+	InstallJammerVersion	1.2.14.1
 	projectLoaded		0
 	silent			0
         verbose                 0
@@ -553,6 +553,7 @@ proc init {} {
         CompressionMethod
         Copyright
         DefaultLanguage
+        DefaultToSystemLanguage
         EnableResponseFiles
         ExtractSolidArchivesOnStartup
         Icon
