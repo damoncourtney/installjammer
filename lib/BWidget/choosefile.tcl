@@ -29,6 +29,7 @@ namespace eval ChooseFile {
         {-multiple         Boolean  0          0}
         {-message          String   ""         0}
         {-title            String   ""         0}
+        {-includevfs       Boolean  0          0}
     }
 
     bind ChooseFile <Map>     [list ChooseFile::_map %W]
@@ -624,7 +625,9 @@ proc ChooseFile::_select_directory { path directory {appendHistory 1} } {
     set dirs [glob -nocomplain -dir $directory -type d *]
     eval lappend dirs [glob -nocomplain -dir $directory -type {d hidden} *]
 
+    set include [Widget::getoption $dialog -includevfs]
     foreach dir [lsort $sort $dirs] {
+        if {!$include && [string match "*vfs*" [file system $dir]]} { continue }
         set tail [file tail $dir]
         if {$tail eq "." || $tail eq ".."} { continue }
         $listbox insert end #auto -text [file tail $dir] -data $dir \

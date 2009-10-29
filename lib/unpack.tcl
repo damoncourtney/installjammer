@@ -23,7 +23,7 @@
 
 if {[info exists ::InstallJammer]} { return }
 
-if {[info exists ::tcl_platform(threaded)]} {
+if {[threaded]} {
     proc output { line } {
         thread::send $::parentThread [list ::InstallJammer::UnpackOutput $line]
     }
@@ -170,7 +170,7 @@ proc ::InstallJammer::exit {} {
     global info
     global conf
 
-    if {!$conf(threaded)} {
+    if {![threaded]} {
         ::InstallJammer::WriteDoneFile $info(Temp)
 
         catch { close $conf(runlogFp) }
@@ -194,7 +194,7 @@ proc ::InstallJammer::UnpackMain {} {
 
     set conf(pwd) [file dirname [info nameofexe]]
 
-    if {!$conf(threaded)} {
+    if {![threaded]} {
         set info(Temp) $conf(pwd)
         uplevel #0 [list source [file join $conf(pwd) unpack.ini]]
     }
@@ -208,7 +208,7 @@ proc ::InstallJammer::UnpackMain {} {
     ::InstallJammer::InitFiles
     ::InstallJammer::UpdateFiles
 
-    if {!$conf(threaded)} {
+    if {![threaded]} {
         set conf(vfs) /installkitunpackvfs
         ::installkit::Mount $info(installer) $conf(vfs)
         set conf(runlogFp) [open [TmpDir run.log] w]
@@ -223,6 +223,10 @@ proc ::InstallJammer::UnpackMain {} {
     }
 
     set conf(rollback) [string match "*Rollback*" $info(CancelledInstallAction)]
+
+    if {$conf(Wow64Disabled)} {
+        installkit::Windows::disableWow64FsRedirection
+    }
 
     ::InstallJammer::InstallFiles
 

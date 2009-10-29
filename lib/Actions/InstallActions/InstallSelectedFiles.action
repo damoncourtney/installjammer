@@ -146,7 +146,7 @@ proc ::InstallJammer::actions::InstallSelectedFiles { obj } {
         set info(Status) "<%GroupBeingInstalledText%>"
     }
 
-    if {$conf(threaded)} {
+    if {[threaded]} {
         set tid [installkit::newThread thread::wait]
         thread::errorproc ::InstallJammer::HandleThreadError
 

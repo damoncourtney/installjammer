@@ -77,6 +77,9 @@ GroupBeingUninstalledText
 Help
 "Help"
 
+InsertDiscText
+"Insert the disc labeled <%RequiredDiscName%> and then click OK."
+
 InstallApplicationText
 "Install <%AppName%>"
 
@@ -131,8 +134,14 @@ PromptForDirectoryTitle
 PromptForRootText
 "Please enter your root password."
 
+RequireAdministratorText
+"This program requires administrator privileges to install."
+
 RequireRootText
 "You must be root to run this installer."
+
+SelectLanguageText
+"Please select the installation language"
 
 SeparatorText
 "InstallJammer"

@@ -35,6 +35,8 @@ proc ::InstallJammer::actions::UninstallSelectedFiles {obj {forceUninstall 0}} {
     set parent [$obj parent]
 
     set info(Errors)                ""
+    set info(ErrorDirs)             ""
+    set info(ErrorFiles)            ""
     set info(FileBeingUninstalled)  ""
     set info(GroupBeingUninstalled) ""
     set info(Status)                ""
@@ -103,6 +105,7 @@ proc ::InstallJammer::actions::UninstallSelectedFiles {obj {forceUninstall 0}} {
                 debug "Failed to delete $file."
                 lappend ::leftovers(:FILE) $list
                 append info(Errors) "$error\n"
+                lappend info(ErrorFiles) $file
             }
         }
     }
@@ -113,7 +116,8 @@ proc ::InstallJammer::actions::UninstallSelectedFiles {obj {forceUninstall 0}} {
     ## a directory is not empty.
     if {$info(Errors) eq ""} {
         set conf(UninstallRemoved) 1
-	::InstallJammer::UninstallFile $conf(uninstall)
+        set tmpuninstall [::InstallJammer::TmpDir uninstaller$info(Ext)]
+        catch {file rename -force $conf(uninstall) $tmpuninstall}
     }
 
     if {$dirLen} {
@@ -149,6 +153,7 @@ proc ::InstallJammer::actions::UninstallSelectedFiles {obj {forceUninstall 0}} {
                     lappend ::leftovers(:DIR) $list
                     append info(Errors) "[::InstallJammer::Normalize $dir $p] "
                     append info(Errors) "is not empty\n"
+                    lappend info(ErrorDirs) $dir
                 }
 
                 debug "Skipping non-empty directory $dir."
@@ -167,6 +172,7 @@ proc ::InstallJammer::actions::UninstallSelectedFiles {obj {forceUninstall 0}} {
             if {[catch {::InstallJammer::UninstallDirectory $dir $force} err]} {
                 debug "Failed to delete directory $dir."
                 append info(Errors) "$err\n"
+                lappend info(ErrorDirs) $dir
             }
         }
     }
@@ -196,6 +202,7 @@ proc ::InstallJammer::actions::UninstallSelectedFiles {obj {forceUninstall 0}} {
             set ids $conf(UninstallIDs)
 
             foreach list $array(:ENV) {
+                lappend vars   [lindex $list 0]
                 lappend levels [lindex $list 1]
             }
 
@@ -209,18 +216,25 @@ proc ::InstallJammer::actions::UninstallSelectedFiles {obj {forceUninstall 0}} {
                     if {![file exists $file]} { continue }
                     if {[catch { read_file $file } contents]} { continue }
 
+                    if {[string match "*csh*" $file]} {
+                        set varpat {^setenv ([^ ]+)}
+                    } else {
+                        set varpat {^(.*)=}
+                    }
+
                     set lines {}
                     foreach line [split $contents \n] {
-                        if {![regexp $pat $line -> appid instid]
-                            || [lsearch -exact $ids $instid] < 0} {
-                            lappend lines $line
-                        } else {
-                            ## If the line before the one we just found
-                            ## is a blank, go ahead and remove it too.
-                            if {[lindex $lines end] eq ""} {
-                                set lines [lreplace $lines end end]
-                            }
+                        if {[regexp $pat $line -> appid instid]
+                            && [lsearch -exact $ids $instid] > -1
+                            && [regexp $varpat $line -> var]
+                            && [lsearch -exact $vars $var] > -1} { continue }
+
+                        ## If the line before the one we just found
+                        ## is a blank, go ahead and remove it too.
+                        if {[lindex $lines end] eq ""} {
+                            set lines [lreplace $lines end end]
                         }
+                        lappend lines $line
                     }
 
                     if {![catch { open $file w } fp]} {
@@ -291,13 +305,11 @@ proc ::InstallJammer::actions::UninstallSelectedFiles {obj {forceUninstall 0}} {
         set info(GroupBeingUninstalled) "shortcuts"
         ::InstallJammer::UpdateWidgets -update 1
 
-        if {[::InstallJammer::GetDesktopEnvironment] eq "Gnome"} {
-            set conf(RestartGnomePanel) 1
-        }
-
         foreach list [lreverse $array(:XDGRESOURCE)] {
             set which [lindex $list 0]
             set files [lindex $list 1]
+            set mode  [lindex $list 2]
+            if {$mode eq ""} { set mode "user" }
             if {$which eq "desktop"} {
                 catch { eval exec xdg-desktop-icon uninstall --novendor $files }
             } elseif {$which eq "menu"} {
@@ -311,13 +323,17 @@ proc ::InstallJammer::actions::UninstallSelectedFiles {obj {forceUninstall 0}} {
                     }
                 }
 
-                lappend menuUninstall($dirfiles) $deskfiles
+                lappend menuUninstall($mode,$dirfiles) $deskfiles
             }
         }
 
         foreach {dirfiles deskfiles} [array get menuUninstall] {
-            set files [concat $dirfiles $deskfiles]
-            catch { eval exec xdg-desktop-menu uninstall --novendor $files } res
+            set list     [split $dirfiles ,]
+            set mode     [lindex $list 0]
+            set dirfiles [join [lrange $list 1 end] ,]
+            set files    [concat $dirfiles $deskfiles]
+            catch { eval exec xdg-desktop-menu uninstall \
+                --novendor --mode $mode $files } res
         }
     }
 
@@ -357,6 +373,8 @@ proc ::InstallJammer::actions::UninstallSelectedFiles {obj {forceUninstall 0}} {
             catch { exec $script } error
         }
     }
+
+    set conf(RestartGnomePanel) 1
 
     ## Cleanup the install registry.
     ::InstallJammer::CleanupInstallInfoDirs

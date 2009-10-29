@@ -20,55 +20,7 @@ if {![info exists twapi::version]} {
     source [file join $twapi::scriptdir pkgIndex.tcl]
 }
 
-
-# Utility proc to load required DLL. Always try the script dir first
-# and then the fallback directories
-proc load_twapi_dll {dll fallback_dirs} {
-    # If we are a starkit, copy to an external directory before loading
-    if {[info exists ::starkit::topdir]} {
-        set tmpdir [pwd]
-        catch {set tmpdir $::env(TEMP)}; # Use TEMP if available
-        # We do not randomize the directory path since we don't want to
-        # clutter up the disk. Unfortunately, there is no easy way of
-        # deleting the copied files. Even with atexit type functions
-        # the OS will lock the loaded DLLs until process exists.
-        # TBD - this here is not a good thing from the security perspective
-
-        # If application has set twapi::temp_dll_dir, that overrides
-        # everything.
-        if {[info exists twapi::temp_dll_dir] &&
-            [file isdirectory $twapi::temp_dll_dir]} {
-            set tmpdir $twapi::temp_dll_dir
-        }
-        set tmpdir [file join $tmpdir "twapi-dlls-${twapi::version}${twapi::patchlevel}"]
-        file mkdir $tmpdir
-        set dest [file join $tmpdir $dll]
-        if {![file exists $dest]} {
-            file copy [file join $twapi::scriptdir $dll] $dest
-        }
-        load $dest
-    } else {
-        if {[catch {load [file join $twapi::scriptdir $dll]}]} {
-            set loaded 0
-            foreach dir $fallback_dirs {
-                if {[catch {load [file join $dir $dll]}] == 0} {
-                    set loaded 1
-                    break
-                }
-            }
-            if {! $loaded} {
-                error "Could not load dll $dll"
-            }
-        }
-    }
-}
-
-# Load the callback DLL *before* the core dll
-load_twapi_dll twapicallback.dll \
-    [list [file join $twapi::scriptdir ../callback/Release]]
-
-load_twapi_dll twapi.dll \
-    [list [file join $twapi::scriptdir ../base]]
+load [file join $twapi::scriptdir twapi.dll]
 
 
 # Adds the specified Windows header defines into a global array

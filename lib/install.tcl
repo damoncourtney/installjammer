@@ -24,23 +24,20 @@
 if {[info exists ::InstallJammer]} { return }
 
 proc ::InstallJammer::UpdateInstallInfo {} {
+    global conf
     global info
-
-    set info(SpaceRequired)      0
-    set info(SelectedComponents) [list]
-    set info(SelectedFileGroups) [list]
 
     set setups    [SetupTypes children]
     set setuptype [::InstallJammer::FindObjByName $info(InstallType) $setups]
 
-    set total 0
+    set total      0
+    set filegroups ""
+    set components ""
     foreach component [$setuptype get Components] {
         if {![$component active]} { continue }
 
         set name [$component name]
-        if {[lsearch -exact $info(SelectedComponents) $name] < 0} {
-            lappend info(SelectedComponents) $name
-        }
+        if {[lsearch -exact $components $name] < 0} { lappend components $name }
 
         set doSize 1
         set size [$component get Size]
@@ -62,13 +59,19 @@ proc ::InstallJammer::UpdateInstallInfo {} {
             }
 
             set name [$filegroup name]
-            if {[lsearch -exact $info(SelectedFileGroups) $name] < 0} {
-                lappend info(SelectedFileGroups) $name
+            if {[lsearch -exact $filegroups $name] < 0} {
+                lappend filegroups $name
             }
         }
     }
 
-    set info(SpaceRequired) $total
+    set conf(ModifySelectedComponents) 0
+
+    set info(SpaceRequired)      $total
+    set info(SelectedFileGroups) $filegroups
+    set info(SelectedComponents) $components
+
+    set conf(ModifySelectedComponents) 1
 
     ::InstallJammer::UpdateWidgets
 }
@@ -93,6 +96,7 @@ proc ::InstallJammer::SelectComponent { paneId } {
 proc ::InstallJammer::ToggleComponent { tree id node } {
     global info
 
+    if {![$node get Selectable]} { return }
     if {[$node get RequiredComponent]} { return }
 
     set type $info(InstallTypeID)
@@ -158,19 +162,23 @@ proc ::InstallJammer::SelectSetupType { {node ""} } {
     if {$node ne ""} {
         set name   [$node name]
         set change [expr {$info(InstallType) ne $name}]
-
         set info(InstallType) $name
 
-        set id   [$info(Wizard) raise]
-        set text [$id widget get DescriptionText]
-        set desc [::InstallJammer::GetText $node Description]
+        if {[::InstallJammer::WizardExists]} {
+            set id [$info(Wizard) raise]
+            if {$id eq ""} { return }
 
-        ::InstallJammer::SetText $text $desc
+            set text [$id widget get DescriptionText]
+            set list [$id widget get SetupTypeListBox]
+            if {$text eq "" || $list eq ""} { return }
 
-        ::InstallJammer::SetVirtualText $info(Language) $id \
-            [list DescriptionText $desc]
+            set desc [::InstallJammer::GetText $node Description]
+            ::InstallJammer::SetText $text $desc
+            ::InstallJammer::SetVirtualText $info(Language) $id \
+                [list DescriptionText $desc]
 
-        [$id widget get SetupTypeListBox] selection set $node
+            $list selection set $node
+        }
     }
 
     if {$change} {
@@ -228,6 +236,20 @@ proc ::InstallJammer::ModifyProgramFolder {} {
     } else {
         set info(ProgramFolder) "<%COMMON_PROGRAMS%>/<%ProgramFolderName%>"
     }
+}
+
+proc ::InstallJammer::ModifySelectedComponents {} {
+    global conf
+    global info
+
+    if {!$conf(ModifySelectedComponents)} { return }
+    set conf(ModifySelectedComponents) 0
+
+    set selected $info(SelectedComponents)
+    ::InstallAPI::ComponentAPI -components all -active 0
+    ::InstallAPI::ComponentAPI -components $selected -active 1
+
+    set conf(ModifySelectedComponents) 1
 }
 
 proc ::InstallJammer::ScrollLicenseTextBox { force args } {
@@ -312,6 +334,12 @@ proc ::InstallJammer::exit { {prompt 0} } {
                 ::InstallJammer::StoreLogsInUninstall
             }
         }
+
+        if {$info(EnableResponseFiles) && [::InstallAPI::CommandLineAPI \
+            -do check -option save-response-file]} {
+            ::InstallAPI::ResponseFileAPI -do write \
+                -file $info(SaveResponseFile)
+        }
     } else {
         ::InstallJammer::ExecuteActions "Cancel Actions"
     }
@@ -343,11 +371,7 @@ proc ::InstallJammer::UnpackOutput { line } {
 
             set info(Status) "File installation complete..."
 
-            if {[info exists ::tcl_platform(threaded)]} {
-                #thread::release $conf(UnpackThread)
-            } else {
-                catch { close $conf(UnpackFp) }
-            }
+            if {![threaded]} { catch { close $conf(UnpackFp) } }
             set info(Installing) 0
         }
 
@@ -360,7 +384,8 @@ proc ::InstallJammer::UnpackOutput { line } {
             ::InstallJammer::UpdateWidgets -buttons 0 -updateidletasks 1
 
             if {!$info(GuiMode) && !$info(SilentMode)} {
-		puts ""
+                set cols [expr {$conf(ConsoleWidth) - 2}]
+                ::InstallJammer::ConsoleClearLastLine $cols
                 echo <%Status%> 1
             }
 	}
@@ -370,6 +395,13 @@ proc ::InstallJammer::UnpackOutput { line } {
 	    set perms [lindex $line 2]
 	    lappend conf(directoryPermissions) $dir $perms
 	}
+
+        ":DISC" {
+            set info(RequiredDiscName) [lindex $line 1]
+            ::InstallJammer::MessageBox -message [sub <%InsertDiscText%>]
+            update
+            ::InstallJammer::ContinueInstall
+        }
 
 	":FILE" {
             set file [lindex $line 1]
@@ -436,9 +468,14 @@ proc ::InstallJammer::BuildUnpackInfo { groupList groupArray } {
 
     set fp [open $unpack w]
 
+    ## Some pieces of the internal configuration need to be
+    ## sent to the unpack process.
+    set confArray [array get conf eol,*]
+    eval lappend confArray [array get conf Wow64Disabled]
+
     puts $fp "namespace eval ::InstallJammer {}"
     puts $fp "set info(installer) [list [info nameofexecutable]]"
-    puts $fp "array set conf [list [array get conf eol,*]]"
+    puts $fp "array set conf [list $confArray]"
     puts $fp "array set info [list [array get info]]"
     puts $fp "set groups [list $groupList]"
     puts $fp "array set files [list [array get groups]]"
@@ -449,6 +486,12 @@ proc ::InstallJammer::BuildUnpackInfo { groupList groupArray } {
     puts $fp "[list [array get ::InstallJammer::Properties]]"
 
     puts $fp "proc ::InstallJammer::UpdateFiles {} {"
+    if {[info exists conf(newFiles)]} {
+        foreach obj $conf(newFiles) {
+            puts $fp "File $obj [$obj serialize]"
+        }
+        unset conf(newFiles)
+    }
     if {[info exists conf(modifiedFiles)]} {
         foreach obj $conf(modifiedFiles) {
             puts $fp "$obj configure [$obj serialize]"
@@ -762,6 +805,7 @@ proc ::InstallJammer::ReadPreviousInstall {} {
             set dir [string tolower [::InstallJammer::Normalize $dir]]
         }
 
+        lappend installids  $id
         lappend installdirs $dir
     }
 
@@ -770,6 +814,7 @@ proc ::InstallJammer::ReadPreviousInstall {} {
         set info(PreviousInstall$name) $PreviousInstallInfo($var)
     }
 
+    set info(PreviousInstallIDs)       $installids
     set info(PreviousInstallCount)     [llength [lsort -unique $installdirs]]
     set info(PreviousInstallDirExists) [file exists $info(PreviousInstallDir)]
 }
@@ -969,7 +1014,7 @@ proc ::InstallJammer::AskUserLanguage {} {
 
     set f [$top getframe]
 
-    ttk::label $f.l -text "Please select the installation language"
+    ttk::label $f.l -text [::InstallJammer::SubstText <%SelectLanguageText%>]
     pack $f.l -pady 10
 
     ttk::combobox $f.cb -state readonly \
@@ -1029,6 +1074,9 @@ proc ::InstallJammer::InitInstall {} {
     global info
 
     catch { wm withdraw . }
+
+    ## Check and load the TWAPI extension.
+    ::InstallJammer::LoadTwapi
 
     SourceCachedFile gui.tcl
     SourceCachedFile setup.tcl
@@ -1099,7 +1147,18 @@ proc ::InstallJammer::InitInstall {} {
         ::InstallJammer::UnpackSolidArchives 1
     }
 
-    if {$::tcl_platform(platform) eq "unix"} {
+    if {$conf(windows)} {
+        ## Commented out for now.
+        #if {$info(RequireAdministrator) && !$conf(vista)} {
+            #set admin [::twapi::map_account_to_name S-1-5-32-544]
+            #set members [::twapi::get_local_group_members $admin]
+            #if {[lsearch -glob $members "*\\$info(Username)"] < 0} {
+                #::InstallJammer::Message -title "Install Error" -message \
+                    #[sub "<%RequireAdministratorText%>"]
+                #::exit 1
+            #}
+        #}
+    } elseif {$conf(unix)} {
         if {$info(RequireRoot) && !$info(UserIsRoot)} {
             if {!$info(PromptForRoot)} {
                 ::InstallJammer::Message -title "Root Required" -message \
@@ -1151,14 +1210,17 @@ proc ::InstallJammer::InitInstall {} {
     ::InstallAPI::SetVirtualText -virtualtext ProgramFolderAllUsers \
     	-command ::InstallJammer::ModifyProgramFolder
 
+    ::InstallAPI::SetVirtualText -virtualtext SelectedComponents \
+        -command ::InstallJammer::ModifySelectedComponents
+
     if {$info(UpgradeInstall)} {
         ::InstallJammer::ReadPreviousInstall
+        if {[info exists info(PreviousInstallUninstaller)]} {
+            set info(Uninstaller) $info(PreviousInstallUninstaller)
+        }
     }
 
     ::InstallJammer::SelectSetupType
-
-    ## Check and load the TWAPI extension.
-    ::InstallJammer::LoadTwapi
 }
 
 ::InstallJammer::InitInstall

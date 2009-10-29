@@ -6,7 +6,7 @@ ChooseComponents {
     "Selecione os componentes que seão instalados."
 
     Caption
-    "Selecione os componentes que você quer instalar e deselecione os componentes \
+    "Selecione os componentes que você quer instalar e deselecione os componentes\
      que você não quer instalar."
 
     Message
@@ -177,15 +177,15 @@ SelectDestination {
     "Onde o <%AppName%> deverá ser instalado?"
 
     Caption
-    "A Instalação irá instalar <%AppName%> na seguinte pasta.\n\nPara instalar \
-     nesta pasta, clique em Próximo.  Para instalar em uma pasta diferente, clique \
+    "A Instalação irá instalar <%AppName%> na seguinte pasta.\n\nPara instalar\
+     nesta pasta, clique em Próximo.  Para instalar em uma pasta diferente, clique\
      em Procurar e selecione outra pasta."
 
     Message
     ""
 
     BrowseText
-    "Para continuar, clique em Próximo.  Se você deseja selecionar uma pasta diferente, \
+    "Para continuar, clique em Próximo.  Se você deseja selecionar uma pasta diferente,\
      clique em Procurar."
 
     NextButton
@@ -212,8 +212,8 @@ SelectProgramFolder {
     "Por favor, selecione uma pasta de programa."
 
     Caption
-    "A Instalação adicionará os ícones do programa Pasta de Programas listada abaixo.  \
-     Você poderá digitar um novo nome de pasta or selecionar uma das pastas da lista.  \
+    "A Instalação adicionará os ícones do programa Pasta de Programas listada abaixo. \
+     Você poderá digitar um novo nome de pasta or selecionar uma das pastas da lista. \
      Clique em Próximo para continuar."
 
     Message
@@ -243,7 +243,7 @@ SetupComplete {
     "Assistente InstallJammer Concluído"
 
     Message
-    "O Assistente InstallJammer instalou com sucesso o <%AppName%>.  \
+    "O Assistente InstallJammer instalou com sucesso o <%AppName%>. \
      Clique em Concluir para sair do assistente."
 
     NextButton
@@ -290,8 +290,8 @@ StartCopyingFiles {
     "Reveja as configurações antes de copiar os arquivos"
 
     Caption
-    "A Instalação tem bastante informação para iniciar a cópia dos arquivos do programa.  Se \
-     você deseja revisar or mudar qualquer configuração, clique em Voltar.  Se você está \
+    "A Instalação tem bastante informação para iniciar a cópia dos arquivos do programa.  Se\
+     você deseja revisar or mudar qualquer configuração, clique em Voltar.  Se você está\
      satisfeito com as configurações, clique em Próximo para iniciar a cópia dos arquivos."
 
     Message
@@ -418,7 +418,7 @@ Welcome {
     "Bem vindo ao Assistente InstallJammer para o <%AppName%>"
 
     Message
-    "Será instalado <%AppName%> version <%Version%> em seu computador.\
+    "Será instalado <%AppName%> version <%Version%> em seu computador. \
     \n\nÉ recomendado que você feche todos os outros programas antes de continuar. \n\n
     Clique em Próximo para continuar ou em Cancelar para sair da Instalação."
 

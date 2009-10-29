@@ -132,12 +132,12 @@ License {
     "Accord de licence"
 
     Caption
-    "Lisez SVP l'accord de licence suivant.  Appuyez sur la touche PAGE DOWN \
+    "Lisez SVP l'accord de licence suivant.  Appuyez sur la touche PAGE DOWN\
      pour lire la suite de l'accord de licence."
 
     Message
-    "Acceptez-vous tous les termes du précédent accord de licence ?  Si \
-     vous choisissez Non, l'installation s'arrêtera.  Pour installer <%AppName%>, vous devez \
+    "Acceptez-vous tous les termes du précédent accord de licence ?  Si\
+     vous choisissez Non, l'installation s'arrêtera.  Pour installer <%AppName%>, vous devez\
      accepter cet accord de licence."
 
     Text
@@ -178,9 +178,9 @@ SelectDestination {
     "Sélectionnez le répertoire d'installation"
 
     Caption
-    "L'installation de <%AppName%> s'effectuera dans le répertoire suivant.\n\nPour installer \
-     dans ce répertoire, cliquez sur le bouton SUIVANT.\n\nPour installer dans un autre répertoire, cliquez \
-     sur le bouton PARCOURIR et sélectionnez un autre répertoire.\n\nVous pouvez choisir de ne pas installer \
+    "L'installation de <%AppName%> s'effectuera dans le répertoire suivant.\n\nPour installer\
+     dans ce répertoire, cliquez sur le bouton SUIVANT.\n\nPour installer dans un autre répertoire, cliquez\
+     sur le bouton PARCOURIR et sélectionnez un autre répertoire.\n\nVous pouvez choisir de ne pas installer\
      <%AppName%> en cliquant sur le bouton ANNULER pour sortir de l'installation."
 
     NextButton
@@ -204,8 +204,8 @@ SelectProgramFolder {
     "Sélectionnez le dossier Programme"
 
     Caption
-    "L'installation ajoutera les icônes de programme au dossier Programme affiché ci-dessous.  \
-     Vous pouvez saisir un nouveau nom de dossier ou en sélectionner un dans la liste des dossiers existants.  \
+    "L'installation ajoutera les icônes de programme au dossier Programme affiché ci-dessous. \
+     Vous pouvez saisir un nouveau nom de dossier ou en sélectionner un dans la liste des dossiers existants. \
      Cliquez sur SUIVANT pour continuer."
 
     ProgramFolderLabel
@@ -232,7 +232,7 @@ Setup {
     "Installation"
 
     Caption
-    "L'installation prépare l'assistant InstallJammer qui vous guidera tout \
+    "L'installation prépare l'assistant InstallJammer qui vous guidera tout\
      au long du processus d'installation.  Patientez SVP."
 }
 
@@ -278,9 +278,9 @@ StartCopyingFiles {
     "Copie des fichiers"
 
     Caption
-    "L'installeur a maintenant assez d'informations pour commencer à copier les fichiers.  Si \
-     vous voulez revoir ou modifier le paramétrage, cliquez sur PRECEDENT.  Si vous êtes \
-     satisfait du paramétrage, cliquez sur suivant pour commencer à copier les fichiers.\
+    "L'installeur a maintenant assez d'informations pour commencer à copier les fichiers.  Si\
+     vous voulez revoir ou modifier le paramétrage, cliquez sur PRECEDENT.  Si vous êtes\
+     satisfait du paramétrage, cliquez sur suivant pour commencer à copier les fichiers. \
      \n\nParamétrage courant:"
 
     Text
@@ -377,15 +377,15 @@ Welcome {
     "Ecran d'accueil"
 
     Caption
-    "Bienvenue dans le programme d'installation de <%AppName%>.  Ce programme installera \
+    "Bienvenue dans le programme d'installation de <%AppName%>.  Ce programme installera\
      <%AppName%> sur votre ordinateur."
 
     Message
     "Il est fortement recommandé de fermer tous les programmes en cours d'exécution. \
-     Cliquez sur SUIVANT pour continuer l'installation.\n\nATTENTION: \
-     Ce programme est protégé par les lois du copyright et les traités \
-     internationaux.\n\nToute reproduction interdite ou distribution de ce programme, \
-     dans son intégralité ou en partie, entrainera des poursuites civils et criminelles, \
+     Cliquez sur SUIVANT pour continuer l'installation.\n\nATTENTION:\
+     Ce programme est protégé par les lois du copyright et les traités\
+     internationaux.\n\nToute reproduction interdite ou distribution de ce programme,\
+     dans son intégralité ou en partie, entrainera des poursuites civils et criminelles,\
      avec l'ampleur maximale autorisée par la loi."
 
     NextButton

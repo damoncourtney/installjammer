@@ -359,6 +359,9 @@ proc ::InstallJammer::actions::AddWidget { obj } {
     place $widget -in $window -x $props(X) -y $props(Y) \
         -width $props(Width) -height $props(Height)
 
+    bind $widget <Destroy> \
+        "+unset -nocomplain ::InstallJammer::UserWidgets($id)"
+
     if {$validate ne "" && $command ne ""} {
         foreach event [split $validate \;] {
             set event [string trim $event]

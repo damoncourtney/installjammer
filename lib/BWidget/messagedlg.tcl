@@ -134,7 +134,6 @@ proc MessageDlg::create { path args } {
 
         eval [list Dialog::create $path] $maps(:cmd) \
 	    [list -image $image -modal local -side bottom -anchor c]
-	wm protocol  $path WM_DELETE_WINDOW {bell}
         wm resizable $path 0 0
 
         bind $path <Key-Left>  [list MessageDlg::_key_traversal $path left]

@@ -1,11 +1,11 @@
-[02 December 2008]
+[07 July 2009]
 
-ANNOUNCE: InstallJammer Multiplatform Installer, version 1.2.12
+ANNOUNCE: InstallJammer Multiplatform Installer, version 1.2.13
 
 The InstallJammer Team is pleased to announce the release of
-InstallJammer 1.2.12!
+InstallJammer 1.2.13!
 
-This is a minor bug fix release.
+This release contains minor bug fixes and enhancements.
 
 ~ What is it?
 
@@ -28,9 +28,9 @@ InstallJammer Features:
 * Easily extended to new platforms.
 
 
-~ What's New in 1.2.12
+~ What's New in 1.2.13
 
-This is a minor bug fix release.
+This release contains minor bug fixes and enhancements.
 Please see the Release Notes in the documentation for
 a full list of changes.  The complete ChangeLog is
 also included with each release.
@@ -48,13 +48,13 @@ Downloads are available at:
 http://www.installjammer.com/download/
 
 Windows Download
-http://downloads.installjammer.com/installjammer/1.2/InstallJammer-1.2.12-Setup.exe
+http://downloads.installjammer.com/installjammer/1.2/InstallJammer-1.2.13-Setup.exe
 
 Linux Download
-http://downloads.installjammer.com/installjammer/1.2/InstallJammer-1.2.12-Linux-x86-Install
+http://downloads.installjammer.com/installjammer/1.2/InstallJammer-1.2.13-Linux-x86-Install
 
 All Other Platform Downloads
-http://downloads.installjammer.com/installjammer/1.2/installjammer-1.2.12.tar.gz
+http://downloads.installjammer.com/installjammer/1.2/installjammer-1.2.13.tar.gz
 
 
 Feedback and bug reports are greatly appreciated.

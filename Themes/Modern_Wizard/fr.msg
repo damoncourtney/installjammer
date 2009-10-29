@@ -176,15 +176,15 @@ SelectDestination {
     "Où installer <%AppName%> ?"
 
     Caption
-    "L'installation de <%AppName%> s'effectuera dans le répertoire suivant.\n\nPour installer \
-     dans ce répertoire, cliquez sur le bouton SUIVANT.\n\nPour installer dans un autre répertoire, cliquez \
+    "L'installation de <%AppName%> s'effectuera dans le répertoire suivant.\n\nPour installer\
+     dans ce répertoire, cliquez sur le bouton SUIVANT.\n\nPour installer dans un autre répertoire, cliquez\
      sur le bouton PARCOURIR et sélectionnez un autre répertoire."
 
     Message
     ""
 
     BrowseText
-    "Pour continuer, cliquez sur SUIVANT.  Pour sélectionner un répertoire \
+    "Pour continuer, cliquez sur SUIVANT.  Pour sélectionner un répertoire\
      différent, cliquez sur PARCOURIR."
 
     NextButton
@@ -211,8 +211,8 @@ SelectProgramFolder {
     "Sélectionnez un dossier Programme SVP."
 
     Caption
-    "L'installation ajoutera les icônes de programme au dossier Programme affiché ci-dessous.  \
-     Vous pouvez saisir un nouveau nom de dossier ou en sélectionner un dans la liste des dossiers existants.  \
+    "L'installation ajoutera les icônes de programme au dossier Programme affiché ci-dessous. \
+     Vous pouvez saisir un nouveau nom de dossier ou en sélectionner un dans la liste des dossiers existants. \
      Cliquez sur SUIVANT pour continuer."
 
     Message
@@ -242,7 +242,7 @@ SetupComplete {
     "L'assistant InstallJammer est terminé"
 
     Message
-    "L'assistant InstallJammer a installé <%AppName%> avec succès.  \
+    "L'assistant InstallJammer a installé <%AppName%> avec succès. \
      Cliquez sur TERMINER pour quitter l'assistant."
 
     NextButton
@@ -289,8 +289,8 @@ StartCopyingFiles {
     "Contrôle du paramétrage avant la copie de fichiers"
 
     Caption
-    "L'installeur a maintenant assez d'informations pour commencer à copier les fichiers.  Si \
-     vous voulez revoir ou modifier le paramétrage, cliquez sur PRECEDENT.  Si vous êtes \
+    "L'installeur a maintenant assez d'informations pour commencer à copier les fichiers.  Si\
+     vous voulez revoir ou modifier le paramétrage, cliquez sur PRECEDENT.  Si vous êtes\
      satisfait du paramétrage, cliquez sur suivant pour commencer à copier les fichiers."
 
     Message
@@ -421,8 +421,8 @@ Welcome {
     "Bienvenue dans l'assistant d'installation InstallJammer pour <%AppName%>"
 
     Message
-    "Ceci installera <%AppName%> version <%Version%> sur votre ordinateur.\
-    \n\nIl est recommandé de fermer toutes les autres applications avant \
+    "Ceci installera <%AppName%> version <%Version%> sur votre ordinateur. \
+    \n\nIl est recommandé de fermer toutes les autres applications avant\
     de continuer.\n\nCliquez sur SUIVANT pour continuer ou ANNULER pour quitter l'installation."
 
     NextButton

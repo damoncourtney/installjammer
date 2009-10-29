@@ -97,7 +97,18 @@ proc ::InstallJammer::actions::ModifyWidget { obj } {
 		eval [list $child configure] $allArgs
 	    }
 	} else {
-	    eval [list $w configure] $allArgs $labelArgs
+            if {$class eq "Text"} {
+                eval [list $w configure] $allArgs
+                if {[llength $labelArgs]} {
+                    set state [$w cget -state]
+                    $w configure -state normal
+                    $w delete 1.0
+                    $w insert end $props(Text)
+                    $w configure -state $state
+                }
+            } else {
+                eval [list $w configure] $allArgs $labelArgs
+            }
 	}
 
         if {$props(State) eq "hidden" && ![info exists hidden($w)]} {
@@ -111,5 +122,7 @@ proc ::InstallJammer::actions::ModifyWidget { obj } {
         }
     }
 
-    ::InstallJammer::UpdateWidgets -buttons 1 -updateidletasks 1
+    if {$props(Text) ne ""} {
+        ::InstallJammer::UpdateWidgets -buttons 1 -updateidletasks 1
+    }
 }

@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 #FHNonScroll
-{padding: 6px 6px 0px 6px; border-bottom: none; background: #6699FF; vertical-align: top;z-index: 2; visibility: visible; position: absolute; left: 0; top: 0; width: 100%; }
+{padding: 6px 6px 0px 6px; border-bottom: none; background: #D1D1D1; vertical-align: top;z-index: 2; visibility: visible; position: absolute; left: 0; top: 0; width: 100%; }
 #FHScroll
 {left: 0; top: 0px; position: absolute; margin: 0; padding: 10px; z-index: 1; background-repeat: no-repeat; background-position: bottom right; background-attachment: fixed; }
 
@@ -61,14 +61,13 @@ p,ul,ol /* Left */
 <script type="text/javascript" language="JavaScript" src="FHUtilities.js"></script>
 <script type="text/JavaScript" language="JavaScript">
 <!-- If this page is displayed outside of the Website Help Frameset, then reload in the Frame set
-var stContextString;
 if (parent.location.href == self.location.href)
 {location.href = "index.html?"+extractFileNameWithoutKnownExtension(location.href);}
 //--></script>
 <script type="text/javascript" language="JavaScript" src="FHNonscroll.js"></script><script type="text/javascript" language="JavaScript" src="FHUtilities.js"></script></HEAD>
 <body bgcolor="#FFFFFF" scroll="no"><div id="FHNonScroll"><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="100%" align="left">
 <font size=2 color="#000000" face="Arial">
-<div><font size=5 color="#333399" face="Verdana"><b>Platform Information</b></font></div>
+<div><font size=5 color="#333333" face="Verdana"><b>Platform Information</b></font></div>
 </font>
 </TD><td width="120" align="right" nowrap><font face="Verdana" size="2"><a href="ApplicationInformation.html"><img src="Images/BrowseBlueLeft.png" border="0" alt="Previous Topic"></a>&nbsp;&nbsp;<a href="PackageAndArchiveInformation.html"><img src="Images/BrowseBlueRight.png" border="0" alt="Next Topic"></a>&nbsp;</font></td></tr></table></div><div id="FHScroll">
 
@@ -155,7 +154,7 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts3>Prompt for Root Password</span></p>
 <p class=rvps1><span class=rvts4>If this property is true, and Require Root User is true, the user will be asked to specify their root password to continue instead of just getting a failure message and the installer exiting.&nbsp; When the user enters their root password, the installer will be restarted with the same options.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
-<div class=rvps1><table border=0 cellpadding=1 cellspacing=2>
+<div class=rvps1><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=33>
 <p class=rvps1><img border="0" src="Images/detail.jpg" alt="Technical Detail" width="32" height="32"></p>
@@ -167,6 +166,9 @@ if (parent.location.href == self.location.href)
 </table>
 </div>
 <p class=rvps1><span class=rvts4><br></span></p>
+<p class=rvps1><span class=rvts3>Require Administrator (Windows only)</span></p>
+<p class=rvps1><span class=rvts4>If this property is true, the resulting installer will only work if the user is an administrator on the target Windows system.&nbsp; For Vista and beyond, this means the installer is built as an executable that requires administrator privileges, and the user will be asked for an administrator password before the install is executed.&nbsp; For now, Vista and beyond are the only versions of Windows affected by this flag.&nbsp; Windows 98 and XP will simply ignore this property for now.</span></p>
+<p class=rvps1><span class=rvts4><br></span></p>
 <p class=rvps1><span class=rvts3>Require Root User (UNIX only)</span></p>
 <p class=rvps1><span class=rvts4>Whether or not the user must install this application as root.</span></p>
 <p class=rvps1><span class=rvts4><br></span></p>
@@ -177,7 +179,7 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts4><br></span></p>
 <p class=rvps1><span class=rvts4>In most cases, an application can either install in a system location if the user is root or into the user's home directory if the user is not root.&nbsp; The root destination directory tells InstallJammer where the application should be installed if the user is installing as root.&nbsp; If the user is not root, or this option is left blank, InstallJammer will fall back to the Default Destination Directory for all installs.</span></p>
 <p class=rvps1><span class=rvts3><br></span></p>
-<div class=rvps1><table border=0 cellpadding=1 cellspacing=2>
+<div class=rvps1><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=22>
 <p class=rvps1><img border="0" src="Images/note.jpg" alt="Note" width="32" height="32"></p>
@@ -189,6 +191,9 @@ if (parent.location.href == self.location.href)
 </table>
 </div>
 <p class=rvps1><span class=rvts3><br></span></p>
+<p class=rvps1><span class=rvts3>Use Uncompressed Binaries (Windows only)</span></p>
+<p class=rvps1><span class=rvts4>If this property is true, the Windows installers will be built as uncompressed binaries.&nbsp; Installers built with InstallJammer are compressed using varying compression technologies for each platform.&nbsp; This is an attempt to keep the installers smaller at the cost of a slight increase in startup time.&nbsp; Some anti-virus software can mistakenly mark a compressed binary as having a virus when they actually don't.&nbsp; For this reason, it is sometimes best to build with the original, uncompressed binaries on Windows platforms.&nbsp; If you do build with uncompressed binaries, your installers will be several megabytes larger than the compressed versions.</span></p>
+<p class=rvps1><span class=rvts4><br></span></p>
 <p class=rvps1><span class=rvts3>Windows File Icon (Windows only)</span></p>
 <p class=rvps1><span class=rvts4>The .ico to associate with your installer.&nbsp; If the icon path given is a relative path, InstallJammer will first attempt to locate the .ico file in the project's own directory and then in InstallJammer's root directory.</span></p>
 <p class=rvps1><span class=rvts4><br></span></p>

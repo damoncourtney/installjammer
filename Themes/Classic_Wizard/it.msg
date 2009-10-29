@@ -11,7 +11,7 @@ ChooseComponents {
     "Installazione personalizzata"
 
     Caption
-    "Selezionare le parti che si desidera installare e deselezionare le \
+    "Selezionare le parti che si desidera installare e deselezionare le\
     parti che non si desidera installare."
 
     ComponentLabel
@@ -133,12 +133,12 @@ License {
     "Contratto di Licenza d'uso"
 
     Caption
-    "Si prega di leggere il Contratto di Licenza d'uso che segue.  Premere \
+    "Si prega di leggere il Contratto di Licenza d'uso che segue.  Premere\
     il tasto PAGINA GIU' per vedere il resto del contratto."
 
     Message
-    "Si accettano tutte le condizioni del Contratto di Licenza riportato? \
-    Se si sceglie No, il programma di installazione sarÃ  terminato. Per \
+    "Si accettano tutte le condizioni del Contratto di Licenza riportato?\
+    Se si sceglie No, il programma di installazione sarÃ  terminato. Per\
     installare <%AppName%>, Ã¨ necessario accettare il presente contratto."
 
     Text
@@ -179,9 +179,9 @@ SelectDestination {
     "Selezionare la directory di destinazione"
 
     Caption
-    "Il programma di installazione sta per installare <%AppName%> \
-     nella seguente cartella.\n\nPer installare in questa cartella, premere su Avanti.\n\nPer installare in una cartella diversa, premere su Sfoglia \
-     e selezionare un'altra cartella.\n\nSi può scegliere di non installare \
+    "Il programma di installazione sta per installare <%AppName%>\
+     nella seguente cartella.\n\nPer installare in questa cartella, premere su Avanti.\n\nPer installare in una cartella diversa, premere su Sfoglia\
+     e selezionare un'altra cartella.\n\nSi può scegliere di non installare\
      <%AppName%> premendo su Annulla per uscire dal programma di installazione."
 
     NextButton
@@ -205,9 +205,9 @@ SelectProgramFolder {
     "Selezionare la cartella del programma"
 
     Caption
-    "Il programma di installazione aggiungerà le icone del programma nella \
-     cartella elencata sotto. Si può inserire il nome di una nuova \
-     cartella o selezionarla dalla lista delle cartelle esistenti. Premere \
+    "Il programma di installazione aggiungerà le icone del programma nella\
+     cartella elencata sotto. Si può inserire il nome di una nuova\
+     cartella o selezionarla dalla lista delle cartelle esistenti. Premere\
      su Avanti per proseguire."
 
     ProgramFolderLabel
@@ -234,8 +234,8 @@ Setup {
     "Installazione"
 
     Caption
-    "Il programma di installazione sta preparando l'autocomposizione di \
-     InstallJammer che seguirà l'utente nel restante processo di \
+    "Il programma di installazione sta preparando l'autocomposizione di\
+     InstallJammer che seguirà l'utente nel restante processo di\
      installazione. Si prega di attendere."
 }
 
@@ -264,7 +264,7 @@ SetupType {
     "Tipologia di installazione"
 
     Caption
-    "Selezionare la tipologia di installazione che si preferisce, poi \
+    "Selezionare la tipologia di installazione che si preferisce, poi\
      premere su Avanti."
 
     NextButton
@@ -282,10 +282,10 @@ StartCopyingFiles {
     "Inizio della copia dei file"
 
     Caption
-    "Il programma di installazione dispone di sufficienti informazioni per  \
-     iniziare la copia dei file del programma. Se si desidera controllare \
-     o modificare le impostazioni, premere su Indietro. Se si è soddisfatti \
-     delle impostazioni, premere su Avanti per iniziare a copiare i file \
+    "Il programma di installazione dispone di sufficienti informazioni per\
+     iniziare la copia dei file del programma. Se si desidera controllare\
+     o modificare le impostazioni, premere su Indietro. Se si è soddisfatti\
+     delle impostazioni, premere su Avanti per iniziare a copiare i file\
      \n\nImpostazioni correnti:"
 
     Text
@@ -382,17 +382,17 @@ Welcome {
     "Schermata di benvenuto"
 
     Caption
-    "Benvenuti nel programma di installazione di <%AppName%>. Il programma \
+    "Benvenuti nel programma di installazione di <%AppName%>. Il programma\
      installerà <%AppName%> sul computer."
 
     Message
-    "E' vivamente consigliata l'uscita da tutti i programmi Windows che \
-     sono in esecuzione. Premere su Avanti per proseguire con il programma \
-     di installazione.\n\nATTENZIONE: \
-     Questo programma è protetto dalla legge sul diritto d'autore e dai \
-     trattati internazionali.\
-     \n\nLa riproduzione o distribuzione non autorizzata del programma, \
-     o di parte di esso, può comportare gravi sanzioni civili e penali, \
+    "E' vivamente consigliata l'uscita da tutti i programmi Windows che\
+     sono in esecuzione. Premere su Avanti per proseguire con il programma\
+     di installazione.\n\nATTENZIONE:\
+     Questo programma è protetto dalla legge sul diritto d'autore e dai\
+     trattati internazionali. \
+     \n\nLa riproduzione o distribuzione non autorizzata del programma,\
+     o di parte di esso, può comportare gravi sanzioni civili e penali,\
      e sarà perseguita fino al massimo livello consentito dalla legge."
 
     NextButton

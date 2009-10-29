@@ -27,21 +27,6 @@ Property WidgetID widget "Widget ID"
 
 proc ::InstallJammer::actions::FocusOnWidget { obj } {
     $obj properties props -subst 1
-
-    set wid [::InstallJammer::ID $props(WidgetID)]
-
-    if {![catch { $wid window } window] && [winfo exists $window]} {
-	set class [winfo class $window]
-    	if {$class eq "Frame" || $class eq "TFrame"} {
-	    foreach child [winfo children $window] {
-	    	set class [winfo class $child]
-		if {$class eq "Entry" || $class eq "TEntry"} {
-		    set window $child
-		    break
-		}
-	    }
-	}
-
-        focus $window
-    }
+    set w [::InstallAPI::GetWidgetPath -widget $props(WidgetID)]
+    if {[winfo exists $w]} { focus $w }
 }

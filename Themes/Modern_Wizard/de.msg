@@ -6,7 +6,7 @@ ChooseComponents {
     "Wählen Sie die zu installierenden Komponenten aus."
 
     Caption
-    "Wählen Sie die zu installierenden Komponenten aus und deselektieren Sie \
+    "Wählen Sie die zu installierenden Komponenten aus und deselektieren Sie\
      die Komponenten, die Sie nicht installieren möchten."
 
     Message
@@ -177,16 +177,16 @@ SelectDestination {
     "Wohin soll <%AppName%> installiert werden?"
 
     Caption
-    "Setup wird <%AppName%> in das folgende Verzeichnis installieren.  \
+    "Setup wird <%AppName%> in das folgende Verzeichnis installieren. \
     \n\nKlicken Sie auf Weiter, wenn dieses Verzeichnis verwendet werden soll. \
-    Um ein anderes Verzeichnis auszuwählen, klicken Sie auf Durchsuchen und \
+    Um ein anderes Verzeichnis auszuwählen, klicken Sie auf Durchsuchen und\
     wählen ein anderes aus."
 
     Message
     ""
 
     BrowseText
-    "Um Fortzufahren, klicken Sie auf Weiter.  Wenn Sie ein anderes Verzeichnis  \
+    "Um Fortzufahren, klicken Sie auf Weiter.  Wenn Sie ein anderes Verzeichnis\
     verwenden möchten, klicken Sie auf Durchsuchen."
 
     NextButton
@@ -213,9 +213,9 @@ SelectProgramFolder {
     "Bitte wählen Sie einen Programmordner."
 
     Caption
-    "Setup wird die Programmsymbole zum unten aufgeführten Programmordner  \
-    hinzufügen. Sie können einen neuen Ordnernamen eingeben oder einen von der  \
-    von der existierenden Ordnerliste auswählen. Klicken Sie auf Weiter um  \
+    "Setup wird die Programmsymbole zum unten aufgeführten Programmordner\
+    hinzufügen. Sie können einen neuen Ordnernamen eingeben oder einen von der\
+    von der existierenden Ordnerliste auswählen. Klicken Sie auf Weiter um\
     Fortzufahren."
 
     Message
@@ -263,7 +263,7 @@ SetupType {
     "Setup Art"
 
     Subtitle
-    "Wählen Sie die Art des Setup, welche am Besten Ihren Anforderungen \
+    "Wählen Sie die Art des Setup, welche am Besten Ihren Anforderungen\
     entspricht."
 
     Caption
@@ -293,9 +293,9 @@ StartCopyingFiles {
     "Überprüfen Sie die Einstellungen, bevor die Dateien kopiert werden."
 
     Caption
-    "Setup hat genug Informationen, um die Programmdateien \
-    zu kopieren. Wenn Sie die Einstellungen überprüfen oder ändern möchten, \
-    klicken Sie auf Zurück. Wenn Sie mit den Einstellungen zufrieden sind, \
+    "Setup hat genug Informationen, um die Programmdateien\
+    zu kopieren. Wenn Sie die Einstellungen überprüfen oder ändern möchten,\
+    klicken Sie auf Zurück. Wenn Sie mit den Einstellungen zufrieden sind,\
     klicken Sie auf Weiter, um mit dem Kopieren der Dateien zu beginnen."
 
     Message
@@ -399,7 +399,7 @@ UserInformation {
     "Bitte geben Sie Ihre Informationen ein."
 
     Caption
-    "Bitte geben Sie Ihren Namen und den Namen der Firma ein, für die Sie  \
+    "Bitte geben Sie Ihren Namen und den Namen der Firma ein, für die Sie\
     arbeiten."
 
     Message
@@ -427,9 +427,9 @@ Welcome {
     "Willkommen beim InstallJammer Assistenten für <%AppName%>"
 
     Message
-    "Dies wird <%AppName%> Version <%Version%> auf Ihrem Computer installieren.\
+    "Dies wird <%AppName%> Version <%Version%> auf Ihrem Computer installieren. \
     \n\nEs wird empfohlen, das Sie alle anderen Anwendungen schließen, bevor\
-    Sie fortfahren.\n\nKlicken Sie auf Weiter um Fortzufahren oder auf \
+    Sie fortfahren.\n\nKlicken Sie auf Weiter um Fortzufahren oder auf\
     Abbrechen, um das Setup zu beenden."
 
     NextButton

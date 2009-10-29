@@ -78,7 +78,7 @@ proc Dialog::create { path args } {
     }
     toplevel $path -relief $re -borderwidth $bd -class $class \
         -background $::BWidget::colors(SystemButtonFace)
-    wm protocol $path WM_DELETE_WINDOW [list Dialog::enddialog $path -1 1]
+    wm protocol $path WM_DELETE_WINDOW [list Dialog::cancel $path]
 
     Widget::initFromODB Dialog $path $maps(Dialog)
 
@@ -335,8 +335,6 @@ proc Dialog::draw { path {focus ""} {overrideredirect 0} {geometry ""} } {
         withdraw $path
         return $res
     }
-
-    return
 }
 
 

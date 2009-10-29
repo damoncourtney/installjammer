@@ -35,7 +35,6 @@ proc ::InstallJammer::actions::MoveForward { obj } {
         ::InstallAPI::Exit
     } else {
         debug "Moving forward to $next"
-        after 0 [list $info(Wizard) next 1]
-        set conf(stopActions) 1
+        set conf(moveToPane) "next"
     }
 }

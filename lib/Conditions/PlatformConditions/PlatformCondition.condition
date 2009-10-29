@@ -23,14 +23,14 @@
 
 Condition PlatformCondition "Platform Condition"
 
-Property Operator choice "Operator" "is" {is "is not"}
-Property Platform choice "Platform" "" \
-  {AIX-ppc FreeBSD-4-x86 FreeBSD-x86 HPUX-hppa Linux-x86 Solaris-sparc Windows}
+Property Operator choice "Operator" "is" \
+  {"is" "is not" "matches" "does not match"}
+Property Platform platform "Platform" ""
 
 proc ::InstallJammer::conditions::PlatformCondition { obj } {
     global info
 
-    $obj properties props
+    $obj properties props -subst 1
 
     debug "Checking to see if <%Platform%> $props(Operator) $props(Platform)"
 
@@ -41,6 +41,14 @@ proc ::InstallJammer::conditions::PlatformCondition { obj } {
 
         "is not" {
             return [expr {$info(Platform) ne $props(Platform)}]
+        }
+
+        "matches" {
+            return [string match $props(Platform) $info(Platform)]
+        }
+
+        "does not match" {
+            return [expr {![string match $props(Platform) $info(Platform)]}]
         }
     }
 }

@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 #FHNonScroll
-{padding: 6px 6px 0px 6px; border-bottom: none; background: #6699FF; vertical-align: top;z-index: 2; visibility: visible; position: absolute; left: 0; top: 0; width: 100%; }
+{padding: 6px 6px 0px 6px; border-bottom: none; background: #D1D1D1; vertical-align: top;z-index: 2; visibility: visible; position: absolute; left: 0; top: 0; width: 100%; }
 #FHScroll
 {left: 0; top: 0px; position: absolute; margin: 0; padding: 10px; z-index: 1; background-repeat: no-repeat; background-position: bottom right; background-attachment: fixed; }
 
@@ -65,14 +65,13 @@ p,ul,ol /* Left */
 <script type="text/javascript" language="JavaScript" src="FHUtilities.js"></script>
 <script type="text/JavaScript" language="JavaScript">
 <!-- If this page is displayed outside of the Website Help Frameset, then reload in the Frame set
-var stContextString;
 if (parent.location.href == self.location.href)
 {location.href = "index.html?"+extractFileNameWithoutKnownExtension(location.href);}
 //--></script>
 <script type="text/javascript" language="JavaScript" src="FHNonscroll.js"></script><script type="text/javascript" language="JavaScript" src="FHUtilities.js"></script></HEAD>
 <body bgcolor="#FFFFFF" scroll="no"><div id="FHNonScroll"><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="100%" align="left">
 <font size=2 color="#000000" face="Arial">
-<div><font size=5 color="#333399" face="Verdana"><b>Check for Previous Install</b></font></div>
+<div><font size=5 color="#333333" face="Verdana"><b>Check for Previous Install</b></font></div>
 </font>
 </TD><td width="120" align="right" nowrap><font face="Verdana" size="2"><a href="AddToUninstall.html"><img src="Images/BrowseBlueLeft.png" border="0" alt="Previous Topic"></a>&nbsp;&nbsp;<a href="GetPreviousInstallInfo.html"><img src="Images/BrowseBlueRight.png" border="0" alt="Next Topic"></a>&nbsp;</font></td></tr></table></div><div id="FHScroll">
 
@@ -80,13 +79,13 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts2>The following virtual text variables are set as a result of this action:</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
-<div class=rvps1><table border=0 cellpadding=1 cellspacing=2>
+<div class=rvps1><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=22>
 <p class=rvps1><img border="0" src="Images/note.jpg" alt="Note" width="32" height="32"></p>
 </td>
 <td width=604>
-<p class=rvps1><span class=rvts5>Version 1.0 of InstallJammer only defined the &lt;%PreviousInstallExists%&gt; and &lt;%PreviousInstallDir%&gt; variables.&nbsp; You should use a </span><a class=rvts4 href="VirtualTextExistsCondition.html">Virtual Text Exists Condition</a><span class=rvts5> if you are unsure of whether the previous install virtual text you want exists.</span></p>
+<p class=rvps1><span class=rvts5>Version 1.0 of InstallJammer only defined the &lt;%PreviousInstallExists%&gt; and &lt;%PreviousInstallDir%&gt; variables.&nbsp; You should use a </span><a class=rvts4 href="VirtualTextTestCondition.html">Virtual Text Exists Condition</a><span class=rvts5> if you are unsure of whether the previous install virtual text you want exists.</span></p>
 <p class=rvps1><span class=rvts5><br></span></p>
 <p class=rvps1><span class=rvts5>If &lt;%PreviousInstallExists%&gt; is false, none of the rest of this virtual text is set.</span></p>
 </td>
@@ -118,7 +117,10 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts3>&lt;%PreviousInstallID%&gt;</span></p>
 <p class=rvps1><span class=rvts2>The Install ID of the last install.&nbsp; This is the ID that is generated everytime an installer is run, so this ID will change with each subsequent install.</span></p>
-<p class=rvps1><span class=rvts3><br></span></p>
+<p class=rvps1><span class=rvts2><br></span></p>
+<p class=rvps1><span class=rvts3>&lt;%PreviousInstallIDs%&gt;</span></p>
+<p class=rvps1><span class=rvts2>This virtual text contains a list of all previous install IDs that have been installed for this application.</span></p>
+<p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts3>&lt;%PreviousInstallRealUser%&gt;</span></p>
 <p class=rvps1><span class=rvts2>The real username of the person who installed last.&nbsp; This is the real username even if the user was running as root.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
@@ -140,7 +142,7 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts3>&lt;%PreviousInstallVersionString%&gt;</span></p>
 <p class=rvps1><span class=rvts2>The install version string (1.0a1, etc...) of the last install.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
-<div class=rvps1><table border=0 cellpadding=1 cellspacing=2>
+<div class=rvps1><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=22>
 <p class=rvps1><img border="0" src="Images/note.jpg" alt="Note" width="32" height="32"></p>

@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 #FHNonScroll
-{padding: 6px 6px 0px 6px; border-bottom: none; background: #6699FF; vertical-align: top;z-index: 2; visibility: visible; position: absolute; left: 0; top: 0; width: 100%; }
+{padding: 6px 6px 0px 6px; border-bottom: none; background: #D1D1D1; vertical-align: top;z-index: 2; visibility: visible; position: absolute; left: 0; top: 0; width: 100%; }
 #FHScroll
 {left: 0; top: 0px; position: absolute; margin: 0; padding: 10px; z-index: 1; background-repeat: no-repeat; background-position: bottom right; background-attachment: fixed; }
 
@@ -53,14 +53,13 @@ p,ul,ol /* Left */
 <script type="text/javascript" language="JavaScript" src="FHUtilities.js"></script>
 <script type="text/JavaScript" language="JavaScript">
 <!-- If this page is displayed outside of the Website Help Frameset, then reload in the Frame set
-var stContextString;
 if (parent.location.href == self.location.href)
 {location.href = "index.html?"+extractFileNameWithoutKnownExtension(location.href);}
 //--></script>
 <script type="text/javascript" language="JavaScript" src="FHNonscroll.js"></script><script type="text/javascript" language="JavaScript" src="FHUtilities.js"></script></HEAD>
 <body bgcolor="#FFFFFF" scroll="no"><div id="FHNonScroll"><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="100%" align="left">
 <font size=2 color="#000000" face="Arial">
-<div><font size=5 color="#333399" face="Verdana"><b>Install Builder Command Line Options</b></font></div>
+<div><font size=5 color="#333333" face="Verdana"><b>Install Builder Command Line Options</b></font></div>
 </font>
 </TD><td width="120" align="right" nowrap><font face="Verdana" size="2"><a href="InstallBuilderPreferences.html"><img src="Images/BrowseBlueLeft.png" border="0" alt="Previous Topic"></a>&nbsp;&nbsp;<a href="ApplicationInformation.html"><img src="Images/BrowseBlueRight.png" border="0" alt="Next Topic"></a>&nbsp;</font></td></tr></table></div><div id="FHScroll">
 
@@ -94,6 +93,9 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts3>--build-for-release</span></p>
 <p class=rvps1><span class=rvts2>If this option is specified, the project file being built will be built for final release.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
+<p class=rvps1><span class=rvts3>--build-log-file</span></p>
+<p class=rvps1><span class=rvts2>Specifies a filename to save the build log information to.&nbsp; The default is build.log in the project directory.</span></p>
+<p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts3>--control-script &lt;scriptFile&gt;</span></p>
 <p class=rvps1><span class=rvts2>This option specifies a script to source in when InstallJammer is building from the command line.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
@@ -113,7 +115,9 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts2>Specifies the output directory to store the resulting installers in when they are built.&nbsp; InstallJammer will attempt to create the directory if it does not already exist.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts3>--platform &lt;platform&gt;</span></p>
-<p class=rvps1><span class=rvts2>This option can be specified with the -b option to tell InstallJammer to only build certain platforms. Each platform name specified with a -p will be built instead of building all of the platforms (the default option). More than one -p platform can be specified, and each platform will be appended to the build list. </span></p>
+<p class=rvps1><span class=rvts2>This option can be specified with the --build option to tell InstallJammer to only build certain platforms. Each platform name specified with a --platform will be built instead of building all of the platforms (the default option). More than one --platform option can be specified, and each platform will be appended to the build list.&nbsp; To get a list of the available platforms and exactly how they are spelled, look in the Binaries/ directory.&nbsp; Each supported platform will have a subdirectory in that directory.&nbsp; You must specify the platform exactly as it is in the Binaries/ directory.</span></p>
+<p class=rvps1><span class=rvts2><br></span></p>
+<p class=rvps1><span class=rvts2>You can also specify 'tar' and/or 'zip' as shorthand platforms for the tar and zip archives.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts3>--quick-build</span></p>
 <p class=rvps1><span class=rvts2>If this option is specified, the given project file will be rebuilt without repackaging the files for the installer just as a quick build in the GUI.</span></p>

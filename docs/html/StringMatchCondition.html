@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 #FHNonScroll
-{padding: 6px 6px 0px 6px; border-bottom: none; background: #6699FF; vertical-align: top;z-index: 2; visibility: visible; position: absolute; left: 0; top: 0; width: 100%; }
+{padding: 6px 6px 0px 6px; border-bottom: none; background: #D1D1D1; vertical-align: top;z-index: 2; visibility: visible; position: absolute; left: 0; top: 0; width: 100%; }
 #FHScroll
 {left: 0; top: 0px; position: absolute; margin: 0; padding: 10px; z-index: 1; background-repeat: no-repeat; background-position: bottom right; background-attachment: fixed; }
 
@@ -85,14 +85,13 @@ p,ul,ol /* Left */
 <script type="text/javascript" language="JavaScript" src="FHUtilities.js"></script>
 <script type="text/JavaScript" language="JavaScript">
 <!-- If this page is displayed outside of the Website Help Frameset, then reload in the Frame set
-var stContextString;
 if (parent.location.href == self.location.href)
 {location.href = "index.html?"+extractFileNameWithoutKnownExtension(location.href);}
 //--></script>
 <script type="text/javascript" language="JavaScript" src="FHNonscroll.js"></script><script type="text/javascript" language="JavaScript" src="FHUtilities.js"></script></HEAD>
 <body bgcolor="#FFFFFF" scroll="no"><div id="FHNonScroll"><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="100%" align="left">
 <font size=2 color="#000000" face="Arial">
-<div><font size=5 color="#333399" face="Verdana"><b>String Match Condition</b></font></div>
+<div><font size=5 color="#333333" face="Verdana"><b>String Match Condition</b></font></div>
 </font>
 </TD><td width="120" align="right" nowrap><font face="Verdana" size="2"><a href="StringIsCondition.html"><img src="Images/BrowseBlueLeft.png" border="0" alt="Previous Topic"></a>&nbsp;&nbsp;<a href="EnvironmentVariableTestCondition.html"><img src="Images/BrowseBlueRight.png" border="0" alt="Next Topic"></a>&nbsp;</font></td></tr></table></div><div id="FHScroll">
 
@@ -106,11 +105,25 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts3>Advanced Properties</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts3>Operator</span></p>
-<p class=rvps1><span class=rvts2>&nbsp;&nbsp;&nbsp; </span><span class=rvts3>matches</span></p>
-<p class=rvps1><span class=rvts2>&nbsp;&nbsp;&nbsp; True if the string matches the pattern.</span></p>
-<p class=rvps1><span class=rvts2><br></span></p>
-<p class=rvps1><span class=rvts2>&nbsp;&nbsp;&nbsp; </span><span class=rvts3>does not match</span></p>
-<p class=rvps1><span class=rvts2>&nbsp;&nbsp;&nbsp; True if the string does not match the pattern.</span></p>
+<div class=rvps1><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=163>
+<p class=rvps1><span class=rvts3>&nbsp;&nbsp;&nbsp; matches</span></p>
+</td>
+<td width=599>
+<p class=rvps1><span class=rvts2>True if the string matches the pattern.</span></p>
+</td>
+</tr>
+<tr valign=top>
+<td width=163>
+<p class=rvps1><span class=rvts3>&nbsp;&nbsp;&nbsp; does not match</span></p>
+</td>
+<td width=599>
+<p class=rvps1><span class=rvts2>True if the string does not match the pattern.</span></p>
+</td>
+</tr>
+</table>
+</div>
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts3>Pattern</span></p>
 <p class=rvps1><span class=rvts2>The pattern to match the string against.</span></p>

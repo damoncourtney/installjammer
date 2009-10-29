@@ -232,11 +232,7 @@ proc ::InstallJammer::ConditionsWizard { id } {
         ::InstallJammer::conditions::RaiseConditionNode [lindex $conditions 0]
     }
 
-    set geometry 600x400
-    if {[info exists preferences(Geometry,conditions)]} {
-        set geometry $preferences(Geometry,conditions)
-    }
-
+    set geometry [::InstallJammer::GetWindowGeometry conditions 600x400]
     $top configure -geometry $geometry
 
     after 0 [list $top draw]

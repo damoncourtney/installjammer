@@ -23,6 +23,8 @@
 
 Action GetPreviousInstallInfo
 
+Property ApplicationID short "Application ID" "<%ApplicatonID%>"
+
 Property InstallID short "Install ID"
 
 Property VirtualTextPrefix short "Virtual Text Prefix" "PreviousInstall"
@@ -34,10 +36,13 @@ proc ::InstallJammer::actions::GetPreviousInstallInfo { obj } {
 
     $obj properties props -subst 1
 
-    set id [::InstallJammer::ID $props(InstallID)]
+    set ids [::InstallAPI::ReadInstallInfo -array a \
+        -installid $props(InstallID) -applicationid $props(ApplicationID)]
 
-    foreach var [array names PreviousInstallInfo $id,*] {
-        set name [string range $var [string length $id,] end]
-        set info($props(VirtualTextPrefix)$name) $PreviousInstallInfo($var)
+    foreach id $ids {
+        foreach var [array names a $id,*] {
+            set name [string range $var [string length $id,] end]
+            set info($props(VirtualTextPrefix)$name) $a($var)
+        }
     }
 }

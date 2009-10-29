@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 #FHNonScroll
-{padding: 6px 6px 0px 6px; border-bottom: none; background: #6699FF; vertical-align: top;z-index: 2; visibility: visible; position: absolute; left: 0; top: 0; width: 100%; }
+{padding: 6px 6px 0px 6px; border-bottom: none; background: #D1D1D1; vertical-align: top;z-index: 2; visibility: visible; position: absolute; left: 0; top: 0; width: 100%; }
 #FHScroll
 {left: 0; top: 0px; position: absolute; margin: 0; padding: 10px; z-index: 1; background-repeat: no-repeat; background-position: bottom right; background-attachment: fixed; }
 
@@ -58,6 +58,13 @@ span.rvts7
  font-weight: bold;
  color: #ff0000;
 }
+a.rvts8, span.rvts8
+{
+ font-family: 'Verdana';
+ color: #0000ff;
+ text-decoration: underline;
+}
+a.rvts8:hover { color: #0000ff; }
 /* ========== Para Styles ========== */
 p,ul,ol /* Left */
 {
@@ -73,14 +80,13 @@ p,ul,ol /* Left */
 <script type="text/javascript" language="JavaScript" src="FHUtilities.js"></script>
 <script type="text/JavaScript" language="JavaScript">
 <!-- If this page is displayed outside of the Website Help Frameset, then reload in the Frame set
-var stContextString;
 if (parent.location.href == self.location.href)
 {location.href = "index.html?"+extractFileNameWithoutKnownExtension(location.href);}
 //--></script>
 <script type="text/javascript" language="JavaScript" src="FHNonscroll.js"></script><script type="text/javascript" language="JavaScript" src="FHUtilities.js"></script></HEAD>
 <body bgcolor="#FFFFFF" scroll="no"><div id="FHNonScroll"><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="100%" align="left">
 <font size=2 color="#000000" face="Arial">
-<div><font size=5 color="#333399" face="Verdana"><b>Application Information</b></font></div>
+<div><font size=5 color="#333333" face="Verdana"><b>Application Information</b></font></div>
 </font>
 </TD><td width="120" align="right" nowrap><font face="Verdana" size="2"><a href="Command-LineOptions.html"><img src="Images/BrowseBlueLeft.png" border="0" alt="Previous Topic"></a>&nbsp;&nbsp;<a href="PlatformInformation.html"><img src="Images/BrowseBlueRight.png" border="0" alt="Next Topic"></a>&nbsp;</font></td></tr></table></div><div id="FHScroll">
 
@@ -147,6 +153,12 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts4>Default Language</span></p>
 <p class=rvps1><span class=rvts5>This property specifies the default language to use when installing.&nbsp; InstallJammer will attempt to determine the best language based on the user's system settings, but if no settings can be found, this language will be the default in the language selection.&nbsp; If no language selection is allowed, this default language will always be used.</span></p>
 <p class=rvps1><span class=rvts5><br></span></p>
+<p class=rvps1><span class=rvts4>Default to System Language</span></p>
+<p class=rvps1><span class=rvts5>If this property is true, the installer will use the default language on the target system if that language has been compiled into the installer.&nbsp; If the system language is not part of the installer or if this property is false, the Default Language will be used.</span></p>
+<p class=rvps1><span class=rvts5><br></span></p>
+<p class=rvps1><span class=rvts4>Enable Response File</span></p>
+<p class=rvps1><span class=rvts5>If this property is true it will enable the --response-file and --save-response-file command-line options in your installer.&nbsp; This allows a user to pass --save-response-file when running an installer and save their responses to an output file that can then be read back in during later installs using the --response-file option.&nbsp; This is very handy for users who need to run an installer on multiple machines or for multiple people where it should all be run the same way.&nbsp; Read more about what virtual text is included in a response file in the </span><a class=rvts8 href="AddResponseFileInfo.html">Add Response File Info</a><span class=rvts5> action.</span></p>
+<p class=rvps1><span class=rvts5><br></span></p>
 <p class=rvps1><span class=rvts4>Extract Solid Archives on Startup</span></p>
 <p class=rvps1><span class=rvts5>If this property is true, and the installer includes any solid archives, they will be extracted as soon as the installer starts up.&nbsp; The user will be shown a progress bar as the archives are extracted.&nbsp; This option is only useful if you need your files extracted before you begin the actual installation process.&nbsp; By default, InstallJammer will extract the solid archives just before it begins the actual file installation.</span></p>
 <p class=rvps1><span class=rvts5><br></span></p>
@@ -181,9 +193,9 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts5><br></span></p>
 <p class=rvps1><span class=rvts5>A solid archive is when all of the files to be packaged are actually packed into a single file before they are compressed into the installer.&nbsp; This has the advantage of a much higher rate of compression since the entire file is compressed at once instead of a bunch of little files compressed separately.</span></p>
 <p class=rvps1><span class=rvts5><br></span></p>
-<p class=rvps1><span class=rvts5>Solid archives cannot be read directly from within the installer though, so they must first be extracted to a temporary location before they can be installed.&nbsp; This will require the installing use to have a temporary location that is big enough to hold your entire, uncompressed archive before installation begins.</span></p>
+<p class=rvps1><span class=rvts5>Solid archives cannot be read directly from within the installer though, so they must first be extracted to a temporary location before they can be installed.&nbsp; This will require the target system to have a temporary location that is big enough to hold your entire, uncompressed archive before installation begins.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
-<div class=rvps1><table border=0 cellpadding=1 cellspacing=2>
+<div class=rvps1><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=33>
 <p class=rvps1><img border="0" src="Images/detail.jpg" alt="Technical Detail" width="32" height="32"></p>
@@ -203,12 +215,34 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts4>Default Directory Location</span></p>
 <p class=rvps1><span class=rvts5>If this property is set, it specifies the default Location to use for all files and directories that are direct descendants of a file group if their own Location property is not set.&nbsp; This allows a project to specify that every file or directory in a project should be located in a particular place on the system or relative to the project file, for example.&nbsp; If a file or directory specifies its own Location, it overrides this default value.</span></p>
 <p class=rvps1><span class=rvts5><br></span></p>
+<p class=rvps1><span class=rvts4>Ignore Directories</span></p>
+<p class=rvps1><span class=rvts5>This property specifies a space-separated list of regular expression patterns to match when searching for directories in the builder.&nbsp; Any directory which matches one of the given patterns will be ignored and not added to the project.</span></p>
+<p class=rvps1><span class=rvts5><br></span></p>
+<p class=rvps1><span class=rvts4>Ignore Files</span></p>
+<p class=rvps1><span class=rvts5>This property specifies a space-separated list of regular expression patterns to match when searching for files in the builder.&nbsp; Any file which matches one of the given patterns will be ignored and not added to the project.&nbsp; This property is just like the Ignore Directories property but for files.</span></p>
+<p class=rvps1><span class=rvts5><br></span></p>
+<div class=rvps1><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<tr valign=top>
+<td width=22>
+<p class=rvps1><img border="0" src="Images/note.jpg" alt="Note" width="32" height="32"></p>
+</td>
+<td width=604>
+<p class=rvps1><span class=rvts6>It is best to put patterns in quotes to be specific about separation, and backslashes must be escaped themselves in each pattern.&nbsp; Here is an example of two patterns which will ignore .svn and CVS directories:</span></p>
+<p class=rvps1><span class=rvts6><br></span></p>
+<p class=rvps1><span class=rvts6>\\\.svn CVS</span></p>
+<p class=rvps1><span class=rvts6><br></span></p>
+<p class=rvps1><span class=rvts6>Notice that the backslashes in the .svn pattern had to be escape so that we get a single backslash followed by escaping the . so that it matches an actual . instead of any single character in the expression.</span></p>
+</td>
+</tr>
+</table>
+</div>
+<p class=rvps1><span class=rvts5><br></span></p>
 <p class=rvps1><span class=rvts4>Include Install Debugging Options</span></p>
 <p class=rvps1><span class=rvts5>Include command-line debugging options in the install.</span></p>
 <p class=rvps1><span class=rvts5><br></span></p>
 <p class=rvps1><span class=rvts5>During testing, InstallJammer includes a small set of debugging options that can be passed to installs on the command-line. These options allow the install builder to debug their install while it is running.</span></p>
 <p class=rvps1><span class=rvts5><br></span></p>
-<div class=rvps1><table border=0 cellpadding=1 cellspacing=2>
+<div class=rvps1><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=22>
 <p class=rvps1><img border="0" src="Images/note.jpg" alt="Note" width="32" height="32"></p>
@@ -232,13 +266,15 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts4>Save Only Toplevel Directories</span></p>
 <p class=rvps1><span class=rvts5>This option tells InstallJammer that you only want to save the files and directories that are a direct child of a file group.&nbsp; This means that directories in a file group will not be saved recursively.&nbsp; This option is useful for building projects dynamically using command-line tools where you don't want the GUI builder to save the files for you.</span></p>
 <p class=rvps1><span class=rvts5><br></span></p>
-<div class=rvps1><table border=0 cellpadding=1 cellspacing=2>
+<p class=rvps1><span class=rvts5>File Groups and Directories in a project have a Save Files property which basically acts as a finer-grained version of this property.&nbsp; You can set that a particular File Group or directory should not save its files instead of the entire project.</span></p>
+<p class=rvps1><span class=rvts5><br></span></p>
+<div class=rvps1><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=22>
 <p class=rvps1><img border="0" src="Images/note.jpg" alt="Note" width="32" height="32"></p>
 </td>
 <td width=604>
-<p class=rvps1><span class=rvts6>This option should only be used if you know what you are doing since it will cause all changes made to files and subdirectories of another directory to be lost.</span></p>
+<p class=rvps1><span class=rvts6>Saving only toplevel directories should be used with caution.&nbsp; Any change you make to any file or directory that is not a toplevel will be lost since it will not be saved in the install project.</span></p>
 </td>
 </tr>
 </table>

@@ -61,12 +61,9 @@ proc new { args } {
     wm title     $base $_args(-title)
     wm protocol  $base WM_DELETE_WINDOW ::editor::cancel
 
-    if {[info exists preferences(Geometry,Editor)]} {
-        wm geometry $base $preferences(Geometry,Editor)
-    } else {
-        wm geometry $base 400x300
-        ::InstallJammer::CenterWindow $base 400 300
-    }
+    set geometry [::InstallJammer::GetWindowGeometry Editor 400x300]
+    wm geometry $base $geometry
+    if {$geometry eq "400x300"} { ::InstallJammer::CenterWindow $base 400 300 }
 
     bind $base <Escape>         ::editor::cancel
     bind $base <Control-Return> ::editor::ok

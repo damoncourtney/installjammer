@@ -36,6 +36,8 @@ Text Message
 proc ::InstallJammer::actions::MessageBox { obj } {
     global info
 
+    if {!$info(GuiMode)} { return }
+
     set id [$obj id]
 
     $obj get Icon icon

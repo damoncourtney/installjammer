@@ -171,9 +171,9 @@ proc ButtonBox::insert { path idx args } {
 
     _redraw_idle $path
 
-    _select_default $path
-
     incr data(nbuttons)
+
+    _select_default $path
 
     return $but
 }

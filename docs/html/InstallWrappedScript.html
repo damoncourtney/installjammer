@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
 #FHNonScroll
-{padding: 6px 6px 0px 6px; border-bottom: none; background: #6699FF; vertical-align: top;z-index: 2; visibility: visible; position: absolute; left: 0; top: 0; width: 100%; }
+{padding: 6px 6px 0px 6px; border-bottom: none; background: #D1D1D1; vertical-align: top;z-index: 2; visibility: visible; position: absolute; left: 0; top: 0; width: 100%; }
 #FHScroll
 {left: 0; top: 0px; position: absolute; margin: 0; padding: 10px; z-index: 1; background-repeat: no-repeat; background-position: bottom right; background-attachment: fixed; }
 
@@ -65,20 +65,19 @@ p,ul,ol /* Left */
 <script type="text/javascript" language="JavaScript" src="FHUtilities.js"></script>
 <script type="text/JavaScript" language="JavaScript">
 <!-- If this page is displayed outside of the Website Help Frameset, then reload in the Frame set
-var stContextString;
 if (parent.location.href == self.location.href)
 {location.href = "index.html?"+extractFileNameWithoutKnownExtension(location.href);}
 //--></script>
 <script type="text/javascript" language="JavaScript" src="FHNonscroll.js"></script><script type="text/javascript" language="JavaScript" src="FHUtilities.js"></script></HEAD>
 <body bgcolor="#FFFFFF" scroll="no"><div id="FHNonScroll"><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="100%" align="left">
 <font size=2 color="#000000" face="Arial">
-<div><font size=5 color="#333399" face="Verdana"><b>Install Wrapped Script</b></font></div>
+<div><font size=5 color="#333333" face="Verdana"><b>Install Wrapped Script</b></font></div>
 </font>
 </TD><td width="120" align="right" nowrap><font face="Verdana" size="2"><a href="InstallWishBinary.html"><img src="Images/BrowseBlueLeft.png" border="0" alt="Previous Topic"></a>&nbsp;&nbsp;<a href="UnpackStoredFile.html"><img src="Images/BrowseBlueRight.png" border="0" alt="Next Topic"></a>&nbsp;</font></td></tr></table></div><div id="FHScroll">
 
 <p class=rvps1><span class=rvts2>This action takes a Tcl/Tk script and wraps it into a self-contained binary executable on the target system.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
-<div class=rvps1><table border=0 cellpadding=1 cellspacing=2>
+<div class=rvps1><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
 <tr valign=top>
 <td width=33>
 <p class=rvps1><img border="0" src="Images/detail.jpg" alt="Technical Detail" width="32" height="32"></p>
@@ -111,6 +110,9 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts3><br></span></p>
 <p class=rvps1><span class=rvts3>Include TWAPI</span></p>
 <p class=rvps1><span class=rvts2>If this property is true, and TWAPI is included in the current installer, the TWAPI extension will be included in the wrapped script when it is built.&nbsp; The specified script will be changed to include some code at the top of the script to load the TWAPI extension on startup, so it is not necessary to package require the extension.</span></p>
+<p class=rvps1><span class=rvts2><br></span></p>
+<p class=rvps1><span class=rvts3>Installkit</span></p>
+<p class=rvps1><span class=rvts2>The path to the installkit to be used to wrap the script.&nbsp; If this is left blank, the current running installer will be used as the base installkit.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts3>Product Name</span></p>
 <p class=rvps1><span class=rvts2>On Windows, this specifies the Product Name to store in the Windows Resource information of the file.</span></p>

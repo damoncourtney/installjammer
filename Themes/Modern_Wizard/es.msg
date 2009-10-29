@@ -6,7 +6,7 @@ ChooseComponents {
     "Seleccionar los componentes de la instalación."
 
     Caption
-    "Seleccione los componentes que desea instalar y elimine aquéllos \
+    "Seleccione los componentes que desea instalar y elimine aquéllos\
      que no desea que sean instalados."
 
     Message
@@ -145,7 +145,7 @@ License {
 
 Readme {
     Title
-    "Léame"
+    "Léeme"
 
     Subtitle
     "Información sobre <%AppName%>"
@@ -174,18 +174,18 @@ SelectDestination {
     "Escoja Carpeta Destino"
 
     Subtitle
-    "¿Donde desea instalar <%AppName%>?"
+    "¿Dónde desea instalar <%AppName%>?"
 
     Caption
-    "Se instalará <%AppName%> en la siguiente carpeta.\n\nPara instalar \
-     en esa carpeta, pulse Siguiente. Para instalar en una carpeta diferente, \
+    "Se instalará <%AppName%> en la siguiente carpeta. Para instalar\
+     en esta carpeta, pulse Siguiente. Para instalar en una carpeta diferente,\
      pulse Examinar y seleccione otra."
 
     Message
     ""
 
     BrowseText
-    "Pulse Siguiente para continuar. Si desea seleccionar una \
+    "Pulse Siguiente para continuar. Si desea seleccionar una\
     carpeta diferente, pulse Examinar."
 
     NextButton
@@ -212,9 +212,9 @@ SelectProgramFolder {
     "Por favor, seleccione un grupo de programas."
 
     Caption
-    "Se instalarán iconos en el Grupo de Programas siguiente. \
-    Puede escribir un nuevo nombre de grupo o seleccionarlo \
-    de la lista de grupos existentes. \
+    "Se instalarán iconos en el Grupo de Programas siguiente.\
+    Puede escribir un nuevo nombre de grupo o seleccionarlo\
+    de la lista de grupos existentes.\
     Pulse Siguiente para continuar."
 
     Message
@@ -241,10 +241,10 @@ SelectProgramFolder {
 
 SetupComplete {
     Caption
-    "InstallJammer Wizard Completo"
+    "Instalación Completa"
 
     Message
-    "El Wizard InstallJammer ha instalado <%AppName%> con éxito.  \
+    "Se ha instalado <%AppName%> con éxito. \
      Pulse Finalizar para salir de este wizard."
 
     NextButton
@@ -262,7 +262,7 @@ SetupType {
     "Tipo de Instalación"
 
     Subtitle
-    "Seleccione el tipo de instalación que mas se ajuste a sus necesidades."
+    "Seleccione el tipo de instalación que más se ajuste a sus necesidades."
 
     Caption
     "Pulse el tipo de instalación que prefiere."
@@ -291,9 +291,9 @@ StartCopyingFiles {
     "Revise la configuración antes de copiar los archivos"
 
     Caption
-    "Se ha recopilado la información necesaria para comenzar a copiar los \
-    archivos del programa. Si desea revisar o cambiar la configuración, \
-    pulse Atrás. Si esta conforme con la configuración, pulse Siguiente para \
+    "Se ha recopilado la información necesaria para comenzar a copiar los\
+    archivos del programa. Si desea revisar o cambiar la configuración,\
+    pulse Atrás. Si está conforme con la configuración, pulse Siguiente para\
     comenzar a copiar los archivos."
 
     Message
@@ -421,12 +421,12 @@ UserInformation {
 
 Welcome {
     Caption
-    "Bienvenido al Wizard InstallJammer para <%AppName%>"
+    "Bienvenido al InstallJammer Wizard para <%AppName%>"
 
     Message
     "Este programa instalará <%AppName%> versión <%Version%> en su equipo.\
-    \n\nSe recomienda cerrar las demas aplicaciones antes de continuar. \
-    \n\nPulse siguiente para continuar o Cancelar para salir de la instalación."
+    \n\nSe recomienda cerrar las demás aplicaciones antes de continuar. \
+    \n\nPulse Siguiente para continuar o Cancelar para salir de la instalación."
 
     NextButton
     "<%Next%> >"

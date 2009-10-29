@@ -11,7 +11,7 @@ ChooseComponents {
     "Benutzerdefinierte Einstellungen"
 
     Caption
-    "Wählen Sie die zu installierenden Komponenten aus und deselektieren Sie \
+    "Wählen Sie die zu installierenden Komponenten aus und deselektieren Sie\
     die Komponenten, die Sie nicht installieren möchten."
 
     ComponentLabel
@@ -133,12 +133,12 @@ License {
     "Lizenzbestimmungen"
 
     Caption
-    "Bitte lesen Sie die folgenden Lizenzbestimmungen.  Press the PAGE DOWN key \
+    "Bitte lesen Sie die folgenden Lizenzbestimmungen.  Press the PAGE DOWN key\
      to see the rest of the agreement."
 
     Message
-    "Akzeptieren Sie die vorangegangenen Lizenzbestimmungen? Wenn Sie Nein  \
-    wählen, wird die Installation beendet. Um <%AppName%> zu installieren,  \
+    "Akzeptieren Sie die vorangegangenen Lizenzbestimmungen? Wenn Sie Nein\
+    wählen, wird die Installation beendet. Um <%AppName%> zu installieren,\
     müssen Sie den Lizenzbestimmungen zustimmen."
 
     Text
@@ -181,8 +181,8 @@ SelectDestination {
     Caption
     "Setup wird <%AppName%> in das folgende Verzeichnis installieren. \
     \n\nKlicken Sie auf Weiter, wenn dieses Verzeichnis verwendet werden soll. \
-    \n\nUm ein anderes Verzeichnis auszuwählen, klicken Sie auf Durchsuchen  \
-    \n\nMöchten Sie <%AppName%> nicht installieren, \
+    \n\nUm ein anderes Verzeichnis auszuwählen, klicken Sie auf Durchsuchen\
+    \n\nMöchten Sie <%AppName%> nicht installieren,\
     dann klicken Sie auf Abbrechen, um das Setup zu verlassen."
 
     NextButton
@@ -206,9 +206,9 @@ SelectProgramFolder {
     "Auswahl Programmordner"
 
     Caption
-    "Setup wird die Programmsymbole zum unten aufgeführten Programmordner  \
-    hinzufügen. Sie können einen neuen Ordnernamen eingeben oder einen von der  \
-    von der existierenden Ordnerliste auswählen. Klicken Sie auf Weiter um  \
+    "Setup wird die Programmsymbole zum unten aufgeführten Programmordner\
+    hinzufügen. Sie können einen neuen Ordnernamen eingeben oder einen von der\
+    von der existierenden Ordnerliste auswählen. Klicken Sie auf Weiter um\
     Fortzufahren."
 
     ProgramFolderLabel
@@ -235,7 +235,7 @@ Setup {
     "Setup"
 
     Caption
-    "Setup bereitet den InstallJammer Assistenten vor, der Sie durch den \
+    "Setup bereitet den InstallJammer Assistenten vor, der Sie durch den\
     Rest des Installationsvorgang führen wird. Bitte warten Sie."
 }
 
@@ -282,9 +282,9 @@ StartCopyingFiles {
 
     Caption
     "Setup hat genug Informationen, um die Programmdateien zu kopieren. \
-    Wenn Sie die Einstellungen überprüfen oder ändern möchten, \
-    klicken Sie auf Zurück. Wenn Sie mit den Einstellungen zufrieden sind, \
-    klicken Sie auf Weiter, um mit dem Kopieren der Dateien zu beginnen.  \
+    Wenn Sie die Einstellungen überprüfen oder ändern möchten,\
+    klicken Sie auf Zurück. Wenn Sie mit den Einstellungen zufrieden sind,\
+    klicken Sie auf Weiter, um mit dem Kopieren der Dateien zu beginnen. \
     \n\nDerzeitige Einstellungen:"
     
 
@@ -359,7 +359,7 @@ UserInformation {
     "Benutzer Information"
 
     Caption
-    "Bitte geben Sie Ihren Namen und den Namen der Firma ein, für die Sie  \
+    "Bitte geben Sie Ihren Namen und den Namen der Firma ein, für die Sie\
     arbeiten."
 
     NameLabel
@@ -383,15 +383,15 @@ Welcome {
     "Willkommen"
 
     Caption
-    "Willkommen zum Setup von <%AppName%>. Dieses Programm wird <%AppName%> \
+    "Willkommen zum Setup von <%AppName%>. Dieses Programm wird <%AppName%>\
     auf Ihrem Computer installieren."
 
     Message
-    "Es wird empfohlen, das Sie alle anderen Anwendungen schließen, bevor \
-    Sie fortfahren.\n\nKlicken Sie auf Weiter um Fortzufahren.\n\nWARNUNG: \
-    Dies Programm ist urheberrechtlich geschützt. Nicht authorisierte \
-    Vervielfältigung oder Verbreitung von diesem Programm oder Teilen dessen, \
-    können zu erheblichen Strafen führen und diese werden nach maximalen \
+    "Es wird empfohlen, das Sie alle anderen Anwendungen schließen, bevor\
+    Sie fortfahren.\n\nKlicken Sie auf Weiter um Fortzufahren.\n\nWARNUNG:\
+    Dies Programm ist urheberrechtlich geschützt. Nicht authorisierte\
+    Vervielfältigung oder Verbreitung von diesem Programm oder Teilen dessen,\
+    können zu erheblichen Strafen führen und diese werden nach maximalen\
     Möglichkeiten der geltenden Gesetze angewendet."
 
     NextButton

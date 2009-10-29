@@ -449,12 +449,24 @@
         standard Destination       installedfile "Destination Directory"
         standard FileUpdateMethod  filemethod "File Update Method" \
             "Update files with more recent dates"
+        standard FollowDirLinks boolean "Follow Directory Links" "Yes"
+        help FollowDirLinks "If this property is true, links to\
+            directories will be followed and their contents stored in the\
+            installer as normal files.  If this is false, the directory will\
+            be stored as a symlink to be recreated on the target system"
         standard FollowFileLinks   boolean "Follow File Links" "No"
         help FollowFileLinks "If this property is true, links to files will\
             be followed, and the linked file will be stored as an actual file\
             within the installer.  If it is false, a link will be stored and\
             recreated as a link on the target system"
         standard Version           version "Version"
+        standard SaveFiles         nullboolean "Save Files" ""
+        help SaveFiles "Setting this property to Yes or No overrides the\
+            default Save Only Toplevel Directories project preference.  If\
+            the property is false, no files or subdirectories of any directory\
+            in the file group will be saved in the project file.  Only\
+            directories which are toplevel directories in the file group\
+            will be saved"
 
         standard FileSize          hidden "File Size"
         standard Attributes        hidden "Windows File Attributes"
@@ -472,6 +484,7 @@
         standard Size              text    "Size"
         standard Checked           boolean "Checked"            "Yes"
         standard FileGroups        hidden  "File Groups"
+        standard Selectable        boolean "Selectable"         "Yes"
         standard ShowComponent     boolean "Show Component"     "Yes"
         standard ComponentGroup    text    "Component Group"
         standard RequiredComponent boolean "Required Component" "No"
@@ -510,6 +523,13 @@
         standard Version           version "Version"
         standard Location          location "Location"
         standard TargetFilename    short "Target Filename"
+        standard SaveFiles         nullboolean "Save Files"
+        help SaveFiles "Setting this property to Yes or No overrides the\
+            default Save Only Toplevel Directories project preference.  If\
+            the property is false, no files or subdirectories of any directory\
+            in the file group will be saved in the project file.  Only\
+            directories which are toplevel directories in the file group\
+            will be saved"
     }
 }
 
@@ -605,6 +625,9 @@
             set InstallDir   "<%PROGRAM_FILES%>/<%AppName%>"
             set WindowsIcon  "Setup Blue Screen.ico"
             set IncludeTWAPI "No"
+            set RequireAdministrator "Yes"
+            set UseUncompressedBinaries "No"
+            set LastRequireAdministrator "Yes"
         } else {
             set Executable "<%AppName%>-<%Version%>-<%Platform%>-Install<%Ext%>"
             set InstallDir "<%Home%>/<%ShortAppName%>"

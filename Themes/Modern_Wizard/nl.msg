@@ -6,7 +6,7 @@ ChooseComponents {
     "Selecteer de componenten die het installatie programma zal installeren."
 
     Caption
-    "Selecteer de componenten die u wilt installeren en deselecteer de componenten \
+    "Selecteer de componenten die u wilt installeren en deselecteer de componenten\
      die u niet wilt installeren."
 
     Message
@@ -212,7 +212,7 @@ SelectProgramFolder {
 
     Caption
     "Het installatie programma zal de programma iconen toevoegen aan de onderstaande Programma map. \
-     U kunt een nieuwe map aanmaken of een bestaande map selecteren uit de lijst.  \
+     U kunt een nieuwe map aanmaken of een bestaande map selecteren uit de lijst. \
      Klik op Volgende om door te gaan."
 
     Message
@@ -242,7 +242,7 @@ SetupComplete {
     "Installatie Programma Afgerond"
 
     Message
-    "Het installatie programma heeft <%AppName%> succesvol geïnstalleerd.  \
+    "Het installatie programma heeft <%AppName%> succesvol geïnstalleerd. \
      Klik op <%Finish%> om het installatie programma te sluiten."
 
     NextButton
@@ -289,8 +289,8 @@ StartCopyingFiles {
     "Bekijk uw instellingen voordat het installeren begint"
 
     Caption
-    "Het installatie programma heeft genoeg informatie om het kopiëren te starten.\
-     Als u de instellingen wilt bekijken of wijzigen kunt op <%Back%> klikken.  Als u \
+    "Het installatie programma heeft genoeg informatie om het kopiëren te starten. \
+     Als u de instellingen wilt bekijken of wijzigen kunt op <%Back%> klikken.  Als u\
      tevreden bent met de instellingen klikt u op <%Next%> om het kopiëren te starten."
 
     Message
@@ -418,12 +418,12 @@ UserInformation {
 
 Welcome {
     Caption
-    "Welkom bij het <%AppName%> installatie programma.  Dit programma zal \
+    "Welkom bij het <%AppName%> installatie programma.  Dit programma zal\
      <%AppName%> op uw computer installeren."
 
     Message
-    "Het is aan te raden alle overige applicaties te sluiten alvorens \
-     verder te gaan met deze installatie.\n\nKlik op <%Next%> om verder \
+    "Het is aan te raden alle overige applicaties te sluiten alvorens\
+     verder te gaan met deze installatie.\n\nKlik op <%Next%> om verder\
      te gaan of op <%Cancel%> om deze installatie af te breken"
 
     NextButton

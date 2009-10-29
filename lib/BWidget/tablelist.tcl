@@ -102,7 +102,7 @@ namespace eval TableList {
     bind TableList <FocusIn> [list after idle [list BWidget::refocus %W %W.t]]
     bind TableList <Destroy> [list TableList::_destroy %W]
 
-    bind TableListTable <1> [list TableList::_table_button_1 %W %x %y]
+    bind TableListTable <1> "TableList::_table_button_1 %W %x %y; break"
     bind TableListTable <Key> [list TableList::_handle_key_press %W %K]
     bind TableListTable <Double-1> [list TableList::_title_double_1 %W %x %y]
     bind TableListTable <Shift-Button-1>   {#}
@@ -1532,23 +1532,21 @@ proc TableList::_table_button_1 { table x y } {
     set path [winfo parent $table]
     Widget::getVariable $path data
 
-    if {[string length [$table border mark $x $y]]} { return }
+    set row  [$table index @$x,$y row]
+    set col  [$table index @$x,$y col]
+    set last [$table index end row]
+    set cell $row,$col
+
+    set bbox [$table bbox $cell]
+    if {![llength $bbox]} { return }
+    foreach [list bx by bw bh] $bbox { break }
 
     TableList::edit $path finish
 
-    set cell [$table index @$x,$y]
-
-    foreach [list bx by bw bh] [$table bbox $cell] {break}
-
-    if {$x <= $bx || $x >= [expr {$bx + $bw}]} { return -code break }
-    if {$y <= $by || $y >= [expr {$by + $bh}]} { return -code break }
-
-    set list [split $cell ,]
-    set row  [lindex $list 0]
-    set col  [lindex $list 1]
+    if {$row == $last && $y > [expr {$by + $bh}]} { return -code break }
 
     set item [lindex $data(items) $row]
-    if {[string length $item] && ![info exists data(editing)]} {
+    if {$item ne "" && ![info exists data(editing)]} {
         TableList::edit $path start $item $col
     }
 }

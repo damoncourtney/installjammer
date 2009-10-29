@@ -101,11 +101,11 @@ UpdateRegistryText
 "Die Windows Registry wird aktualisiert..."
 
 UninstallStartupText
-"Dies wird <%AppName%> vollkommen von Ihrem System entfernen. Wollen Sie dies \
+"Dies wird <%AppName%> vollkommen von Ihrem System entfernen. Wollen Sie dies\
 wirklich durchführen?"
 
 UninstallLeftoverText
-"Einige Komponenten konnten nicht entfernt werden. Möchten Sie diese trotzdem \
+"Einige Komponenten konnten nicht entfernt werden. Möchten Sie diese trotzdem\
 löschen (nicht empfohlen)?"
 
 VersionHelpText

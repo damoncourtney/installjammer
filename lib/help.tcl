@@ -416,7 +416,7 @@ proc ::InstallJammer::AboutInstallJammer {} {
     $top.text insert end "by Damon Courtney\n<"
     $top.text insert end "damon@installjammer.com" email ">\n\n"
     $top.text insert end "Version $conf(Version) "
-    $top.text insert end "(Build $conf(InstallJammerVersion))"
+    $top.text insert end "(Build $conf(BuildVersion))"
 
     $top.text tag add center 1.0 end
     $top.text configure -state disabled

@@ -11,7 +11,7 @@ ChooseComponents {
     "Egyedi telepítés"
 
     Caption
-    "Válassza ki azokat a komponenseket, amelyeket fel akar telepíteni, \
+    "Válassza ki azokat a komponenseket, amelyeket fel akar telepíteni,\
      és ne válassza ki azokat, amelyeket nem akar telepíteni."
 
     ComponentLabel
@@ -132,12 +132,12 @@ License {
     "Licensz elfogadása"
 
     Caption
-    "Kérem olvassa el a következ\u0151 Licensz megállapodást. Nyomja le a PAGE DOWN billenty\u0171t, \
+    "Kérem olvassa el a következ\u0151 Licensz megállapodást. Nyomja le a PAGE DOWN billenty\u0171t,\
      hogy lássa a megállapodás további részét."
 
     Message
-    "Elfogadja a fenti Licensz megállapodás minden feltételét? Ha \
-     Nem-et választ, akkor a telepítés befejez\u0151dik. A <%AppName%> telepítéséhez el kell fogadnia \
+    "Elfogadja a fenti Licensz megállapodás minden feltételét? Ha\
+     Nem-et választ, akkor a telepítés befejez\u0151dik. A <%AppName%> telepítéséhez el kell fogadnia\
      ezt a megállapodást."
 
     Text
@@ -179,7 +179,7 @@ SelectDestination {
 
     Caption
     "A telepít\u0151 a <%AppName%> programot a következ\u0151 könyvtárba telepíti.\n\n
-     Ahhoz, hogy ebbe könyvtárba kerüljön kattintson a <%Next%> gombra \
+     Ahhoz, hogy ebbe könyvtárba kerüljön kattintson a <%Next%> gombra\
      Ahhoz, hogy más könyvtárba kerüljön kattintson a <%Browse%> gombra.\n\n
 	 A <%Cancel%> választásával kiléphet a <%AppName%> program telepítéséb\u0151l."
 
@@ -232,7 +232,7 @@ Setup {
     "Telepítés"
 
     Caption
-    "A telepít\u0151 el\u0151készíti az InstallJammer Varázslót, amely keresztülvezeti Önt a \
+    "A telepít\u0151 el\u0151készíti az InstallJammer Varázslót, amely keresztülvezeti Önt a\
 	 telepítés folyamatán. Kérem várjon!"
 }
 
@@ -278,10 +278,10 @@ StartCopyingFiles {
     "Állományok másolásának elkezdése"
 
     Caption
-    "A telepít\u0151nek elég információja van ahhoz, hogy a program állományait \
-	elkezdje másolni. Ha meg akarja nézni vagy változtatni a beállításokat, \
-	akkor kattintson a <%Back%> gombra. Ha elégedett a beállításokkal, akkor \
-	kattintson a <%Next%> gombra, hogy elkezd\u0151djön a fájlok másolása.\
+    "A telepít\u0151nek elég információja van ahhoz, hogy a program állományait\
+	elkezdje másolni. Ha meg akarja nézni vagy változtatni a beállításokat,\
+	akkor kattintson a <%Back%> gombra. Ha elégedett a beállításokkal, akkor\
+	kattintson a <%Next%> gombra, hogy elkezd\u0151djön a fájlok másolása. \
 	\n\nJelenlegi beállítások:"
 
     Text
@@ -379,11 +379,11 @@ Welcome {
     "Üdvözl\u0151 képerny\u0151"
 
     Caption
-    "Üdvözli a <%AppName%> telepít\u0151je.  Ez program a <%AppName%> programot \
+    "Üdvözli a <%AppName%> telepít\u0151je.  Ez program a <%AppName%> programot\
      fogja telepíteni a számítógépére."
 
     Message
-    "Er\u0151sen javasolt, hogy lépjen ki minden futó Windows programból.\
+    "Er\u0151sen javasolt, hogy lépjen ki minden futó Windows programból. \
 	 Kattintson a <%Next%> gombra, hogy folytassa a telepítést.\n\n\
 	 FIGYELMEZTETÉS: Ezt a programot szerz\u0151i jogok és nemzetközi szerz\u0151dések\
 	 védik.\n\nEzen program nem engedélyezett gyártása és forgalmazása\
@@ -398,4 +398,3 @@ Welcome {
     CancelButton
     "<%Cancel%>"
 }
-

@@ -56,7 +56,8 @@ proc ::InstallJammer::actions::CreateWindowsService { obj } {
 
     lappend cmd -servicetype
     if {[string match "*Process*" $props(ServiceType)]} {
-        lappend cmd win32_[string tolower [join $props(ServiceType) _]]
+        set type [string map {Shared Share} $props(ServiceType)]
+        lappend cmd win32_[string tolower [join $type _]]
     } else {
         lappend cmd [string tolower [join $props(ServiceType) _]]
     }

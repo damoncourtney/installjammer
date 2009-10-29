@@ -127,7 +127,19 @@ catch {
     set lastfiletotal 0
 
     ## FIXME: Remove this once the SHA1 code is fixed for large installers.
-    catch {rename sha1 ""}
+    if {[info commands ::sha1_real] eq ""} {
+        rename ::sha1 ::sha1_real
+        proc ::sha1 {args} {
+            if {[lindex $args 0] eq "-string"} {
+                return [eval ::sha1_real $args]
+            }
+
+            if {[lindex $args 0] eq "-update"} {
+                array set _args $args
+                while {[set data [read $_args(-chan) 4096]] ne ""} {}
+            }
+        }
+    }
 
     if {[info exists tmp(wrapFiles)] && [llength $tmp(wrapFiles)]} {
         unset -nocomplain sizes

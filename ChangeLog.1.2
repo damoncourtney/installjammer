@@ -1,0 +1,4066 @@
+2009-07-07  Damon Courtney <damon@installjammer.com>
+    *** InstallJammer 1.2.13 RELEASED ***
+
+
+2009-07-06  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl:
+          Dump a full stack trace on errors.  The change was made so that
+          error messages wouldn't look as ugly to the end-user, but it only
+          ends up obscuring the real message when people inevitably paste it
+          into the forum for help.  I need the full stack trace to track
+          things down.
+
+    * docs/InstallJammer User Guide.pdf, docs/InstallJammer.chm,
+      docs/html/FHSearch.js, docs/html/ReleaseNotes.html:
+          Update docs for release.
+
+    * lib/main.tcl:
+          Update version to 1.2.13 for release.
+
+
+2009-07-04  Damon Courtney <damon@installjammer.com>
+    * lib/Conditions/UserInputConditions/AskYesOrNo.condition:
+          Fix a bug in the Ask Yes or No condition that would cause an error
+          in silent mode.
+
+
+2009-06-29  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl, lib/installapi.tcl:
+          Fix a bug in the last commit.
+
+
+2009-06-27  Damon Courtney <damon@installjammer.com>
+    *** InstallJammer 1.2.13b7 RELEASED ***
+
+
+2009-06-27  Damon Courtney <damon@installjammer.com>
+    * docs/InstallJammer User Guide.pdf, docs/InstallJammer.chm,
+      docs/html/ApplicationInformation.html,
+      docs/html/Command-LineOptions.html, docs/html/DebuggingAnInstall.html,
+      docs/html/FHSearch.js, docs/html/GroupsAndFiles.html,
+      docs/html/PlatformInformation.html, docs/html/ReleaseNotes.html:
+          Update documentation.
+
+    * lib/common.tcl, lib/install.tcl:
+          Fixed a bug in the new setup type handling in console mode.
+          
+          Cleaned up the --help output a little bit for a more UNIX-y style.
+
+    * lib/main.tcl:
+          Update version to 1.2.13b6 for release.
+
+    * lib/common.tcl, lib/install.tcl:
+          Made some changes to the progress output during a console install
+          (thanks to C. W. for the tips).  It should be a lot cleaner now and
+          look a little nicer.
+
+    * lib/BWidget/tablelist.tcl, lib/virtualtext.tcl:
+          Fixed a bug where clicking in the virtual text table could sometimes
+          jump to another part of the table if another field was already being
+          edited.
+          
+          Made some general bug fixes and behavior tweaks to the virtual text
+          table.
+
+    * lib/conditions.tcl, lib/editor.tcl, lib/utils.tcl:
+          Fixed a bug where a modal dialog (like the conditions editor) could
+          end up outside of the viewing area when switching from larger to
+          smaller monitors.
+
+    * lib/main.tcl:
+          Update version to 1.2.13b7 for release.
+
+    * lib/installapi.tcl:
+          Ask the object for its ID.
+
+    * lib/installapi.tcl:
+          Move the API Call debug logging messages under level 2 logging. 
+          They clutter up the standard log too much.
+
+
+2009-06-26  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/WindowsServiceActions/CreateWindowsService.action:
+          Fixed a bug in the Create Windows Service action where an error
+          would occur when installing a Shared Process service.
+
+    * installjammer:
+          Update the builder launch script to support Cygwin and MinGW on
+          Windows.
+
+    * lib/common.tcl:
+          When looking for <%WINDOWS%>, trust %SystemRoot% more than %windir%.
+           SystemRoot is a newer variable and probably more reliable while
+          windir was used on old 95/98 systems and is left in place for
+          compatibility.  Previously, when resolving <%WINDOWS%>, windir was
+          trusted over SystemRoot, and this seems to be the wrong order of
+          things.
+
+    * lib/main.tcl:
+          Fixed a bug where the .installjammer directory was being created on
+          startup when it didn't need to be.  This would cause some
+          command-line builds to fail when built by a user who doesn't have a
+          home directory.  The directory is now created only when the builder
+          goes to save its preference settings.
+
+    * lib/file.tcl:
+          Don't save a project preference file if there's nothing to save.
+
+    * lib/main.tcl:
+          If a preferences file exists in the root InstallJammer directory,
+          store the preferences for that installation in that file instead of
+          creating a directory on the system.  This will allow InstallJammer
+          to run as a portable app and save its configuration back to its
+          original location each time it's run.
+
+    * lib/Actions/GeneralActions/MessageBox.action,
+      lib/Actions/GeneralActions/MessagePanel.action:
+          Fixed a bug in Message Box and Message Panel that would allow them
+          to execute in a console or silent install and then throw an error. 
+          These actions will no longer execute in a console or silent install.
+
+    * lib/utils.tcl:
+          Make a better attempt at recognizing *.msg files that belong to
+          InstallJammer and are valid message catalogs instead of just blindly
+          loading any *.msg file we come across next to the project file.
+          
+          Fixed a bug where InstallJammer would attempt to load any *.msg file
+          sitting next to the project file when loading the project.
+
+    * lib/Actions/WizardActions/PopulateSetupTypes.action, lib/install.tcl,
+      lib/installapi.tcl:
+          Fixed a bug where using the keyboard to navigate setup types would
+          not change the description as one was selected.
+          
+          Fixed a bug where the SetActiveSetupType API call would not change
+          the active setup type selected on the screen if the Setup Type pane
+          was visible.
+
+
+2009-06-25  Damon Courtney <damon@installjammer.com>
+    * lib/install.tcl:
+          Remove the check for administrator on Windows XP.  This code isn't
+          ready yet, there are too many false negatives.  The Require
+          Administrator privilege will currently only affect Vista and beyond.
+
+
+2009-06-23  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl, lib/uninstall.tcl:
+          Fixed a bug that would cause shortcuts not to work on Asian versions
+          of Windows.
+
+    * lib/file.tcl:
+          Give a better error message when a newer project file is loaded into
+          an older version of InstallJammer.
+
+    * lib/Actions/UninstallActions/UninstallSelectedFiles.action:
+          A fix for environment variables on UNIX.  Still need to test.
+
+    * lib/file.tcl:
+          Fixed a bug where failing to load a project would corrupt the
+          builder and require it to be restarted to load another project.
+
+    * lib/Actions/UninstallActions/UninstallSelectedFiles.action:
+          Fixed a bug where the uninstaller would remove ALL environment
+          variables added by an installer on UNIX, even the ones marked not to
+          be removed.
+
+    * lib/Actions/InstallActions/InstallUninstaller.action, lib/common.tcl:
+          Fixed a bug where the uninstaller would not properly default to the
+          language chosen during installation for some of the available
+          languages.
+
+    * lib/installapi.tcl:
+          Added some debugging to a few API calls.
+
+
+2009-06-20  Damon Courtney <damon@installjammer.com>
+    * lib/trees-filegroup.tcl:
+          Fix a bug in the handling of directories in the builder.
+
+    * Themes/Modern_Wizard/ca.msg, Themes/Modern_Wizard/es.msg,
+      lib/msgs/installer/ca.msg, lib/msgs/installer/es.msg,
+      lib/msgs/languages.txt, lib/packages/InstallJammer/lang/ca.rc:
+          Cleanup Spanish translations and add Catal?\195?\131 translations
+          (thanks to Marc Lerma!).
+
+    * Themes/Classic_Wizard/lt.msg, Themes/Modern_Wizard/lt.msg,
+      lib/msgs/installer/lt.msg, lib/msgs/languages.txt:
+          Added Lithuanian translations (thanks to Jonas Jasas!).
+
+
+2009-06-17  Damon Courtney <damon@installjammer.com>
+    * lib/main.tcl:
+          Moved the debug log in the builder to a --debug-log command-line
+          option that is disabled by default.  We only need the debugging when
+          something is broken in the builder, so we don't need to do it on
+          every startup.
+
+    * lib/common.tcl, lib/install.tcl, lib/msgs/installer/en.msg:
+          Added the ability to span multiple discs using build separate
+          archives.
+
+
+2009-06-08  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl, lib/header.tcl:
+          Fix a bug on non-Windows platforms introduced in the last beta that
+          caused installers to fail on startup.
+
+
+2009-06-07  Damon Courtney <damon@installjammer.com>
+    * lib/trees-filegroup.tcl:
+          Fix a typo so that Save Files doesn't show up in file properties,
+          only directories.
+
+
+2009-06-04  Damon Courtney <damon@installjammer.com>
+    *** InstallJammer 1.2.13b5 RELEASED ***
+
+
+2009-06-04  Damon Courtney <damon@installjammer.com>
+    * lib/commandline.tcl, lib/gui-common.tcl, lib/utils.tcl:
+          Added a debug option for uninstallers for new projects.
+
+    * lib/commandline.tcl:
+          Fix wording on debug option.
+
+
+2009-06-03  Damon Courtney <damon@installjammer.com>
+    * lib/main.tcl:
+          Update version for release.
+
+    * lib/uninstall.tcl:
+          Change to the temp directory before uninstall.
+
+    * lib/trees-filegroup.tcl:
+          Fix a bug where new code broke command-line builds.
+
+    * lib/file.tcl:
+          Ugh.  Remove debugging.
+
+
+2009-06-02  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/UninstallActions/UninstallSelectedFiles.action,
+      lib/uninstall.tcl:
+          Changed the way the uninstall handles the deletion of the
+          uninstaller itself.  The uninstaller now gets renamed into the temp
+          directory instead of launching a copy of itself.
+
+    * lib/Actions/ShortcutActions/InstallUNIXProgramFolder.action,
+      lib/Actions/ShortcutActions/InstallUNIXShortcut.action,
+      lib/Actions/UninstallActions/UninstallSelectedFiles.action,
+      lib/common.tcl:
+          Replace the restart of the gnome-panel.  Some versions of the panel
+          still require a restart to pick up menu changes, and until I can
+          determine what versions need it and what don't, we'll err on the
+          side of just doing it.
+
+    * lib/install.tcl:
+          Don't do the Require Administrator check on Vista since we're
+          already compiled with a version of the installkit that requires
+          administrator privileges before starting.  That's good enough
+          without needing the extra check.
+
+    * lib/build.tcl, lib/file.tcl:
+          Fixed a bug where zip and tar archives weren't picking up any files
+          during a build.  Also cleaned up when and how a refresh of the file
+          groups is done so that it isn't done redundantly.
+
+
+2009-06-01  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl, lib/header.tcl:
+          Fixed a bug where Vista would inaccurately report that a directory
+          was writable when it wasn't.
+
+
+2009-05-26  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl:
+          Fixed a bug where the uninstall would default to the system language
+          when it should keep the language used during installation.
+
+    * lib/common.tcl, lib/install.tcl:
+          A couple of tweaks to make it possible to add files to an installer
+          mid-install.  This can be used to add files from, say, a CDROM as
+          part of the installer, and they just get copied over with the rest.
+
+
+2009-05-14  Damon Courtney <damon@installjammer.com>
+    *** InstallJammer 1.2.13b4 RELEASED ***
+
+
+2009-05-14  Damon Courtney <damon@installjammer.com>
+    * lib/file.tcl, lib/gui-common.tcl, lib/new.tcl, lib/trees-filegroup.tcl,
+      lib/virtualtext.tcl:
+          Added new Ignore Files and Ignore Directories project preferences. 
+          These two properties allow a project to specify patterns of files
+          and directories to ignore when searching the filesystem.
+
+    * lib/build.tcl, lib/class.tcl, lib/gui-common.tcl:
+          Add a check to see if the Require Administrator property on Windows
+          has changed and force a full rebuild if it has.
+
+    * lib/main.tcl:
+          Update version for release.
+
+
+2009-05-11  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/ExecuteActions/ExecuteExternalProgram.action:
+          Fixed a bug where newer Gnome terminals would ignore more than one
+          command when executing an external action in a console.  Any command
+          executed in a console is now stored in a file and then executed as a
+          script.
+
+    * Binaries/Windows/installkit.exe, Binaries/Windows/installkitA.exe,
+      Binaries/Windows/installkitU.exe, Binaries/Windows/installkitUA.exe,
+      installjammer.com, installjammer.exe:
+          Fixed a bug from beta 1 where command-line arguments in the builder
+          were being ignored when testing on Windows.
+
+
+2009-05-08  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl:
+          Fix a bug where execute action tries to cd back to a directory that
+          no longer exists.
+
+    * lib/installapi.tcl:
+          Fixed a bug where several APIs would cause an error if executed in
+          silent mode.  These APIs are now restricted to GUI-only code.
+
+    * lib/class.tcl, lib/file.tcl, lib/trees-filegroup.tcl, lib/utils.tcl:
+          Fixed a bug where recursive directory links could cause an infinite
+          loop in the builder.
+          Added a new Follow Directory Links property to file groups.  This
+          matches the Follow File Links property but for directories instead
+          of files.  The default is Yes for backward compatibility.
+
+
+2009-05-07  Damon Courtney <damon@installjammer.com>
+    * lib/utils.tcl:
+          Fixed a bug where opening an explorer windows on UNIX platforms
+          could fail.
+
+
+2009-05-05  Damon Courtney <damon@installjammer.com>
+    * lib/BWidget/choosedir.tcl, lib/BWidget/choosefile.tcl:
+          Fixed a bug where the /installkitvfs directory would show up in
+          choose file and directory dialogs.
+
+
+2009-05-04  Damon Courtney <damon@installjammer.com>
+    *** InstallJammer 1.2.13b3 RELEASED ***
+
+
+2009-05-04  Damon Courtney <damon@installjammer.com>
+    * Themes/Modern_Wizard/Install/SelectDestination.tcl, lib/common.tcl,
+      lib/file.tcl, lib/installapi.tcl, lib/utils.tcl:
+          Fixed a bug that caused non-Windows installs to fail.
+          
+          Display the directory in a Select Destination pane properly but
+          leave the actual virtual text alone.
+          
+          Include all message catalogs that are selected.
+
+    * lib/main.tcl:
+          Update version for release.
+
+
+2009-05-03  Damon Courtney <damon@installjammer.com>
+    * lib/main.tcl:
+          Update version for release.
+
+
+2009-05-02  Damon Courtney <damon@installjammer.com>
+    * Themes/Modern_Wizard/Install/SelectDestination.pane,
+      Themes/Modern_Wizard/Install/SelectDestination.tcl, lib/common.tcl,
+      lib/installapi.tcl:
+          Fixed a bug where the Select Destination pane would not properly
+          substitute the destination label when updating the pane.
+          
+          Added a new VirtualTextAPI API call.
+
+
+2009-05-01  Damon Courtney <damon@installjammer.com>
+    * lib/build.tcl, lib/main.tcl, lib/utils.tcl:
+          Cleanup some of the code that searches for relative file paths.
+
+
+2009-04-30  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl, lib/installapi.tcl:
+          Added a new LanguageAPI API call.
+
+
+2009-04-28  Damon Courtney <damon@installjammer.com>
+    * lib/install.tcl:
+          Don't use a hard-coded group name for Administrators on Windows.
+
+
+2009-04-26  Damon Courtney <damon@installjammer.com>
+    * Binaries/Windows/twapi/twapi.dll:
+          Use a compressed version of the twapi DLL.
+
+    * Binaries/Windows/installkit.com, Binaries/Windows/installkit.exe,
+      Binaries/Windows/installkitA.exe, Binaries/Windows/installkitU.exe,
+      Binaries/Windows/installkitUA.exe, installjammer.com, installjammer.exe:
+          New binaries for Windows.  This commit includes separate binaries
+          for installers that require administrator privileges on Vista as
+          well as true uncompressed versions of the installkits.
+
+    * lib/utils.tcl:
+          Fixed a bug where launching an admin installer on Vista would fail.
+
+    * lib/class.tcl, lib/gui-common.tcl, lib/install.tcl, lib/main.tcl,
+      lib/msgs/installer/en.msg:
+          Added a new Require Administrator option to the Windows platform.
+          
+          Added a new Use Uncompressed Binaries option to the Windows
+          platform.
+          
+          Added a new RequireAdministratorText virtual text to the English
+          message catalog.  This message will appear when the user doesn't
+          have the required administrator privileges.
+
+    * lib/class.tcl:
+          Make the default for Require Administrator be true to be backward
+          compatible with previous releases.
+
+    * lib/utils.tcl:
+          Launch admin uninstallers properly on Vista.
+
+    * lib/Actions/InstallActions/InstallWrappedScript.action:
+          Added a new Installkit property to the Install Wrapped Script
+          action.
+
+
+2009-04-24  Damon Courtney <damon@installjammer.com>
+    * Binaries/Windows/twapi/LICENSE, Binaries/Windows/twapi/clipboard.tcl,
+      Binaries/Windows/twapi/com.tcl, Binaries/Windows/twapi/console.tcl,
+      Binaries/Windows/twapi/crypto.tcl, Binaries/Windows/twapi/desktop.tcl,
+      Binaries/Windows/twapi/device.tcl, Binaries/Windows/twapi/disk.tcl,
+      Binaries/Windows/twapi/eventlog.tcl, Binaries/Windows/twapi/msi.tcl,
+      Binaries/Windows/twapi/mstask.tcl, Binaries/Windows/twapi/network.tcl,
+      Binaries/Windows/twapi/nls.tcl, Binaries/Windows/twapi/osinfo.tcl,
+      Binaries/Windows/twapi/pdh.tcl, Binaries/Windows/twapi/pkgIndex.tcl,
+      Binaries/Windows/twapi/power.tcl, Binaries/Windows/twapi/printer.tcl,
+      Binaries/Windows/twapi/process.tcl, Binaries/Windows/twapi/security.tcl,
+      Binaries/Windows/twapi/services.tcl, Binaries/Windows/twapi/share.tcl,
+      Binaries/Windows/twapi/shell.tcl, Binaries/Windows/twapi/synch.tcl,
+      Binaries/Windows/twapi/twapi.dll, Binaries/Windows/twapi/twapi.tcl,
+      Binaries/Windows/twapi/twapi_version.tcl, Binaries/Windows/twapi/ui.tcl:
+          Reverting to a new version of the old TWAPI.  This is TWAPI version
+          1.1.5, which should contain everything we need as well as not having
+          a bunch of stuff we don't.  It's also been compiled without a
+          dependence on MSVCP.DLL, which means it should play nice on Windows
+          2000 boxes where that DLL is not standard.
+
+    * Binaries/Windows/twapi/twapi.tcl:
+          Use our own load command to load twapi.dll.
+
+    * lib/splash.tcl:
+          Display the build version on the splash screen.
+
+
+2009-04-23  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl:
+          Fix a regression that caused installs to fail on non-Windows
+          platforms.
+
+    * lib/Actions/ShortcutActions/InstallUNIXProgramFolder.action,
+      lib/Actions/ShortcutActions/InstallUNIXShortcut.action,
+      lib/Actions/UninstallActions/UninstallSelectedFiles.action,
+      lib/common.tcl:
+          Installing UNIX shortcuts as root will not install them for all
+          users and not for the root user.  This does not count for desktop
+          icons, only for program folders and shortcuts.
+          
+          Removed the code to restart the gnome-panel on Gnome desktops.  It
+          seems like the panel will automatically pick up the changes on its
+          own now.
+
+    * lib/common.tcl:
+          Fixed a bug where the default system language was not getting picked
+          up properly on some Windows systems.
+
+    * lib/common.tcl:
+          Fixed a typo in ij_chooseDirectory.
+          
+          When passing -title and -message to a native dialog, we want -title
+          to use the value of -message because -title is the argument native
+          Tk dialogs expect.
+
+    * lib/installapi.tcl:
+          Added a new ConfigAPI API call to configure internal settings.
+
+    * Binaries/Windows/twapi/LICENSE, Binaries/Windows/twapi/clipboard.tcl,
+      Binaries/Windows/twapi/com.tcl, Binaries/Windows/twapi/console.tcl,
+      Binaries/Windows/twapi/crypto.tcl, Binaries/Windows/twapi/desktop.tcl,
+      Binaries/Windows/twapi/device.tcl, Binaries/Windows/twapi/disk.tcl,
+      Binaries/Windows/twapi/eventlog.tcl, Binaries/Windows/twapi/msi.tcl,
+      Binaries/Windows/twapi/mstask.tcl, Binaries/Windows/twapi/network.tcl,
+      Binaries/Windows/twapi/nls.tcl, Binaries/Windows/twapi/osinfo.tcl,
+      Binaries/Windows/twapi/pdh.tcl, Binaries/Windows/twapi/pkgIndex.tcl,
+      Binaries/Windows/twapi/power.tcl, Binaries/Windows/twapi/printer.tcl,
+      Binaries/Windows/twapi/process.tcl, Binaries/Windows/twapi/security.tcl,
+      Binaries/Windows/twapi/services.tcl, Binaries/Windows/twapi/share.tcl,
+      Binaries/Windows/twapi/shell.tcl, Binaries/Windows/twapi/synch.tcl,
+      Binaries/Windows/twapi/twapi.dll, Binaries/Windows/twapi/twapi.tcl,
+      Binaries/Windows/twapi/twapi_version.tcl, Binaries/Windows/twapi/ui.tcl:
+          Roll back to TWAPI 2.0.12, which is the most recent stable release
+          to see if we can fix the crashes on some Windows machines.
+
+    * lib/BWidget/choosedir.tcl:
+          Fixed a bug with the choose directory dialog on Vista where it was
+          still looking for My Documents even though Vista just calls it
+          Documents.
+
+    * lib/utils.tcl:
+          Fixed a bug where trying to launch explorer in a directory on Vista
+          would just open the explorer to the My Computer screen.
+
+    * lib/utils.tcl:
+          Use an even better way to explore a directory.
+
+    * lib/build.tcl:
+          Fixed a bug where tar and zip archives did not auto refresh files
+          when the Refresh File List Before Building preference was turned on.
+
+    * lib/Actions/FileActions/CreateFileLink.action:
+          Fixed a bug in the Create File Link action where it would fail on
+          UNIX systems if the link target did not already exist.  This will
+          remain a requirement for Windows platforms however.
+
+
+2009-04-21  Damon Courtney <damon@installjammer.com>
+    * Binaries/Windows/twapi/twapi.dll:
+          Try the original twapi DLL without compression.
+
+
+2009-04-19  Damon Courtney <damon@installjammer.com>
+    *** InstallJammer 1.2.13b1 RELEASED ***
+
+
+2009-04-19  Damon Courtney <damon@installjammer.com>
+    * docs/html/10.html, docs/html/101.html, docs/html/102.html,
+      docs/html/103.html, docs/html/104.html, docs/html/10b1.html,
+      docs/html/10b2.html, docs/html/10rc1.html, docs/html/10rc3.html,
+      docs/html/11.html, docs/html/112.html, docs/html/11b1.html,
+      docs/html/11b2.html, docs/html/12.html, docs/html/121.html,
+      docs/html/1210.html, docs/html/1210b1.html, docs/html/1211.html,
+      docs/html/1212.html, docs/html/122.html, docs/html/123.html,
+      docs/html/124.html, docs/html/125.html, docs/html/126.html,
+      docs/html/127.html, docs/html/128.html, docs/html/129.html,
+      docs/html/12b1.html, docs/html/12b2.html,
+      docs/html/ActionStandardProperties.html,
+      docs/html/AddDirectoryToPath.html,
+      docs/html/AddEnvironmentVariable.html, docs/html/AddInstallInfo.html,
+      docs/html/AddInstallInfo1.html, docs/html/AddLanguage.html,
+      docs/html/AddPaneToOrder.html, docs/html/AddResponseFileInfo.html,
+      docs/html/AddToUninstall.html, docs/html/AddWidget.html,
+      docs/html/AddWindowsFileCommand.html,
+      docs/html/AddWindowsFileExtension.html,
+      docs/html/AddWindowsFileType.html, docs/html/AddWindowsRegistryKey.html,
+      docs/html/AddWindowsUninstallEntry.html, docs/html/AdjustLineFeeds.html,
+      docs/html/AppendTextToWidget.html,
+      docs/html/ApplicationInformation.html, docs/html/AskYesOrNo.html,
+      docs/html/BackupFile.html, docs/html/ChangeFileOwnership.html,
+      docs/html/ChangeFilePermissions.html,
+      docs/html/CheckForPreviousInstall.html,
+      docs/html/Command-LineOptions.html, docs/html/CommandLineAPI.html,
+      docs/html/CommandLineOptions.html,
+      docs/html/CommandLineTestCondition.html, docs/html/ComponentAPI.html,
+      docs/html/Components.html, docs/html/ConditionStandardProperties.html,
+      docs/html/ConsoleAskYesOrNo.html, docs/html/ConsoleClearScreen.html,
+      docs/html/ConsoleGetUserInput.html, docs/html/ConsoleMessage.html,
+      docs/html/ConsolePause.html, docs/html/ContinueInstall.html,
+      docs/html/ContinueWindowsService.html, docs/html/CopyFile.html,
+      docs/html/CopyObject.html, docs/html/CreateANewInstallFast.html,
+      docs/html/CreateANewInstallStep-by-Step.html,
+      docs/html/CreateFileLink.html, docs/html/CreateFolder.html,
+      docs/html/CreateInstallPanes.html, docs/html/CreateWindowsService.html,
+      docs/html/Credits.html, docs/html/DebuggingAnInstall.html,
+      docs/html/DeleteEnvironmentVariable.html, docs/html/DeleteFile.html,
+      docs/html/DeleteWindowsService.html, docs/html/DestroyWidget.html,
+      docs/html/DestroyWidget1.html, docs/html/DisableWow64Redirection.html,
+      docs/html/DiskBuilder.html, docs/html/EnvironmentVariableExists.html,
+      docs/html/EnvironmentVariableTestCondition.html,
+      docs/html/ErrorMessage.html, docs/html/ExecuteAction.html,
+      docs/html/ExecuteExternalProgram.html, docs/html/ExecuteScript.html,
+      docs/html/ExecuteScriptCondition.html, docs/html/Exit.html,
+      docs/html/Exit1.html, docs/html/FHDisplayToc.js,
+      docs/html/FHKeywords.html, docs/html/FHSearch.html,
+      docs/html/FHSearch.js, docs/html/FHSearchResults.html,
+      docs/html/FHTocParas.js, docs/html/FHTocTab.js, docs/html/FHTop.html,
+      docs/html/FetchURL.html, docs/html/FetchURL1.html,
+      docs/html/FileExistsCondition.html,
+      docs/html/FileExtensionExistsCondition.html,
+      docs/html/FileNameTestCondition.html,
+      docs/html/FilePermissionCondition.html,
+      docs/html/FileTypeExistsCondition.html,
+      docs/html/FilesAndDirectories.html, docs/html/FindObjects.html,
+      docs/html/FindProcesses.html, docs/html/FocusOnWidget.html,
+      docs/html/FrequentlyAskedQuestions.html, docs/html/GenerateUID.html,
+      docs/html/GetAction.html, docs/html/GetActionGroup.html,
+      docs/html/GetComponentsForSetupType.html, docs/html/GetInstallSize.html,
+      docs/html/GetJavaProperty.html, docs/html/GetPreviousInstallInfo.html,
+      docs/html/GetSelectedFiles.html, docs/html/GetSystemPackageManager.html,
+      docs/html/GetWidgetChildren.html, docs/html/GetWidgetPath.html,
+      docs/html/GettingStarted.html,
+      docs/html/GettingToKnowTheInstallBuilder.html,
+      docs/html/GroupsAndFiles.html, docs/html/Images/BrowseBlueLeft.png,
+      docs/html/Images/BrowseBlueRight.png,
+      docs/html/Images/GrayTabContents.gif, docs/html/Images/GrayTabIndex.gif,
+      docs/html/Images/GrayTabSearch.gif, docs/html/Images/closed.png,
+      docs/html/Images/open.png, docs/html/Images/topic.png,
+      docs/html/ImportWindowsRegistryFile.html,
+      docs/html/InstallBuilderPreferences.html,
+      docs/html/InstallDesktopShortcut.html, docs/html/InstallLogFile.html,
+      docs/html/InstallProgramFolderShortcut.html,
+      docs/html/InstallSelectedFiles.html,
+      docs/html/InstallUNIXProgramFolder.html,
+      docs/html/InstallUNIXShortcut.html, docs/html/InstallUninstaller.html,
+      docs/html/InstallWindowsShortcut.html, docs/html/InstallWishBinary.html,
+      docs/html/InstallWrappedScript.html, docs/html/LaunchFile.html,
+      docs/html/LaunchWebBrowser.html, docs/html/License.html,
+      docs/html/LoadMessageCatalog.html, docs/html/LocateJavaRuntime.html,
+      docs/html/LogDebugMessage.html, docs/html/MessageBox.html,
+      docs/html/MessagePanel.html, docs/html/ModifyObject.html,
+      docs/html/ModifyObject1.html, docs/html/ModifyWidget.html,
+      docs/html/MoveForward.html, docs/html/MoveToPane.html,
+      docs/html/ObjectIsActiveCondition.html, docs/html/ObjectTypes.html,
+      docs/html/PackageAndArchiveInformation.html,
+      docs/html/PackageTestCondition.html, docs/html/PanesAndActions.html,
+      docs/html/PauseInstall.html, docs/html/PauseWindowsService.html,
+      docs/html/PlatformCondition.html, docs/html/PlatformInformation.html,
+      docs/html/PopulateComponents.html, docs/html/PopulateSetupTypes.html,
+      docs/html/PortTestCondition.html, docs/html/PromptForDirectory.html,
+      docs/html/PromptForFile.html, docs/html/ReadFileIntoVirtualText.html,
+      docs/html/ReadInstallInfo.html, docs/html/RebootOrShutdownSystem.html,
+      docs/html/RegisterPackage.html, docs/html/RegisterWindowsLibrary.html,
+      docs/html/RegistryEntryExistsCondition.html,
+      docs/html/ReleaseNotes.html, docs/html/RemoveDirectoryFromPath.html,
+      docs/html/RemovePaneFromOrder.html,
+      docs/html/RemoveWindowsRegistryKey.html, docs/html/RenameFile.html,
+      docs/html/ReplaceTextInFile.html, docs/html/ResponseFileAPI.html,
+      docs/html/RevertWow64Redirection.html, docs/html/RollbackInstall.html,
+      docs/html/ScriptCondition.html, docs/html/SetActiveSetupType.html,
+      docs/html/SetExitCode.html, docs/html/SetFileTypeEOL.html,
+      docs/html/SetObjectProperty.html, docs/html/SetObjectProperty1.html,
+      docs/html/SetPlatformProperty.html, docs/html/SetVirtualText.html,
+      docs/html/SetVirtualText1.html, docs/html/SetupTypes.html,
+      docs/html/StandardProperties.html, docs/html/StartWindowsService.html,
+      docs/html/StopInstall.html, docs/html/StopWindowsService.html,
+      docs/html/StringEqualCondition.html, docs/html/StringIsCondition.html,
+      docs/html/StringMatchCondition.html, docs/html/SubstVirtualText.html,
+      docs/html/TestRun.html, docs/html/TestUninstaller.html,
+      docs/html/TextWindow.html, docs/html/URLIsValid.html,
+      docs/html/UninstallLeftoverFiles.html,
+      docs/html/UninstallSelectedFiles.html, docs/html/UnpackStoredFile.html,
+      docs/html/UnregisterWindowsLibrary.html, docs/html/UnzipFile.html,
+      docs/html/VirtualDirectoryDefinitions.html, docs/html/VirtualText.html,
+      docs/html/VirtualTextDefinitions.html, docs/html/VirtualTextExists.html,
+      docs/html/VirtualTextExistsCondition.html,
+      docs/html/VirtualTextTestCondition.html, docs/html/Wait.html,
+      docs/html/Welcome.html, docs/html/WhatAreActionGroups.html,
+      docs/html/WhatAreActions.html, docs/html/WhatAreConditions.html,
+      docs/html/WhatArePanes.html, docs/html/WhatIsTclTk.html,
+      docs/html/WhatIsTheBuilderAPI.html, docs/html/WhatIsTheInstallAPI.html,
+      docs/html/WhatIsVirtualText.html,
+      docs/html/WindowsServiceTestCondition.html,
+      docs/html/WriteTextToFile.html:
+          Updating documentation.
+          
+          This update includes a new look for the html documentation as well
+          as some much-needed cleanups to missing pieces in the docs.
+
+    * docs/InstallJammer User Guide.pdf, docs/InstallJammer.chm:
+          Forgot to update CHM and PDF docs.
+
+    * lib/main.tcl:
+          Update version for release.
+
+
+2009-04-18  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/InstallActions/AddResponseFileInfo.action,
+      lib/Conditions/GeneralConditions/CommandLineTestCondition.condition,
+      lib/common.tcl, lib/install.tcl, lib/installapi.tcl:
+          Changed the arguments for the ResponseFileAPI and CommandLineAPI.
+          
+          Fixed a bug where the system language might not get used even when
+          the message catalog is compiled into the installer.
+
+    * lib/Actions/WizardActions/AddWidget.action:
+          When a user widget is destroyed, make sure we unset its ID from the
+          UserWidgets array.
+
+    * lib/Actions/WizardActions/DestroyWidget.action, lib/installapi.tcl:
+          Renamed the -widget argument in the DestroyWidget API to -widgets to
+          reflect that a list of widgets must be passed.
+
+
+2009-04-16  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl, lib/gui-common.tcl, lib/new.tcl:
+          Added a new Default To System Language install feature to specify
+          that the default language on the installing system should be used if
+          it exists within the installer's message catalog.  Otherwise, the
+          Default Language will be used.
+
+    * lib/Actions/WizardActions/DestroyWidget.action, lib/installapi.tcl:
+          Make the DestroyWidget API take a proper list.  APIs should always
+          take proper lists from now on, and the actions will be responsible
+          for splitting on ;.
+
+
+2009-04-15  Damon Courtney <damon@installjammer.com>
+    * lib/Conditions/FileConditions/FilePermissionCondition.condition:
+          Added new permissions to the File Permission Condition.
+
+    * lib/Actions/UninstallActions/UninstallSelectedFiles.action:
+          Added new <%ErrorFiles%> and <%ErrorDirs%> virtual text that are set
+          during uninstallation when it fails to remove files or directories.
+
+
+2009-04-14  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/ExecuteActions/ExecuteExternalProgram.action,
+      lib/common.tcl, lib/installapi.tcl:
+          Fixed a bug in the Execute External Program action where the
+          Progressive Output Widget could not be found when the action was
+          nested in an action group.
+          
+          In most properties, widgets can now be specified as <pane>.<widget>
+          to specify exactly which pane and widget is meant.
+
+
+2009-04-11  Damon Courtney <damon@installjammer.com>
+    * lib/utils.tcl:
+          Don't allow "all" as an alias.  It is now reserved.
+
+    * Themes/Classic_Wizard/de.msg, Themes/Classic_Wizard/en.msg,
+      Themes/Classic_Wizard/es.msg, Themes/Classic_Wizard/fr.msg,
+      Themes/Classic_Wizard/hu.msg, Themes/Classic_Wizard/it.msg,
+      Themes/Classic_Wizard/nl.msg, Themes/Classic_Wizard/pt_br.msg,
+      Themes/Modern_Wizard/ar.msg, Themes/Modern_Wizard/de.msg,
+      Themes/Modern_Wizard/en.msg, Themes/Modern_Wizard/es.msg,
+      Themes/Modern_Wizard/fr.msg, Themes/Modern_Wizard/hu.msg,
+      Themes/Modern_Wizard/it.msg, Themes/Modern_Wizard/nl.msg,
+      Themes/Modern_Wizard/pl.msg, Themes/Modern_Wizard/pt_br.msg,
+      Themes/Modern_Wizard/ru.msg, lib/msgs/installer/de.msg,
+      lib/msgs/installer/es.msg, lib/msgs/installer/fr.msg,
+      lib/msgs/installer/hu.msg, lib/msgs/installer/pl.msg,
+      lib/msgs/installer/pt_br.msg:
+          Cleaned up all of the message catalogs to remove double spaces when
+          displaying text in some panes.  These extra spaces were part of the
+          actual message catalog and not a bug in the installers.
+
+
+2009-04-09  Damon Courtney <damon@installjammer.com>
+    * lib/uninstall.tcl:
+          Fixed a bug where some actions (like WriteTextToFile) that log files
+          would error out when running inside of an uninstaller.
+
+
+2009-04-08  Damon Courtney <damon@installjammer.com>
+    * lib/utils.tcl:
+          Fixed a bug where editing some text fields would not cause the
+          project to become modified.
+
+    * lib/trees-filegroup.tcl:
+          Fixed a bug where setting Windows file attributes on a non-Windows
+          platform would then cause an error during installation.
+
+
+2009-04-07  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/ShortcutActions/InstallUNIXProgramFolder.action,
+      lib/Actions/ShortcutActions/InstallUNIXShortcut.action:
+          Added a new Install UNIX Program Folder action to allow creating
+          program folders with more options like icons.
+
+    * lib/Actions/ShortcutActions/InstallUNIXProgramFolder.action:
+          Make Install UNIX Program Folder install a dummy .desktop file
+          alongside the directory so that we can properly uninstall it later.
+
+
+2009-04-06  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl:
+          Fix a bug in the new move to pane code that would cause panes with
+          no actions to not move at all.  Oops.
+
+    * lib/Actions/WindowsActions/DisableWow64Redirection.action,
+      lib/Actions/WindowsActions/RevertWow64Redirection.action,
+      lib/common.tcl, lib/install.tcl, lib/unpack.tcl:
+          Fixed a bug in the new wow64 redirection code where the signal
+          wasn't getting passed to the unpack thread, so it didn't really mean
+          a whole lot.
+
+    * Binaries/Windows/twapi/LICENSE, Binaries/Windows/twapi/clipboard.tcl,
+      Binaries/Windows/twapi/com.tcl, Binaries/Windows/twapi/console.tcl,
+      Binaries/Windows/twapi/crypto.tcl, Binaries/Windows/twapi/desktop.tcl,
+      Binaries/Windows/twapi/device.tcl, Binaries/Windows/twapi/disk.tcl,
+      Binaries/Windows/twapi/eventlog.tcl, Binaries/Windows/twapi/msi.tcl,
+      Binaries/Windows/twapi/mstask.tcl, Binaries/Windows/twapi/network.tcl,
+      Binaries/Windows/twapi/nls.tcl, Binaries/Windows/twapi/osinfo.tcl,
+      Binaries/Windows/twapi/pdh.tcl, Binaries/Windows/twapi/pkgIndex.tcl,
+      Binaries/Windows/twapi/power.tcl, Binaries/Windows/twapi/printer.tcl,
+      Binaries/Windows/twapi/process.tcl, Binaries/Windows/twapi/security.tcl,
+      Binaries/Windows/twapi/services.tcl, Binaries/Windows/twapi/share.tcl,
+      Binaries/Windows/twapi/shell.tcl, Binaries/Windows/twapi/synch.tcl,
+      Binaries/Windows/twapi/twapi.dll, Binaries/Windows/twapi/twapi.tcl,
+      Binaries/Windows/twapi/twapi_version.tcl,
+      Binaries/Windows/twapi/twapicallback.dll, Binaries/Windows/twapi/ui.tcl:
+          Upgrade TWAPI.
+
+    * lib/common.tcl:
+          Quick fix to allow user-added text boxes to be appended to without
+          clearing them.
+
+
+2009-04-01  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl:
+          The wizard move actions will now stop any further actions from
+          continuing.  This was previously fixed but not completely.  This fix
+          should be complete.
+
+
+2009-03-28  Damon Courtney <damon@installjammer.com>
+    * lib/Conditions/PlatformConditions/PlatformCondition.condition,
+      lib/utils.tcl:
+          Fixed a bug in the Platform Condition where not all platforms were
+          available.
+          
+          Added new "matches" and "does not match" operators to the Platform
+          Condition.
+
+    * lib/Actions/InstallActions/AddResponseFileInfo.action,
+      lib/Actions/WizardActions/PopulateComponents.action,
+      lib/Actions/WizardActions/PopulateSetupTypes.action, lib/common.tcl,
+      lib/gui-common.tcl, lib/install.tcl, lib/installapi.tcl, lib/main.tcl,
+      lib/new.tcl:
+          Added the ability to enable response files for installers.  Response
+          files let a user save their responses from an install and replay
+          them in another install later.
+          
+          Added a new Enable Response Files install feature.  This will be
+          true by default in projects using version 1.2.13 and higher.
+          
+          Added a new Add Response File Info action to enable adding virtual
+          text to a response file when they are enabled.
+          
+          Made the SelectedComponents virtual text writable.  Whenever this
+          virtual text is changed, it will overwrite the current set of
+          selected components.
+          
+          Added a new ComponentAPI API call.
+          
+          Added a new CommandLineAPI API call.
+          
+          Added a new ResponseFileAPI API call.
+
+
+2009-03-27  Damon Courtney <damon@installjammer.com>
+    * Binaries/Windows/installkit.exe, lib/Actions/WindowsActions,
+      lib/Actions/WindowsActions/DisableWow64Redirection.action,
+      lib/Actions/WindowsActions/RevertWow64Redirection.action:
+          New Windows binary.
+          
+          Added a new Disable / Revert Wow64 Redirection and action to disable
+          Windows 64 bit filesystem redirection.
+
+
+2009-03-12  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/JavaActions/LocateJavaRuntime.action:
+          Fix a bug in the Locate Java Runtime action to actually let it take
+          advantage of the new version compare code.
+          
+          The Locate Java Runtime action now includes a full version number in
+          the <%JavaAvailableVersions%> virtual text.
+          
+          Added a new <%JavaVersionMinor%> that is set by the Locate Java
+          Runtime action.
+
+    * lib/common.tcl:
+          Let versions also split on -.
+
+    * lib/uninstall.tcl:
+          Fixed a bug where the uninstall would error on exit while trying to
+          execute the cleanup .bat file.
+          
+          Fixed a bug in the uninstaller where it was trying to use a variable
+          called info(Dir), which was the wrong variable.  This resulted in an
+          "invalid variable" error when the uninstall went to remove
+          everything.
+
+
+2009-03-05  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/ExecuteActions/ExecuteExternalProgram.action,
+      lib/common.tcl:
+          Fixed a bug in the Execute External Program action where watching
+          for output to the Status virtual text could cause an infinite loop
+          error.
+
+
+2009-03-03  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/UninstallActions/UninstallLeftoverFiles.action:
+          Fixed a bug where Uninstall Leftover Files was failing on console
+          installs.
+
+    * lib/Actions/JavaActions/LocateJavaRuntime.action, lib/common.tcl:
+          The Locate Java Runtime action now substitutes virtual text properly
+          in the search path.  Also added some debugging to see where the
+          action is looking for Java on the system.
+          
+          The Locate Java Runtime action now handles Java versions properly,
+          so you can use a version like 1.6.0_10 as a minimum or maximum. 
+          Previously, the version after the _ was invalid.
+
+
+2009-02-24  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/ShortcutActions/InstallDesktopShortcut.action,
+      lib/Actions/ShortcutActions/InstallProgramFolderShortcut.action,
+      lib/Actions/ShortcutActions/InstallUNIXShortcut.action:
+          Added a new Vendor ID to the UNIX shortcut actions to allow for
+          shortcuts to be grouped together under a particular vendor.  This
+          makes it easy for multiple installers to create shortcuts in the
+          same program folders.
+
+
+2009-02-20  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/WizardActions/MoveForward.action,
+      lib/Actions/WizardActions/MoveToPane.action, lib/common.tcl:
+          Fixed a bug where actions after a Move Forward or Move to Pane
+          action would still be executed when they should be skipped.
+
+
+2009-02-19  Damon Courtney <damon@installjammer.com>
+    * lib/uninstall.tcl:
+          Fixed a bug where icons and menus were not being properly removed
+          during uninstall on the Linux platform.
+
+    * lib/Actions/WizardActions/FocusOnWidget.action:
+          The Focus on Widget action should now work for built-in widgets as
+          well, not just ones added with an Add Widget action.
+
+
+2009-02-12  Damon Courtney <damon@installjammer.com>
+    * lib/build.tcl:
+          Fixed a bug that broke solid compression builds on all platforms.
+
+    * lib/dobuild.tcl:
+          Fixed a bug where using an install password would fail due to a
+          missing function.
+
+    * lib/common.tcl:
+          Fixed a bug when running multiple installers and closing a child
+          installer would delete the temporary directory out from under the
+          parent.
+
+    * lib/Actions/JavaActions/LocateJavaRuntime.action:
+          Fixed a bug in the Locate Java Runtime action where it would attempt
+          to prompt the user with a dialog in a console install.  For now,
+          there is no prompt for the user in a console install, it is simply
+          ignored.
+
+    * lib/Actions/WizardActions/ModifyWidget.action:
+          Fixed a bug where the Modify Widget action could end up clearing a
+          text widget even if no text was specified.
+
+    * lib/Actions/WizardActions/ModifyWidget.action:
+          Remove debugging stuff.
+
+
+2009-01-31  Damon Courtney <damon@installjammer.com>
+    * lib/uninstall.tcl:
+          Re-fix a bug with the uninstall VBS script that was accidentally
+          removed.
+
+
+2009-01-29  Damon Courtney <damon@installjammer.com>
+    * lib/class.tcl, lib/common.tcl, lib/file.tcl, lib/trees-filegroup.tcl:
+          Added a new Save Files property to file groups and directories to
+          allow for finer-grained access to the Save Only Toplevel Directories
+          project preference.
+
+
+2009-01-28  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/InstallActions/AddInstallInfo.action,
+      lib/Actions/InstallActions/GetPreviousInstallInfo.action,
+      lib/common.tcl, lib/installapi.tcl:
+          Added a new Application ID property to the Get Previous Install Info
+          action.
+          
+          Added a new ReadInstallInfo API.
+          
+          Added a new AddInstallInfo API.
+
+    * lib/install.tcl:
+          Added a new PreviousInstallIDs virtual text that is set after
+          reading previous install info.
+
+
+2009-01-27  Damon Courtney <damon@installjammer.com>
+    * lib/build.tcl, lib/common.tcl:
+          Fix a bug with the new build log change when building from the
+          command-line.
+          
+          Fix a bug with the installkit being used to cleanup after an
+          uninstall.
+
+    * lib/common.tcl, lib/file.tcl, lib/install.tcl, lib/uninstall.tcl:
+          Fix several bugs in the final uninstall process.  UNIX will now use
+          a shell script, and Windows will probably go back to the VB script
+          whenever possible.  That will be done tomorrow though.
+          
+          Fixed a bug where a file group's size was not accurate when
+          following
+          symlinks since the size of the file that was linked to was never
+          calculated.
+
+    * lib/uninstall.tcl:
+          Hopefully the last change to the uninstall cleanup.  Windows will
+          now check for the existence of wscript on the system, and if it is
+          there, use it.  Otherwise, drop an installkit in the temp directory
+          and cleanup from there.
+
+
+2009-01-26  Damon Courtney <damon@installjammer.com>
+    * lib/help.tcl, lib/main.tcl:
+          Change the way the Build Version is calculated so that it is always
+          unique with every hourly build.
+
+    * lib/build.tcl, lib/main.tcl, lib/utils.tcl:
+          Added a new --build-log-file command-line option to the install
+          builder.
+
+    * lib/build.tcl, lib/gui-common.tcl, lib/utils.tcl:
+          Fix a some typos from the last commit.
+          
+          Doing a full build (not quick) now automatically jumps to the build
+          screen before the build begins to show the log.
+
+    * lib/Actions/WizardActions/ModifyWidget.action:
+          The Modify Widget action should now properly handle textboxes when
+          modifying the text property.
+
+
+2009-01-22  Damon Courtney <damon@installjammer.com>
+    * lib/uninstall.tcl:
+          Fix a typo.
+
+    * lib/Actions/WizardActions/DestroyWidget.action, lib/installapi.tcl:
+          Added a new DestroyWidget API call.
+          
+          The Destroy Widget action can now take a list of widgets separated
+          by ;.
+
+    * lib/build.tcl:
+          Fixed a bug where tar and zip archives with no files would error
+          with a big, ugly error message.  It's a little more graceful now.
+
+    * lib/common.tcl:
+          InstallDirSuffix can now contain more than a single directory, and
+          the whole string will be joined with the InstallDir anytime it is
+          changed.
+
+    * lib/Actions/WizardActions/PopulateComponents.action, lib/class.tcl,
+      lib/install.tcl:
+          Added a new Selectable property to Components that, if false, will
+          turn a component in the component tree into a header with no check
+          or radio button.
+
+
+2009-01-21  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl, lib/install.tcl, lib/uninstall.tcl, lib/utils.tcl:
+          Fixed a bug where upgrade installers were not being included as part
+          of the original install during uninstall because of a mismatch in
+          the registry info.
+
+    * lib/Actions/InstallActions/InstallSelectedFiles.action,
+      lib/Actions/SystemActions/RebootOrShutdownSystem.action, lib/build.tcl,
+      lib/common.tcl, lib/header.tcl, lib/install.tcl, lib/uninstall.tcl,
+      lib/unpack.tcl:
+          Fixed several bugs related to installers running under WINE. 
+          Installers and uninstallers should now run successfully under WINE.
+          
+          Fixed a bug in the Reboot or Shutdown System action for UNIX systems
+          where no time was specified.
+          
+          Fixed a bug in uninstall on HP-UX.  All platforms now perform the
+          same uninstall that was previously reserved for Windows.  Which is
+          to say that the uninstaller is copied off to a temporary location
+          before executing it so that the original uninstaller can be deleted
+          in place.
+          
+          Fixed a bug that would affect launching installers that launch other
+          installers where the child installer would delete the temporary
+          directory out from under the parent, leaving the parent to error
+          out.
+
+
+2009-01-08  Damon Courtney <damon@installjammer.com>
+    * Themes/Modern_Wizard/theme.cfg:
+          Added NONE as an option for buttons on a pane.
+
+
+2009-01-04  Damon Courtney <damon@installjammer.com>
+    * lib/install.tcl, lib/msgs/installer/en.msg:
+          Made the text in the language selection dialog part of the English
+          message catalog instead of a hard-coded value.
+
+
+2009-01-03  Damon Courtney <damon@installjammer.com>
+    * Binaries/Linux-x86/xdg-utils/xdg-desktop-icon:
+          Fixed a bug where creating desktop shortcuts on Linux Gnome desktops
+          would fail if the desktop directory was not called Desktop, as it is
+          on non-English systems.
+
+    * lib/uninstall.tcl:
+          Fixed a bug where the uninstall on Windows would leave a hanging
+          process after exiting.  This would cause problems when the
+          uninstaller was called from some other program.
+
+
+2009-01-02  Damon Courtney <damon@installjammer.com>
+    * lib/BWidget/buttonbox.tcl, lib/BWidget/dialog.tcl,
+      lib/BWidget/messagedlg.tcl:
+          Fixed a bug in message dialogs where the X button on the window
+          would do nothing.
+          
+          Fixed a bug in message dialogs where the initial focus button was
+          not correct.
+
+    * lib/virtualtext.tcl:
+          Fixed a bug where editing a virtual text string from the editor
+          would not save when the editor closed.
+
+    * Binaries/Windows/installkit.exe, installjammer.com, installjammer.exe:
+          New binaries for Windows.
+
+    * lib/Actions/GeneralActions/LaunchWebBrowser.action:
+          Fixed a bug where the Launch Web Browser action would not work
+          properly on some versions of Windows.
+
+
+2008-12-10  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/InstallActions/InstallUninstaller.action, lib/common.tcl:
+          Fixed a bug where passing /version to an uninstaller would cause an
+          error.
+
+    * lib/trees-filegroup.tcl:
+          Fixed a bug where the UNIX permissions were being flipped in the
+          builder.
+
+
+2008-12-02  Damon Courtney <damon@installjammer.com>
+    *** InstallJammer 1.2.12 RELEASED ***
+
+
+2008-12-02  Damon Courtney <damon@installjammer.com>
+    * lib/installapi.tcl:
+          Fixed a bug in the URLIsValid API.
+
+    * Binaries/Windows/installkit.com, Binaries/Windows/installkit.exe,
+      installjammer.com, installjammer.exe:
+          Fixed a bug in the Windows installkits that was causing installers
+          signed with a digital signature to fail.
+
+    * docs/InstallJammer.chm, docs/html/1210.html, docs/html/1211.html,
+      docs/html/FHKeywords.html, docs/html/FHSearch.js, docs/html/FHTocTab.js,
+      docs/html/ReleaseNotes.html:
+          Update documentation for release.
+
+    * lib/main.tcl:
+          Update version for release.
+
+
+2008-12-01  Damon Courtney <damon@installjammer.com>
+    *** InstallJammer 1.2.11 RELEASED ***
+
+
+2008-12-01  Damon Courtney <damon@installjammer.com>
+    * lib/uninstall.tcl:
+          Fix a bug in the uninstaller that can occur on Windows systems where
+          the .vbs file extension is messed up in the registry.
+
+    * docs/InstallJammer User Guide.pdf, docs/InstallJammer.chm,
+      docs/html/1210.html, docs/html/1210b1.html, docs/html/FHKeywords.html,
+      docs/html/FHSearch.js, docs/html/FHTocTab.js,
+      docs/html/ReleaseNotes.html:
+          Update documentation.
+
+    * lib/main.tcl:
+          Update version for release.
+
+
+2008-11-29  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/UninstallActions/UninstallSelectedFiles.action:
+          Fixed a bug in the Uninstall Selected Files action that would
+          sometimes occur when using the Remove from Uninstall action.
+
+
+2008-11-27  Damon Courtney <damon@installjammer.com>
+    * lib/install.tcl:
+          Fixed a bug that would only occur on some Windows system where a
+          permission denied error would appear on startup.
+          
+          Removed the installkit build from threaded Windows.  This used to be
+          necessary when the installkit build was much slower and IJ itself
+          was slower in general.  This is no longer the case, and the
+          installkit is built without even a blink.
+
+    * lib/build.tcl:
+          Fixed a bug where <%Platform%> was not expanded in the name of
+          archive files.
+
+    * lib/common.tcl:
+          Fixed a bug where passing /help as an argument to an installer on
+          Windows would show a message box with the title "In-Valid Argument."
+
+
+2008-11-17  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/WizardActions/PopulateComponents.action:
+          Code cleanup
+
+    * lib/Actions/SystemActions/AddDirectoryToPath.action,
+      lib/Actions/SystemActions/AddEnvironmentVariable.action:
+          Add Directory to Path and Add Environment Variable will now also
+          make the same change to the running installer's environment.
+
+    * lib/BWidget/optiontree.tcl:
+          Fixed a bug where double-clicking a check box in an option tree
+          would cause the check button to toggle twice, but the command
+          wouldn't fire.  This leaves some components in the wrong state.
+
+    * lib/installapi.tcl:
+          Fixed a bug where going back-and-forth between a custom setup
+          component screen could leave the components in an unknown state.
+
+    * lib/install.tcl:
+          Code cleanup.
+
+
+2008-11-13  Damon Courtney <damon@installjammer.com>
+    *** InstallJammer 1.2.10 RELEASED ***
+
+
+2008-11-13  Damon Courtney <damon@installjammer.com>
+    * lib/install.tcl:
+          Fixed a bug in the InstallDrive virtual text by defaulting it to the
+          drive where PROGRAM_FILES is located.
+
+    * docs/InstallJammer User Guide.pdf, docs/InstallJammer.chm,
+      docs/html/1210b1.html, docs/html/129.html, docs/html/AddLanguage.html,
+      docs/html/AddWidget.html, docs/html/AppendTextToWidget.html,
+      docs/html/CopyObject.html, docs/html/CreateInstallPanes.html,
+      docs/html/ErrorMessage.html, docs/html/ExecuteExternalProgram.html,
+      docs/html/Exit.html, docs/html/Exit1.html, docs/html/FHKeywords.html,
+      docs/html/FHSearch.js, docs/html/FHTocTab.js,
+      docs/html/GroupsAndFiles.html, docs/html/InstallSelectedFiles.html,
+      docs/html/PlatformInformation.html, docs/html/PromptForFile.html,
+      docs/html/ReleaseNotes.html, docs/html/ReplaceTextInFile.html,
+      docs/html/RollbackInstall.html, docs/html/SetActiveSetupType.html,
+      docs/html/SetExitCode.html, docs/html/SetFileTypeEOL.html,
+      docs/html/WriteTextToFile.html:
+          Update documentation.
+
+    * lib/main.tcl:
+          Update version to 1.2.10 for release.
+
+
+2008-11-12  Damon Courtney <damon@installjammer.com>
+    * lib/BWidget/dynhelp.tcl:
+          Set a max width for help balloons so they don't get too big on the
+          screen.
+
+    * lib/gui-common.tcl:
+          Cleanup a help balloon message.
+
+    * lib/class.tcl, lib/file.tcl:
+          Added a new Follow File Links property to file groups.  This
+          property tells InstallJammer whether to include file links as files
+          or links when building.
+
+
+2008-11-11  Damon Courtney <damon@installjammer.com>
+    * Binaries/HPUX-hppa/installkit:
+          New HPUX binary.
+
+    * lib/common.tcl:
+          Make the default exit code empty so it will use a default based on
+          the user interaction.
+          
+          Fix a bug where any message box in the builder would fail.
+
+    * lib/installapi.tcl:
+          Added a -exitcode option the Exit API.
+           Fixed a bug in the GetWidgetPath API where it would get the path of
+          an enclosing frame instead of the real widget if a widget was added
+          with a label.
+           Added a new RollbackInstall API.
+
+    * lib/install.tcl:
+          Exit with a decent exit code if one was never given to us.
+
+    * lib/Actions/GeneralActions/Exit.action,
+      lib/Actions/WizardActions/MoveForward.action:
+          Fixed bugs in the Exit and Move Forward actions that were caused by
+          the new exit code capabilities.  They now both call the proper Exit
+          API.
+
+
+2008-11-10  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl:
+          Fix a bug in the CopyObject API.
+
+    * lib/install.tcl:
+          Fixed a bug where required components could be unchecked by their
+          parent if the parent was unchecked.
+
+    * Binaries/Windows/installkit.com, Binaries/Windows/installkit.exe,
+      Binaries/Windows/installkitU.exe, installjammer.com, installjammer.exe:
+          New Windows binaries.
+
+    * Binaries/AIX-ppc/Tktable2.9, Binaries/AIX-ppc/installkit,
+      Binaries/AIX-ppc/tkdnd1.0, Binaries/FreeBSD-4-x86/Tktable2.9,
+      Binaries/FreeBSD-4-x86/tkdnd1.0, Binaries/FreeBSD-5-x86/Tktable2.9,
+      Binaries/FreeBSD-5-x86/craplzma0.1, Binaries/FreeBSD-5-x86/tkdnd1.0,
+      Binaries/HPUX-hppa/Tktable2.9, Binaries/HPUX-hppa/craplzma0.1,
+      Binaries/HPUX-hppa/tkdnd1.0:
+          Removed AIX, FreeBSD 4, FreeBSD 5 and HPUX as builder platforms. 
+          This does not mean these platforms are no longer supported.  It
+          means they are no longer supported as GUI builder platforms.  They
+          also do not support LZMA compression when building on these
+          platforms.
+
+    * Binaries/FreeBSD-4-x86/installkit, Binaries/FreeBSD-5-x86/installkit,
+      Binaries/FreeBSD-6-x86/craplzma0.1/libcraplzma0.1.so,
+      Binaries/FreeBSD-6-x86/installkit,
+      Binaries/FreeBSD-7-x86/craplzma0.1/libcraplzma0.1.so,
+      Binaries/FreeBSD-7-x86/installkit, Binaries/HPUX-hppa/installkit:
+          New installkit binaries.
+
+    * Binaries/Linux-x86/craplzma0.1/libcraplzma0.1.so,
+      Binaries/Linux-x86/installkit:
+          New Linux binaries.
+
+    * Binaries/Linux-x86_64/Tktable2.9/libTktable2.9.so,
+      Binaries/Linux-x86_64/craplzma0.1/libcraplzma0.1.so,
+      Binaries/Linux-x86_64/installkit:
+          New Linux x86_64 binaries.
+
+    * Binaries/Solaris-x86/craplzma0.1/libcraplzma0.1.so,
+      Binaries/Solaris-x86/installkit:
+          New Solaris x86 binaries.
+
+
+2008-11-06  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl, lib/installapi.tcl:
+          Added a new CopyObject API call.
+
+
+2008-11-05  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/WizardActions/AddWidget.action:
+          Fixed a bug where the Add Widget action could be executed from an
+          action group with no pane as its parent.  This would cause a "bad
+          window" error.
+
+    * lib/Actions/UninstallActions/UninstallSelectedFiles.action:
+          Fixed a bug in the Uninstall Leftover Files action
+
+    * lib/Actions/ShortcutActions/InstallUNIXShortcut.action:
+          Fixed a bug where specifying Categories in the Additional Arguments
+          of the Install UNIX Shortcut action would cause an error instead of
+          working like it should.
+
+    * lib/common.tcl:
+          Fixed a bug where it was impossible to post a message box in a
+          silent install.
+
+    * lib/Actions/GeneralActions/LaunchWebBrowser.action, lib/common.tcl:
+          Fixed a bug in the Launch Web Browser action where an & in the URL
+          would truncate the URL.  This was due to Windows' command-line
+          parsing rules.  The new method is to create a URL shortcut in the
+          temp directory and then invoke that shortcut to launch the browser.
+
+    * lib/build.tcl:
+          Fixed a bug where error messages in a command-line build were not
+          output to stderr as they should be.
+
+    * lib/Actions/FileActions/ReplaceTextInFile.action,
+      lib/Actions/FileActions/WriteTextToFile.action:
+          Added a new Encoding property to the Replace Text in File and Write
+          Text to File actions.
+
+    * lib/common.tcl:
+          Editable text widgets now tab to the next widget when hitting Tab
+          instead of inserting a tab in the text box.  A Control-Tab can be
+          used to insert a tab if it's really necessary.
+
+    * lib/common.tcl:
+          Make Shift-Tab work on text widgets too.
+
+    * lib/Actions/GeneralActions/Wait.action:
+          Make the Wait action do an update before sleeping.
+
+    * lib/Actions/WizardActions/AppendTextToWidget.action:
+          Added a new Append Text to Widget action.
+
+    * lib/Actions/GeneralActions/Exit.action, lib/common.tcl, lib/install.tcl,
+      lib/installapi.tcl, lib/uninstall.tcl:
+          Added a new SetExitCode API.
+           Added a new Exit Code property to the Exit action.
+
+
+2008-10-27  Damon Courtney <damon@installjammer.com>
+    * lib/build.tcl, lib/file.tcl:
+          Fixed several bugs in the build of zip and tar files.
+
+    * lib/uninstall.tcl:
+          Fixed a bug where silent install would still show a progress bar.
+
+
+2008-10-26  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl:
+          Try to cleanup open file handles on exit.
+
+
+2008-10-22  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/ShortcutActions/InstallWindowsShortcut.action:
+          Fixed a bug in the Install Windows Shortcut action that would
+          prevent it from creating a URL shortcut.
+
+    * lib/installapi.tcl:
+          Fixed a bug in the Encode URL API.  The entire URL was being
+          encoded, which would percent-encode the hostname as well as the
+          query, which is the wrong thing to do.
+
+
+2008-10-21  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl, lib/install.tcl, lib/unpack.tcl:
+          Fixed a bug in the new split archives code that was causing split
+          archives not to work on non-Windows platforms.
+
+
+2008-10-20  Damon Courtney <damon@installjammer.com>
+    * lib/dobuild.tcl:
+          Fix a bug where larger installs would fail even on 64 bit systems.
+
+    * lib/cmdline.tcl, lib/file.tcl:
+          Fixed a bug where variables defined on the command-line were being
+          defined after the control script.  The control script should have
+          access to the correct values.
+           Fixed a bug where setting platform variables from the command-line
+          would not be set properly.  Passing -DExecutable, for example, works
+          now.
+           The special platforms "tar" and "zip" are now acceptable as
+          platforms to enable the tar and zip archive targets.
+
+
+2008-10-16  Damon Courtney <damon@installjammer.com>
+    *** InstallJammer 1.2.10b1 RELEASED ***
+
+
+2008-10-16  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/UninstallActions/UninstallSelectedFiles.action,
+      lib/common.tcl, lib/install.tcl, lib/uninstall.tcl:
+          Make the console progress bar more generic and let the uninstall use
+          it.
+
+    * docs/InstallJammer User Guide.pdf, docs/InstallJammer.chm,
+      docs/html/128.html, docs/html/129.html, docs/html/FHKeywords.html,
+      docs/html/FHSearch.js, docs/html/FHTocTab.js,
+      docs/html/ReleaseNotes.html:
+          Update documentation.
+
+    * lib/main.tcl:
+          Update version for release.
+
+
+2008-10-10  Damon Courtney <damon@installjammer.com>
+    * Themes/Classic_Wizard/Install/License.pane,
+      Themes/Modern_Wizard/Install/CopyFiles.pane,
+      Themes/Modern_Wizard/Install/License.pane,
+      Themes/Modern_Wizard/Uninstall/Uninstall.pane:
+          Fixed a bug where the default actions to modify button states on the
+          License and Copy Files panes were happening after the pane had been
+          displayed, which would give the user time to quickly zip by them
+          before the buttons were changed.  This change only affects new
+          projects.  Older projects will have to be modified to fix this bug.
+
+    * lib/build.tcl, lib/class.tcl, lib/dobuild.tcl, lib/file.tcl,
+      lib/gui-common.tcl, lib/install.tcl, lib/utils.tcl:
+          Added a new Build Separate Archives property to all platforms.  This
+          property allows installers to be built with files being separate
+          archives that are mounted on startup.  This means that the
+          installers are no longer one single executable, but it makes it
+          possible to avoid some size limitations on 32 bit platforms.
+
+    * lib/Actions/InstallActions/InstallSelectedFiles.action, lib/install.tcl:
+          Fixed a bug where file installation would sometimes not reach 100%.
+           Added a new progress bar for console installs.  A new Show Console
+          Progress property was added to the Install Selected Files action
+          which is enabled by default.
+
+    * lib/build.tcl, lib/cmdline.tcl:
+          Fixed a bug where an error during a command-line build would not
+          exit with an error code.
+
+    * lib/build.tcl:
+          If the project is ignoring missing files, the installer should not
+          exit on an error for a missing file.
+
+    * lib/file.tcl:
+          Fixed a bug where symlink'd files were being included in the
+          installer instead of a link to the file being created on the target
+          machine.
+
+    * lib/utils.tcl:
+          Fixed a bug where Move to Pane could not select a pane from the
+          uninstall.
+
+    * lib/Actions/WizardActions/MoveForward.action,
+      lib/Actions/WizardActions/MoveToPane.action, lib/common.tcl:
+          Fixed a bug where the Move Forward and Move to Pane actions would
+          still execute any remaining actions on the current pane after moving
+          forward.  Moving now means that any actions after the move are not
+          executed.
+
+    * lib/Actions/ExecuteActions/ExecuteExternalProgram.action:
+          Added a new Clear Progressive Widget property to the Execute
+          External Program action to specify whether the progressive output
+          widget should be cleared before the program exits.  The default is
+          Yes, which was the previous behavior.
+
+
+2008-10-09  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl:
+          Fixed a bug where an installer that specifically did not allow
+          language selection could still get English if the system language
+          was such.  This should be addressed further in another version.
+
+
+2008-10-01  Damon Courtney <damon@installjammer.com>
+    * lib/install.tcl:
+          Fix a bug in the new error handling that would cause an error to
+          always happen during installation for some platforms.
+
+
+2008-09-29  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/JavaActions/LocateJavaRuntime.action:
+          Fixed a bug where the Locate Java Runtime action was not accurately
+          picking up the paths from the Windows registry.
+
+    * lib/Actions/InstallActions/InstallSelectedFiles.action:
+          Fix typo.
+
+
+2008-09-26  Damon Courtney <damon@installjammer.com>
+    * README.txt:
+          Remove mention of sourceforge from the README.
+
+
+2008-09-25  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/InstallActions/InstallSelectedFiles.action,
+      lib/msgs/installer/en.msg:
+          An error during file installation now produces a simple error
+          message instead of a detailed error.  <%InstallErrors%> contains the
+          full error message.
+
+    * lib/Actions/SystemActions/AddDirectoryToPath.action,
+      lib/Actions/SystemActions/AddEnvironmentVariable.action:
+          Fixed a bug where Add Directory to Path would fail for .cshrc when
+          the variable didn't already exist.
+
+
+2008-09-22  Damon Courtney <damon@installjammer.com>
+    * Binaries/FreeBSD-7-x86, Binaries/FreeBSD-7-x86/Tktable2.9,
+      Binaries/FreeBSD-7-x86/Tktable2.9/README.txt,
+      Binaries/FreeBSD-7-x86/Tktable2.9/libTktable2.9.so,
+      Binaries/FreeBSD-7-x86/Tktable2.9/license.txt,
+      Binaries/FreeBSD-7-x86/Tktable2.9/pkgIndex.tcl,
+      Binaries/FreeBSD-7-x86/Tktable2.9/tkTable.tcl,
+      Binaries/FreeBSD-7-x86/craplzma0.1,
+      Binaries/FreeBSD-7-x86/craplzma0.1/libcraplzma0.1.so,
+      Binaries/FreeBSD-7-x86/craplzma0.1/pkgIndex.tcl,
+      Binaries/FreeBSD-7-x86/installkit, Binaries/FreeBSD-7-x86/tkdnd1.0,
+      Binaries/FreeBSD-7-x86/tkdnd1.0/License.txt,
+      Binaries/FreeBSD-7-x86/tkdnd1.0/Readme.txt,
+      Binaries/FreeBSD-7-x86/tkdnd1.0/libtkdnd1.0.so,
+      Binaries/FreeBSD-7-x86/tkdnd1.0/pkgIndex.tcl,
+      Binaries/FreeBSD-7-x86/tkdnd1.0/tkdnd.tcl:
+          Add FreeBSD 7 binaries.
+
+    * lib/utils.tcl:
+          Fix another bug relating to spaces in languages when editing text
+          properties.
+
+
+2008-09-20  Damon Courtney <damon@installjammer.com>
+    * lib/install.tcl:
+          Fix a bug introduced by the thread error handling.
+
+
+2008-09-19  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl:
+          Fixed a bug where the language chosen for the installer was not
+          being propagated to the uninstaller correctly.
+
+    * lib/utils.tcl:
+          Fixed a bug where editing text properties for languages with a space
+          in the name (like Brazilian Portuguese) failed to save the edited
+          text correctly.
+
+
+2008-09-09  Damon Courtney <damon@installjammer.com>
+    * lib/utils.tcl:
+          Fixed a bug that would sometimes cause an error in the builder after
+          deleting an object and then coming back to that tab.
+
+
+2008-09-07  Damon Courtney <damon@installjammer.com>
+    * Binaries/AIX-ppc/Tktable2.9/libTktable2.9.so,
+      Binaries/AIX-ppc/installkit,
+      Binaries/FreeBSD-4-x86/Tktable2.9/libTktable2.9.so,
+      Binaries/FreeBSD-4-x86/installkit,
+      Binaries/FreeBSD-4-x86/tkdnd1.0/libtkdnd1.0.so, Binaries/FreeBSD-5-x86,
+      Binaries/FreeBSD-5-x86/Tktable2.9,
+      Binaries/FreeBSD-5-x86/Tktable2.9/README.txt,
+      Binaries/FreeBSD-5-x86/Tktable2.9/libTktable2.9.so,
+      Binaries/FreeBSD-5-x86/Tktable2.9/license.txt,
+      Binaries/FreeBSD-5-x86/Tktable2.9/pkgIndex.tcl,
+      Binaries/FreeBSD-5-x86/Tktable2.9/tkTable.tcl,
+      Binaries/FreeBSD-5-x86/craplzma0.1,
+      Binaries/FreeBSD-5-x86/craplzma0.1/libcraplzma0.1.so,
+      Binaries/FreeBSD-5-x86/craplzma0.1/pkgIndex.tcl,
+      Binaries/FreeBSD-5-x86/installkit, Binaries/FreeBSD-5-x86/tkdnd1.0,
+      Binaries/FreeBSD-5-x86/tkdnd1.0/License.txt,
+      Binaries/FreeBSD-5-x86/tkdnd1.0/Readme.txt,
+      Binaries/FreeBSD-5-x86/tkdnd1.0/libtkdnd1.0.so,
+      Binaries/FreeBSD-5-x86/tkdnd1.0/pkgIndex.tcl,
+      Binaries/FreeBSD-5-x86/tkdnd1.0/tkdnd.tcl, Binaries/FreeBSD-6-x86,
+      Binaries/FreeBSD-6-x86/Tktable2.9,
+      Binaries/FreeBSD-6-x86/Tktable2.9/README.txt,
+      Binaries/FreeBSD-6-x86/Tktable2.9/libTktable2.9.so,
+      Binaries/FreeBSD-6-x86/Tktable2.9/license.txt,
+      Binaries/FreeBSD-6-x86/Tktable2.9/pkgIndex.tcl,
+      Binaries/FreeBSD-6-x86/Tktable2.9/tkTable.tcl,
+      Binaries/FreeBSD-6-x86/craplzma0.1,
+      Binaries/FreeBSD-6-x86/craplzma0.1/libcraplzma0.1.so,
+      Binaries/FreeBSD-6-x86/craplzma0.1/pkgIndex.tcl,
+      Binaries/FreeBSD-6-x86/installkit, Binaries/FreeBSD-6-x86/tkdnd1.0,
+      Binaries/FreeBSD-6-x86/tkdnd1.0/License.txt,
+      Binaries/FreeBSD-6-x86/tkdnd1.0/Readme.txt,
+      Binaries/FreeBSD-6-x86/tkdnd1.0/libtkdnd1.0.so,
+      Binaries/FreeBSD-6-x86/tkdnd1.0/pkgIndex.tcl,
+      Binaries/FreeBSD-6-x86/tkdnd1.0/tkdnd.tcl,
+      Binaries/HPUX-hppa/Tktable2.9/libTktable2.9.sl,
+      Binaries/HPUX-hppa/installkit, Binaries/Linux-x86_64,
+      Binaries/Linux-x86_64/Tktable2.9,
+      Binaries/Linux-x86_64/Tktable2.9/README.txt,
+      Binaries/Linux-x86_64/Tktable2.9/libTktable2.9.so,
+      Binaries/Linux-x86_64/Tktable2.9/license.txt,
+      Binaries/Linux-x86_64/Tktable2.9/pkgIndex.tcl,
+      Binaries/Linux-x86_64/Tktable2.9/tkTable.tcl,
+      Binaries/Linux-x86_64/craplzma0.1,
+      Binaries/Linux-x86_64/craplzma0.1/libcraplzma0.1.so,
+      Binaries/Linux-x86_64/craplzma0.1/pkgIndex.tcl,
+      Binaries/Linux-x86_64/installkit, Binaries/Linux-x86_64/tkdnd1.0,
+      Binaries/Linux-x86_64/tkdnd1.0/License.txt,
+      Binaries/Linux-x86_64/tkdnd1.0/Readme.txt,
+      Binaries/Linux-x86_64/tkdnd1.0/libtkdnd1.0.so,
+      Binaries/Linux-x86_64/tkdnd1.0/pkgIndex.tcl,
+      Binaries/Linux-x86_64/tkdnd1.0/tkdnd.tcl,
+      Binaries/Solaris-sparc/Tktable2.9/libTktable2.9.so,
+      Binaries/Solaris-sparc/craplzma0.1/libcraplzma0.1.so,
+      Binaries/Solaris-sparc/installkit,
+      Binaries/Solaris-sparc/tkdnd1.0/libtkdnd1.0.so, Binaries/Solaris-x86,
+      Binaries/Solaris-x86/Tktable2.9,
+      Binaries/Solaris-x86/Tktable2.9/README.txt,
+      Binaries/Solaris-x86/Tktable2.9/libTktable2.9.so,
+      Binaries/Solaris-x86/Tktable2.9/license.txt,
+      Binaries/Solaris-x86/Tktable2.9/pkgIndex.tcl,
+      Binaries/Solaris-x86/Tktable2.9/tkTable.tcl,
+      Binaries/Solaris-x86/craplzma0.1,
+      Binaries/Solaris-x86/craplzma0.1/libcraplzma0.1.so,
+      Binaries/Solaris-x86/craplzma0.1/pkgIndex.tcl,
+      Binaries/Solaris-x86/installkit, Binaries/Solaris-x86/tkdnd1.0,
+      Binaries/Solaris-x86/tkdnd1.0/License.txt,
+      Binaries/Solaris-x86/tkdnd1.0/Readme.txt,
+      Binaries/Solaris-x86/tkdnd1.0/libtkdnd1.0.so,
+      Binaries/Solaris-x86/tkdnd1.0/pkgIndex.tcl,
+      Binaries/Solaris-x86/tkdnd1.0/tkdnd.tcl:
+          All new binaries.
+
+    * Binaries/Windows/craplzma0.1/craplzma01.dll,
+      Binaries/Windows/installkit.exe:
+          New Windows binaries.
+
+    * lib/Actions/ShortcutActions/InstallProgramFolderShortcut.action:
+          Fixed a bug in the Install Program Folder Shortcut action where
+          specifying a subfolder in the folder name would be ignored, and the
+          icon would just be installed in the root program folder.
+
+    * Binaries/AIX-ppc/installkit, Binaries/FreeBSD-4-x86/installkit,
+      Binaries/FreeBSD-5-x86/installkit, Binaries/FreeBSD-6-x86/installkit,
+      Binaries/HPUX-hppa/installkit, Binaries/Linux-x86/installkit,
+      Binaries/Linux-x86_64/installkit, Binaries/Solaris-sparc/installkit,
+      Binaries/Solaris-x86/installkit:
+          New installkits to fix the broken versions committed with a bad
+          Itcl.
+
+    * Binaries/Windows/installkit.com, Binaries/Windows/installkit.exe,
+      Binaries/Windows/installkitU.exe, installjammer.com, installjammer.exe:
+          New installkit binaries for Windows.
+
+
+2008-09-06  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/InstallActions/InstallSelectedFiles.action, lib/common.tcl,
+      lib/install.tcl:
+          Fixed a bug where an error during file installation would show an
+          error popup and then just freeze with no way to cancel the
+          installer.  The error is now returned up the stack to the Install
+          Selected Files action where it can be handled.  This also adds a new
+          <%InstallErrors%> virtual text that contains the error message from
+          the unpack process.
+
+    * lib/Actions/SystemActions/AddEnvironmentVariable.action:
+          Fixed a bug in the Add Environment Variable action on Windows where
+          the path in the registry would not get expanded for some reason.
+
+    * Binaries/Linux-x86/Tktable2.9/libTktable2.9.so,
+      Binaries/Linux-x86/craplzma0.1/libcraplzma0.1.so,
+      Binaries/Linux-x86/installkit,
+      Binaries/Linux-x86/tkdnd1.0/libtkdnd1.0.so:
+          New Linux-x86 binaries.
+
+
+2008-09-04  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/UninstallActions/UninstallSelectedFiles.action,
+      lib/uninstall.tcl:
+          Fixed a bug where the uninstall process would error if no
+          directories were being removed.
+
+
+2008-08-28  Damon Courtney <damon@installjammer.com>
+    * lib/commandline.tcl:
+          Fixed a bug where building from the command-line would still include
+          debug options even when building for release. (thanks to John
+          Bratteli for the fix).
+
+
+2008-08-27  Damon Courtney <damon@installjammer.com>
+    * lib/uninstall.tcl:
+          Fixed a bug where the uninstall could exit with an error on cleanup
+          when being executed from another uninstall.
+
+    * lib/build.tcl, lib/class.tcl, lib/gui-common.tcl:
+          Fixed a bug where Windows exe information was not being substituted
+          for virtual text when the installer is built.
+           Added a new Install Executable Description property to Windows that
+          is used as the File Description in the exe properties.  This
+          defaults to what it has always been: <%AppName%> <%Version%> Setup.
+
+    * lib/BWidget/properties.tcl, lib/file.tcl, lib/gui-common.tcl,
+      lib/new.tcl, lib/utils.tcl:
+          Fixed a bug where editing the Install Version would cause it to roll
+          back to 1.0.0.0 each time.
+           Fixed a bug where the version variables derived from InstallVersion
+          were not being set properly.  Passing version information on the
+          command-line should also work as expected now.
+
+
+2008-08-11  Damon Courtney <damon@installjammer.com>
+    *** InstallJammer 1.2.9 RELEASED ***
+
+
+2008-08-11  Damon Courtney <damon@installjammer.com>
+    * lib/uninstall.tcl:
+          Fixed a bug introduced in 1.2.8 where an install registry would not
+          get cleaned up properly.
+
+    * lib/install.tcl:
+          Fixed a bug where cleaning up a canceled install could cause errors
+          and freeze the installer under certain conditions.
+
+    * lib/Actions/UninstallActions/UninstallSelectedFiles.action:
+          Fixed a bug where an uninstaller would sometimes report that a
+          directory could not be removed because it was not empty when it
+          actually was.  This fix now means that directories are not
+          necessarily removed in the same order they were installed.
+
+    * docs/InstallJammer.chm, docs/html/127.html, docs/html/128.html,
+      docs/html/CreateWindowsService.html, docs/html/FHKeywords.html,
+      docs/html/FHSearch.js, docs/html/FHTocTab.js,
+      docs/html/ReleaseNotes.html:
+          Updating docs.
+
+    * lib/main.tcl:
+          Update version for release.
+
+
+2008-08-10  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl:
+          Fix a possible error case when attempting to set file permissions on
+          a file that doesn't exist.
+
+    * lib/common.tcl:
+          Fixed a bug where stopping an install might still try to execute
+          some further code after things had stopped.
+
+    * lib/common.tcl:
+          Revert those last two changes in favor of the proper fix.
+
+
+2008-08-06  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl:
+          Fixed a bug where an error in an action would not get propagated up
+          to show an error message.
+
+    * lib/build.tcl:
+          Fixed a bug where a message box in an uninstaller could fail and
+          hang without an error.
+
+    * lib/uninstall.tcl:
+          Fixed a bug where an uninstall that did not have permissions would
+          attempt to do a lot of things that just weren't possible.  The
+          uninstall should fail gracefully now and give the user proper error
+          messages.
+
+
+2008-08-04  Damon Courtney <damon@installjammer.com>
+    *** InstallJammer 1.2.8 RELEASED ***
+
+
+2008-08-04  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/WindowsServiceActions/CreateWindowsService.action:
+          Fix a bug where the Display Name property was being ignored in the
+          Create Windows Service action.
+
+
+2008-08-03  Damon Courtney <damon@installjammer.com>
+    * lib/file.tcl:
+          Fixed a bug where loading a corrupted preferences file would cause a
+          crash.  A corrupted preferences file should just be deleted.
+
+    * lib/Actions/ConsoleActions/ConsoleGetUserInput.action,
+      lib/Actions/ConsoleActions/ConsolePause.action, lib/common.tcl:
+          All calls to the external stty command are now wrapped in a catch to
+          prevent failures.  This doesn't mean that stty won't fail, it just
+          means that InstallJammer won't fail as a result of it.  This could
+          mean that some console actions do not work as expected on some
+          systems, but the errors seem to be very limited to a small number of
+          machines.
+
+    * docs/InstallJammer User Guide.pdf, docs/InstallJammer.chm,
+      docs/html/126.html, docs/html/FHKeywords.html, docs/html/FHSearch.js,
+      docs/html/FHTocTab.js, docs/html/ReleaseNotes.html,
+      docs/html/Welcome.html:
+          Update docs.
+
+    * lib/main.tcl:
+          Update version.
+
+    * ANNOUNCE.txt:
+          Update announcement.
+
+
+2008-07-31  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl:
+          Fixed a bug where the AND/OR operator for conditions was not
+          propagated to temporary objects created during execution.
+
+    * lib/BWidget/choosefile.tcl:
+          Fix a bug where selecting a single file in a multi-select file
+          chooser would fail if the file selected had a space in the path.
+
+    * lib/Actions/ShortcutActions/InstallUNIXShortcut.action:
+          Fixed a bug where a space in the command line of a UNIX shortcut
+          would fail because the filename wasn't properly quoted.  Double
+          quotes are now added around a command with spaces before writing out
+          the shortcut file.
+
+
+2008-07-27  Damon Courtney <damon@installjammer.com>
+    * lib/utils.tcl:
+          Fixed a bug where duplicate directories could show up in file
+          groups.
+
+    * lib/Actions/FileActions/WriteTextToFile.action:
+          Fix a bug introduced in the last release.  Files in Write Text to
+          File that are relative are made relative to the install dir as the
+          docs correctly say.
+
+    * lib/common.tcl:
+          In debug mode, make the error messages from actions and conditions
+          display more information about the error.
+
+
+2008-07-16  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl:
+          Fixed a bug where an empty pattern in some file actions would return
+          the install directory.
+
+
+2008-07-15  Damon Courtney <damon@installjammer.com>
+    * /installjammer/branches/installjammer-1.2 (from
+      /installjammer/trunk:510):
+          made a copy
+
+
+2008-07-14  Damon Courtney <damon@installjammer.com>
+    * lib/virtualtext.tcl:
+          Fixed a bug where editing virtual text can sometimes cause a ::TMP
+          error.
+
+    * lib/Actions/InstallActions/InstallWrappedScript.action:
+          Fix a bug where installing a wrapped script fails to substitute
+          virtual text in Windows version information.
+
+    * lib/Actions/FileActions/WriteTextToFile.action:
+          Fixed a bug where Write Text to File paths were relative to the
+          current directory instead of the installdir.
+
+    * lib/actions.tcl:
+          The Value property was accidentally removed for several widget types
+          in the Add Widget action properties frame.
+
+
+2008-07-07  Damon Courtney <damon@installjammer.com>
+    *** InstallJammer 1.2.7 RELEASED ***
+
+
+2008-07-07  Damon Courtney <damon@installjammer.com>
+    * lib/main.tcl:
+          Update version for release.
+
+
+2008-07-04  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/WizardActions/AddWidget.action, lib/actions.tcl,
+      lib/class.tcl, lib/preview.tcl, lib/utils.tcl:
+          Fixed a bug where moving an Add Widget action to another pane
+          wouldn't actually change its preview parent, so clicking Preview
+          Pane on the action would preview its old pane.
+          
+           Reworked the Add Widget action's properties page to separate
+          type-specific properties into an Advanced Properties tab with the
+          standard widget properties under a Widget Properties tab.
+          
+           Added a new File Types property to the Add Widget action for browse
+          entry widgets.
+          
+           Added a new combobox widget type to the Add Widget action.
+          
+          Changed the text for the Validate Entry On property to Validate On
+          since it now applies to more than just entries.  The internal
+          property name is still ValidateEntryOn for compatibility.
+
+    * lib/Actions/SystemActions/AddDirectoryToPath.action,
+      lib/Actions/SystemActions/RemoveDirectoryFromPath.action,
+      lib/Actions/UninstallActions/UninstallSelectedFiles.action:
+          Added a new Separator property to the Add Directory to Path action.
+          
+           Added a new Separator property to the Remove Directory from Path
+          action.
+
+    * lib/Actions/SystemActions/AddDirectoryToPath.action:
+          Added a new Normalize Paths property to the Add Directory to Path
+          action.
+
+
+2008-07-03  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/InstallActions/InstallUninstaller.action:
+          Fixed a bug where building the uninstaller on some systems would
+          build an uninstall that fails in GUI mode.
+
+    * lib/install.tcl:
+          Fixed a bug where the uninstall could delete the Install Dir even if
+          the installer was not the one who created it.
+
+    * lib/common.tcl:
+          Fixed a bug where Setup Actions could error checking conditions.
+
+    * lib/common.tcl:
+          Fixed a bug where executing an action with an alias could end up
+          deleting the alias, which would cause subsequent executions of that
+          action by-alias to fail.
+
+    * lib/new.tcl:
+          Fixed a bug where the new project wizard dialog was not modal.
+
+    * lib/common.tcl, lib/install.tcl, lib/uninstall.tcl:
+          Fixed a bug where configuring some install or uninstall mode that
+          did not exist would cause an error in the install.  Each will now
+          use the standard mode if the given mode is bogus.
+
+    * lib/new.tcl:
+          Release modality on close.
+
+
+2008-06-25  Damon Courtney <damon@installjammer.com>
+    * lib/new.tcl:
+          Fix a nasty bug where clicking File -> New to create a new project
+          does not close any open project and will instead overwrite the open
+          project and blow it away.
+
+    * lib/main.tcl:
+          Fixed a bug where building from the command line would expose the
+          Install Password in the Install Password pane during installation.
+
+    * lib/trees-filegroup.tcl:
+          Fixed a bug in the order of UNIX file permissions.  The checkbuttons
+          were in the correct order, but the code was not picking up the
+          permissions in the correct order.  The read and execute bits were
+          flipped.
+
+    * lib/common.tcl:
+          Set correct default and cancel buttons for standard message dialogs.
+
+    * lib/file.tcl, lib/gui-common.tcl, lib/new.tcl, lib/virtualtext.tcl:
+          Added a new Preserve Windows File Attributes project preference.
+
+
+2008-06-22  Damon Courtney <damon@installjammer.com>
+    *** InstallJammer 1.2.6 RELEASED ***
+
+
+2008-06-22  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/WizardActions/AddWidget.action:
+          Validate entry on should work for a browse entry too.
+
+    * lib/common.tcl:
+          Use wide numbers when we can.
+
+    * lib/common.tcl:
+          That didn't work. 0-]
+
+    * lib/build.tcl:
+          Bind Return to invoke buttons.
+
+    * lib/install.tcl:
+          Focus on the OK button in the language dialog.
+
+
+2008-06-20  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl, lib/install.tcl, lib/unpack.tcl:
+          Fix a bug where modified files don't get updated in the unpack
+          process, so changes to file objects never get noticed when unpacked.
+
+
+2008-06-15  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/ShortcutActions/InstallWindowsShortcut.action,
+      lib/common.tcl, lib/install.tcl, lib/uninstall.tcl:
+          Minor fixes.
+
+
+2008-06-13  Damon Courtney <damon@installjammer.com>
+    * lib/utils.tcl:
+          Look in the project dir for projects to add to the recent list.
+
+    * lib/common.tcl:
+          A catch for MYDOCUMENTS.
+
+    * lib/main.tcl:
+          Try to find the correct starting project directory.
+
+
+2008-06-05  Damon Courtney <damon@installjammer.com>
+    * Themes/Classic_Wizard/Install/init.tcl, Themes/Classic_Wizard/nl.msg:
+          Fixed a bug in the classic wizard init that would cause it to fail.
+          
+           Fixed a missing quote in the Dutch translations for the Classic
+          Wizard that would cause an error when creating a new project with
+          this theme.
+
+    * lib/common.tcl, lib/utils.tcl:
+          Fix a bug where using \ in an image path can cause the image to get
+          lost at runtime.
+
+    * lib/common.tcl:
+          Fixed a nasty little bug where the File Update Method was not being
+          respected for files being installed.  This would cause things like
+          date checks to fail and overwrite modified, existing files.
+
+    * lib/Actions/InstallActions/InstallSelectedFiles.action, lib/install.tcl,
+      lib/unpack.tcl:
+          Fix some integer overflows.
+
+    * lib/utils.tcl:
+          Remove debugging.
+
+
+2008-06-04  Damon Courtney <damon@installjammer.com>
+    * lib/class.tcl:
+          All objects should answer component requests.
+
+    * lib/common.tcl:
+          Conditions should inherit from TreeObject even if they are
+          structured like a tree.  This makes conditions behave more like all
+          other objects.
+
+    * lib/utils.tcl:
+          Use the old uninstall if it exists.
+
+    * lib/installapi.tcl:
+          Add new Exit API.
+          
+          Fix bugs in a few API calls.
+
+
+2008-05-31  Damon Courtney <damon@installjammer.com>
+    * lib/install.tcl:
+          Added some verbose output from the unpacker.
+
+    * lib/header.tcl:
+          Use strict numbers as booleans for the ::debug variable.
+
+    * lib/unpack.tcl:
+          Fixed a bug where canceling during installation would sometimes
+          cause the process to freeze until killed.
+
+    * lib/common.tcl:
+          Added more functionality to the debugging command to allow for
+          specifying whether you want to debug to the console or file or both.
+          
+           Fixed a bug where canceling during installation could cause an
+          error because the unpack proceeds and tried to update a file that
+          wasn't installed.
+
+    * lib/Actions/ShortcutActions/InstallWindowsShortcut.action:
+          Fixed a bug in the new TWAPI shortcut generation where passing a
+          blank target for the shortcut would cause an error.  If the target
+          is empty, we just point it to C:/.
+
+
+2008-05-30  Damon Courtney <damon@installjammer.com>
+    * lib/utils.tcl:
+          Check the .msg files for encoding hints on the first line just like
+          the API.
+
+
+2008-05-29  Damon Courtney <damon@installjammer.com>
+    * lib/file.tcl:
+          Unset the active components when closing a project so that they
+          don't mess with any future projects that are loaded.
+
+    * lib/common.tcl:
+          Fixed several virtual text variables where there was a bug using the
+          Normalize command within their procs.
+          
+          Fixed instances of using Normalize without fully qualifying the
+          command.
+
+    * lib/Actions/WizardActions/AddWidget.action:
+          Added a new Validate Entry On property to the Add Widget action. 
+          This will allow entry widgets to specify an action that is executed
+          when certain events happen.
+
+    * lib/Actions/ShortcutActions/InstallWindowsShortcut.action:
+          Install Windows Shortcut will now use TWAPI as its method of
+          creating the shortcut when it is available.  This will fix the
+          problems many people are having installing shortcuts on Asian
+          character sets in Windows.
+
+    * Binaries/Windows/craplzma0.1/craplzma01.dll:
+          Committed the correct version of the LZMA library on Windows.  This
+          will fix issues with building installers using LZMA compression on
+          Windows.
+
+    * Binaries/Windows/installkit.com, Binaries/Windows/installkit.exe,
+      installjammer.com, installjammer.exe:
+          New Windows binaries.
+
+    * lib/trees.tcl:
+          Remove some code that was probably intended to work when you
+          couldn't drag-and-drop outside of the same parent node.  The
+          drag-and-drop behavior now seems to be correct.
+
+
+2008-05-26  Damon Courtney <damon@installjammer.com>
+    *** InstallJammer 1.2.6b2 RELEASED ***
+
+
+2008-05-26  Damon Courtney <damon@installjammer.com>
+    * lib/build.tcl:
+          Fix a bug in the TWAPI detection.
+
+    * lib/common.tcl:
+          Attempt to fix Windows special folders on Asian Windows, but I'm
+          already told this doesn't work.
+
+    * Binaries/Windows/installkit.com, Binaries/Windows/installkit.exe,
+      Binaries/Windows/installkitU.exe, installjammer.com, installjammer.exe:
+          New Windows binaries to fix a bug building the uninstaller with a
+          digital signature.
+
+    * lib/main.tcl:
+          Update version.
+
+
+2008-05-22  Damon Courtney <damon@installjammer.com>
+    * lib/new.tcl:
+          Open empty action groups by default to allow drag-and-drop.
+
+    * lib/common.tcl, lib/install.tcl, lib/uninstall.tcl:
+          Let Windows do a better job of cleaning up temporary directories
+          after an uninstall.
+
+
+2008-05-20  Damon Courtney <damon@installjammer.com>
+    * lib/actions.tcl:
+          Fix a bug where a newly-created Action Group was not open to allow
+          components to be dropped into it.
+
+    * lib/Conditions/GeneralConditions/ExecuteScriptCondition.condition:
+          Fix a missing variable bug.
+
+    * lib/Actions/ExecuteActions/ExecuteExternalProgram.action:
+          Substitute text read from external programs for virtual text before
+          inserting into the output widget.
+
+    * lib/BWidget/messagedlg.tcl:
+          The close button on message dialogs should just do nothing by
+          default.
+
+
+2008-05-16  Damon Courtney <damon@installjammer.com>
+    * lib/trees-filegroup.tcl:
+          Refresh file groups to find all new files before filtering any.
+
+    * lib/build.tcl:
+          Show a full stack trace in the log window when a background error
+          occurs.
+
+
+2008-05-15  Damon Courtney <damon@installjammer.com>
+    * lib/utils.tcl:
+          Fix a few bugs with runtime image handling.
+
+    * lib/common.tcl, lib/install.tcl, lib/installapi.tcl, lib/unpack.tcl:
+          Added new GetWidgetChildren API to get the children of a widget.
+          
+          Added new ModifyWidget API to modify widgets like the Modify Widget
+          action.
+          
+          Added new SetFileTypeEOL API to specify the end-of-line character to
+          use for specific file types during installation.  This will
+          auto-correct file line-endings for files by extension when used.
+
+    * lib/BWidget/choosedir.tcl:
+          Set the minimum size for the choose directory dialog but don't
+          explicitly specify the geometry.  This will allow it to expand for
+          longer text strings but still maintain a minimum size.
+
+    * Themes/Modern_Wizard/Common/CustomBlankPane1.tcl:
+          Change the default background of the large image in Custom Blank
+          Pane 1 to white.
+
+    * Themes/Modern_Wizard/Install/SelectProgramFolder.pane,
+      lib/Conditions/FileConditions/FileNameTestCondition.condition,
+      lib/common.tcl, lib/msgs/installer/en.msg:
+          Added a new File Name Test condition to test file names for
+          validity.
+          
+          Added a check to the Select Program Folder pane to check for a valid
+          folder name before allowing the user to proceed.
+          
+          If the icon and/or title of a condition Failure Message is empty, it
+          will now choose the standard defaults.tcl
+          
+          Added new DirectoryNameErrorText message to the English catalog.
+
+
+2008-05-12  Damon Courtney <damon@installjammer.com>
+    * lib/Conditions/FileConditions/FilePermissionCondition.condition:
+          Normalize the path to native name for error messages.
+
+    * lib/BWidget/choosedir.tcl:
+          Fix up some issues in the directory chooser.
+
+    * lib/Actions/ConsoleActions/ConsoleAskYesOrNo.action:
+          Fixed a bug with blank defaults.
+
+
+2008-05-05  Damon Courtney <damon@installjammer.com>
+    * lib/build.tcl:
+          Give a decent error message.
+
+    * lib/common.tcl:
+          Fix a bug that was causing preview window to fail.
+
+
+2008-04-29  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl:
+          Typo fix.
+
+    * lib/virtualtext.tcl:
+          Mark SystemLanguage as reserved virtual text.
+
+
+2008-04-26  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl:
+          More cleanups to the dialogs.
+
+    * lib/BWidget/choosedir.tcl:
+          Modernized the choose directory dialog.  The label showing the
+          directory is gone, and the entry now reflects the entire folder
+          path.  The entire path is now checked for valid characters before
+          closing the dialog.
+
+    * lib/BWidget/choosedir.tcl:
+          Don't try to use an initial dir that doesn't exist.
+
+    * lib/common.tcl:
+          Don't use an initial dir that doesn't exist in native dialogs.
+
+    * lib/common.tcl:
+          Fix a build bug.
+
+    * lib/common.tcl, lib/main.tcl:
+          Somewhere along the way, I messed up the default project directory. 
+          This is now fixed.
+
+
+2008-04-25  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl, lib/install.tcl:
+          Fixed a bug that caused integer overflows in diskspace calculations
+          on non-Windows platforms.
+           Fixed a bug where errors could cause errors with install title
+          text.
+           Fixed a bug where changing the language would not update the
+          install title with the appropriate title for the new language.
+
+    * lib/common.tcl, lib/installapi.tcl:
+          Several fixes to dialog transient parent handling and some new
+          variables to control native dialogs.
+
+
+2008-04-24  Damon Courtney <damon@installjammer.com>
+    * lib/dobuild.tcl:
+          Fix a bug in building installers with no files.
+
+    * lib/installapi.tcl:
+          Added a -encoding option to the LoadMessageCatalog API.
+           Added the ability to specify configuration options at the top of a
+          message catalog file in the form of key-value pairs. (-encoding
+          utf-8 etc...).
+
+
+2008-04-21  Damon Courtney <damon@installjammer.com>
+    * lib/build.tcl:
+          Fix a bug in the bgerror handler.
+
+    * lib/common.tcl:
+          Make error messages on the command-line go to stderr instead of
+          stdout.
+
+    * lib/installapi.tcl:
+          Make error messages on the command-line go to stderr instead of
+          stdout.
+
+    * lib/dobuild.tcl:
+          Fix a bug that causes an error message when building with no files.
+
+
+2008-04-17  Damon Courtney <damon@installjammer.com>
+    *** InstallJammer 1.2.6b1 RELEASED ***
+
+
+2008-04-17  Damon Courtney <damon@installjammer.com>
+    * lib/build.tcl:
+          Fix for style command.
+
+    * lib/installapi.tcl:
+          Pass ok and cancel strings to the choose directory dialog.
+
+    * lib/BWidget/choosedir.tcl, lib/BWidget/wizard.tcl:
+          Some updates to the wizard and choosedirectory widgets.
+
+    * lib/common.tcl:
+          Pass Pass ok and cancel strings to the choose directory dialog.
+          
+          Fixed a small bug in execute actions.
+          
+          Fixed a potential bug when passing image arguments to a themed label
+          widget.
+
+    * Binaries/Windows/installkit.com, Binaries/Windows/installkit.exe,
+      Binaries/Windows/installkitU.exe, installjammer.com, installjammer.exe:
+          Committing new binaries for Windows.
+
+    * lib/build.tcl:
+          Fixed a few bugs in command-line builds.
+
+    * lib/BWidget/wizard.tcl:
+          Be sure to pass the background color.
+
+    * Binaries/Windows/installkit.com, Binaries/Windows/installkit.exe,
+      Binaries/Windows/installkitU.exe, installjammer.com, installjammer.exe:
+          New Windows Binaries... again.
+
+    * Binaries/MacOS-X/Tktable2.9/libTktable2.9.dylib,
+      Binaries/MacOS-X/Tktable2.9/pkgIndex.tcl, Binaries/MacOS-X/installkit:
+          Updating OS X binaries with new Universal ones.
+
+    * Binaries/MacOS-X/craplzma0.1,
+      Binaries/MacOS-X/craplzma0.1/libcraplzma0.1.dylib,
+      Binaries/MacOS-X/craplzma0.1/pkgIndex.tcl:
+          Adding LZMA libraries on OS X.
+
+    * docs/InstallJammer User Guide.pdf, docs/InstallJammer.chm,
+      docs/html/124.html, docs/html/125.html, docs/html/AddLanguage.html,
+      docs/html/ApplicationInformation.html,
+      docs/html/ConsoleGetUserInput.html,
+      docs/html/EnvironmentVariableExists.html, docs/html/ErrorMessage.html,
+      docs/html/ExecuteExternalProgram.html, docs/html/FHSearch.js,
+      docs/html/FHTocTab.js, docs/html/FindObjects.html,
+      docs/html/FindProcesses.html, docs/html/InstallBuilderPreferences.html,
+      docs/html/InstallWrappedScript.html, docs/html/LoadMessageCatalog.html,
+      docs/html/PromptForDirectory.html, docs/html/RegisterPackage.html,
+      docs/html/ReleaseNotes.html, docs/html/SetVirtualText1.html,
+      docs/html/StandardProperties.html, docs/html/WhatIsTheInstallAPI.html:
+          Updating docs.
+
+
+2008-04-13  Damon Courtney <damon@installjammer.com>
+    * lib/utils.tcl:
+          Revert change where we included all languages.  The AddLanguage +
+          LoadMessageCatalog APIs will take care of special cases.
+
+    * lib/common.tcl:
+          Fix that allows the system language to always be the first one we
+          check, followed by default language and finally English.
+
+    * lib/common.tcl:
+          We don't need to explicitly add English anymore.  It will be set as
+          the last resort in the locale on all installers.
+
+    * lib/common.tcl, lib/install.tcl:
+          More fixes for getting the right preference order for locales.
+
+    * lib/common.tcl, lib/editor.tcl, lib/utils.tcl:
+          Added a new "All" language to text fields that will set all
+          languages with the same message when used.  When retrieving text for
+          the All language, text will only be retrieved if all languages have
+          the same text.  Otherwise, the text is blank.
+
+
+2008-04-12  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl, lib/installapi.tcl:
+          Cleaned up some issues with FindObjects.
+          
+          Made language and languagecode arguments case-insensitive when
+          checking.
+
+    * lib/gui-common.tcl, lib/main.tcl:
+          Added a link on the Help menu to the Support Forums.
+
+
+2008-04-10  Damon Courtney <damon@installjammer.com>
+    * lib/utils.tcl:
+          Just include all languages in the installers.  The message catalogs
+          aren't that big, and it helps to support the auto-detection.
+
+    * lib/build.tcl, lib/dobuild.tcl, lib/gui-common.tcl, lib/main.tcl:
+          Some fixes for OS X.
+
+
+2008-04-09  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl:
+          Try to fix the stupid window title bug on Solaris again.
+
+    * Themes/Modern_Wizard/ru.msg, lib/msgs/installer/ru.msg,
+      lib/msgs/languages.txt, lib/packages/InstallJammer/lang/ru.rc:
+          Adding Russian translations (thanks to Stanislav Borutsky
+
+    * Themes/Modern_Wizard/ar.msg, Themes/Modern_Wizard/de.msg,
+      Themes/Modern_Wizard/es.msg, Themes/Modern_Wizard/fr.msg,
+      Themes/Modern_Wizard/hu.msg, Themes/Modern_Wizard/it.msg,
+      Themes/Modern_Wizard/nl.msg, Themes/Modern_Wizard/pl.msg,
+      Themes/Modern_Wizard/pt_br.msg, Themes/Modern_Wizard/ru.msg:
+          Removed the dummy test for Readma panes so that they don't display
+          the wrong information in a language other than English.
+
+    * lib/common.tcl:
+          The order of Before Pane is Displayed actions and conditions has
+          been reversed.  Previously, the actions would execute first, but
+          this is the opposite of the way every other check works.  The
+          conditions will now be checked before the pane is displayed, and if
+          they fail, the wizard will move forward without ever executing the
+          actions.
+           Fixed a bug where the various move wizard actions would always move
+          on step extra because the wizard was not noticing that the actions
+          had moved forward.
+
+    * Themes/Modern_Wizard/hu.msg:
+          Fix typo in the Hungarian messages (thanks to tyuk!)
+
+    * lib/build.tcl, lib/dobuild.tcl:
+          Added some code to handle errors in the Windows build thread and
+          output them properly to the log.
+
+    * lib/common.tcl, lib/main.tcl:
+          Fixed a bug where not all languages would appear as choices in the
+          builder.
+
+    * lib/installapi.tcl:
+          Added a new AddLanguage API call.
+
+    * lib/conditions.tcl:
+          Fixed a bug where opening the condition editor could cause
+          copy-and-paste actions to not work anymore.
+
+    * Themes/Classic_Wizard/hu.msg:
+          Fixed typos in Hungarian translations.
+
+    * lib/BWidget/choosedir.tcl, lib/common.tcl, lib/installapi.tcl,
+      lib/msgs/installer/en.msg:
+          Added new PromptForDirectoryNewFolderText virtual text to the
+          English message catalog.  This is the default text for the Make New
+          Folder button on the Choose Directory dialog.  Translations will be
+          added as they become available.
+
+
+2008-04-06  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl:
+          Fixed a bug with the new auto-locale code.  We force English in the
+          builder for now.
+          Hopefully fixed a bug with the message box titles on some platforms.
+           Fixed a typo in the <%FileGroup%> virtual text that caused an
+          error.
+
+
+2008-04-03  Damon Courtney <damon@installjammer.com>
+    * lib/main.tcl:
+          Add a blank default Editor preference.
+
+    * lib/common.tcl:
+          Fix a bug in the message box code.
+
+
+2008-04-02  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl:
+          Dummying up some methods for compliance.
+
+    * lib/installapi.tcl:
+          Added a new -object option the SetVirtualText API.  This allows for
+          setting virtual text on objects like panes and actions.
+           Added new LoadMessageCatalog API.
+
+    * lib/common.tcl:
+          Oops.  Left some debug code in.
+
+    * lib/main.tcl, lib/utils.tcl:
+          Some quick fixes for the runtime image support.
+
+    * lib/Actions/ExecuteActions/ExecuteExternalProgram.action:
+          Fixed a bug in Execute External Program where using progressive
+          output would not accurately set the exit status on error.
+
+    * lib/common.tcl:
+          Check for the existence of the wizard before setting the title.
+
+    * lib/gui-common.tcl:
+          Only modify Command key bindings on OS X.
+
+    * lib/file.tcl:
+          Don't check to see if the file is writable before we've checked to
+          see if it exists.
+
+
+2008-04-01  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl:
+          Added a parent method that was missing and a dummy name method for
+          conditions to make them compliant with other tree objects.
+
+    * lib/install.tcl, lib/installapi.tcl:
+          Fixed a bug in the SetActiveSetupType API where it was not
+          repopulating the components correctly.
+           Added a new, powerful FindObjects API for locating just about
+          anything in the system.
+
+
+2008-03-31  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl, lib/install.tcl, lib/installapi.tcl:
+          The system default language will now be used as the default language
+          in the installer if it is supported.  If the installer does not
+          include the language for the user's system, the Default Language
+          will be used in its place.
+
+
+2008-03-30  Damon Courtney <damon@installjammer.com>
+    * lib/BWidget/tablelist.tcl, lib/common.tcl, lib/gui-common.tcl,
+      lib/utils.tcl, lib/virtualtext.tcl:
+          Added a new Editor external program preference to specify an editor
+          to use when editing multi-line text.  InstallJammer will create a
+          temporary file, execute the selected editor and watch for changes on
+          the file and propagate them back into the project.
+
+    * lib/file.tcl, lib/gui-common.tcl:
+          Re-enabled the Save as button for projects.  With the new Duplicate
+          Project option, this shouldn't be nearly as confusing as before.
+           Added a check when saving to see if the project file is writable. 
+          If it's not, InstallJammer can attempt to make the file writable
+          before saving at the user's request.
+
+    * lib/file.tcl:
+          Brain fart.
+
+    * lib/main.tcl:
+          Output the new width and height variables in the installer.
+
+    * lib/Actions/ExecuteActions/ExecuteExternalProgram.action:
+          Added a new Watch Virtual Text property to allow matching of
+          patterns without an actual virtual text variable in the pattern. 
+          Regular expressions with less than two sub match patterns will use
+          this variable as the default.
+
+    * lib/Actions/InstallActions/InstallWrappedScript.action:
+          Added new Include TWAPI property to the Install Wrapped Script
+          action.  This allows wrapped scripts on the target system to include
+          the TWAPI extension on Windows platforms.  The script will be
+          automatically modified with a small header to load the TWAPI
+          extension automatically.
+
+    * lib/common.tcl, lib/utils.tcl:
+          Added the ability to specify images in an installer at runtime. 
+          Image properties can now contain a file on the build system, a file
+          on the target system or an ID or Alias to a file stored within the
+          installer.
+
+    * lib/utils.tcl:
+          Slight change to external editor behavior.  Allow for a %filename%
+          to be specified on the command-line instead of always appending the
+          file to the command string.
+
+    * lib/common.tcl:
+          Added a new Command Line Actions group that replaces the Setup
+          Actions group in terms of location.  The Command Line Actions group
+          executes before the command-line options have been parsed, and the
+          Setup Actions group now executes after the command-line options have
+          been parsed.
+
+    * lib/common.tcl:
+          Fixed a bug where checking conditions before the GuiMode variable
+          had been initialized would cause an error.
+
+    * lib/Actions/InstallActions/UnpackStoredFile.action, lib/common.tcl:
+          Fixed a bug where the Unpack Stored File action would create the
+          original install directory for the packed file by mistake.
+
+    * lib/class.tcl, lib/common.tcl, lib/header.tcl:
+          Added a new Test Component property to Panes, Actions and
+          Conditions.  This property tells the (un)installer whether the given
+          component should be executed when the installer is run in test mode.
+           This allows to disabling things like license panels and other
+          annoying things when a developer is testing.
+
+    * lib/class.tcl, lib/common.tcl, lib/file.tcl, lib/gui-common.tcl,
+      lib/main.tcl, lib/trees-filegroup.tcl, lib/utils.tcl:
+          Changed Test Component feature to Include with more options than
+          just Yes or No.
+          Rewrote some of the internals when dealing with properties that have
+          lists of options.  These are now stored as integers instead of
+          entire strings and then mapped in the code.  This should save some
+          storage space in the installers.
+
+    * lib/cmdline.tcl, lib/main.tcl:
+          Added new --test-without-installing command-line build option to
+          pass the --test option to the installer when testing.
+           Made it legal to pass a directory on the command-line, and the
+          builder will figure out which project file in the directory to use
+          if it can.
+
+
+2008-03-29  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/ExecuteActions/ExecuteScript.action,
+      lib/Conditions/GeneralConditions/ExecuteScriptCondition.condition:
+          Fixed a bug in the Execute Script action where returning a value
+          would result in an error.
+
+    * lib/common.tcl, lib/convert.tcl, lib/file.tcl, lib/utils.tcl:
+          When a project is converted to a new version, it is now
+          automatically saved, and a backup is made of the previous project
+          file.
+
+    * lib/file.tcl, lib/utils.tcl:
+          Fixed a bug that would not allow multiple directories with the same
+          name to exist in a file group.
+
+    * Themes/Classic_Wizard/Install/init.tcl,
+      Themes/Classic_Wizard/Uninstall/init.tcl,
+      Themes/Classic_Wizard/theme.cfg, Themes/Modern_Wizard/Install/init.tcl,
+      Themes/Modern_Wizard/Uninstall/init.tcl, Themes/Modern_Wizard/theme.cfg,
+      lib/file.tcl, lib/gui-common.tcl, lib/themes.tcl:
+          Added new Wizard Height and Wizard Width properties to the Install
+          Features section.  These allow the developer to alter the size of
+          the wizard during (un)installation.
+
+    * lib/gui-common.tcl, lib/new.tcl, lib/trees-filegroup.tcl:
+          Added a new Default Directory Location to the Project Preferences. 
+          This property, if set, specifies the Location to use for all files
+          and directories that are direct descendants of a file group if their
+          own Location is not set.
+
+    * lib/build.tcl:
+          Made builds more robust when we hit unexpected errors.  The errors
+          should now go correctly to the build log, and the builder should go
+          back to a known state so that the build can be tried again.
+
+    * lib/main.tcl:
+          Fixed a bug where multiple channels were opened to the debug log.
+
+
+2008-03-28  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/ShortcutActions/InstallUNIXShortcut.action:
+          Fixed a bug in shortcut actions where setting Command Line
+          Properties did not propagate on UNIX platforms.
+
+    * lib/installapi.tcl:
+          The SetVirtualText API now recognizes update actions and commands on
+          language-specific virtual text.  This allows tracking changes to
+          language text.
+           The SetVirtualText API's -language option now accepts the language
+          code or full language name (en or English, etc...).
+
+    * lib/common.tcl:
+          The title of the installer and wizard are now specified in the
+          InstallTitleText virtual text.  Both will update automatically
+          anytime this virtual text changes.
+
+
+2008-03-24  Damon Courtney <damon@installjammer.com>
+    * lib/BWidget/lang/hu.rc:
+          Add Hungarian language file for BWidgets.
+
+    * installjammer.com, installjammer.exe, lib/build.tcl, lib/cmdline.tcl,
+      lib/common.tcl, lib/dobuild.tcl:
+          Windows command-line builds are now done synchronously through a new
+          installjamemr.com binary.  This will better allow scripting builds
+          on the Windows platform.
+
+
+2008-03-23  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl:
+          Fixed a bug where passing --temp on the command line would not
+          actually set the Temp virtual text.
+           Fixed a bug where attempting to paste an object with conditions
+          would cause an error.
+           Fixed several bugs with message boxes on non-Windows platforms.
+           Fixed a bug and an inconsistency with the SpaceAvailable virtual
+          text on non-Windows platforms.
+           Fixed a bug where deleting objects from the system would not remove
+          all of their virtual text from the project file.
+
+    * lib/install.tcl:
+          Call PostCommonInit later in the startup process to allow the Temp
+          virtual text to be set correctly before being used.
+
+    * lib/utils.tcl:
+          Fixed a bug where opening a project from the right-click menu in the
+          project list would result in an error.
+
+
+2008-03-22  Damon Courtney <damon@installjammer.com>
+    * lib/build.tcl:
+          Fixed a bug in the command-line builds that will allow better
+          command-line behavior on Windows.
+
+
+2008-03-18  Damon Courtney <damon@installjammer.com>
+    * lib/file.tcl:
+          Fixed a bug in the build process for uninstalls that was due to the
+          Setup Actions changes.
+
+
+2008-03-14  Damon Courtney <damon@installjammer.com>
+    * lib/installapi.tcl:
+          Fixed a bug in ::InstallAPI::FindProcesses on Windows.
+           Added a -glob argument to ::InstallAPI::FindProcesses (Windows-only
+          currently).
+
+
+2008-03-12  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl:
+          Fixed a bug where using tk_getOpenFile would error on non-Windows
+          platforms.
+           Installers will now focus on the Next button by default when moving
+          panes.
+           Fixed several bugs relating to "match any" conditions.
+
+    * lib/main.tcl:
+          Minor changes to paths on different platforms.
+
+    * lib/gui-common.tcl, lib/gui-osx.tcl, lib/gui-windows.tcl:
+          When editing a property, clicking away from the property will now
+          auto-save the property.  You no longer have to hit Return to save
+          the change.  This may cause some problems with errors in properties.
+          
+          Cleaned up some of the platform GUI code.
+
+    * lib/BWidget/choosedir.tcl:
+          Fixed a bug where opening a choose directory dialog from a Windows
+          network share would error out.
+           Removed the entry box on the choose directory dialog.  Make New
+          Folder is sufficient for specifying a folder name, and the entry was
+          just confusing.
+
+    * lib/BWidget/properties.tcl:
+          Adding bindings for start, cancel and finish editing events.
+
+    * lib/Actions/ConsoleActions/ConsoleGetUserInput.action:
+          Added new Require Response property to the Console Get User Input
+          action.  This says that the user cannot provide an empty response
+          and must give something.
+
+    * lib/Actions/SystemActions/RegisterPackage.action:
+          Added a Package Databases property to the Register Package action. 
+          This allows the developer to specify that they only want to support
+          RPM, DPKG or all package managers.  All is the default for backward
+          compatibility.
+
+
+2008-03-11  Damon Courtney <damon@installjammer.com>
+    * lib/utils.tcl:
+          Fixed several bugs between setting Aliases of objects and their
+          title in the component tree.
+
+    * lib/install.tcl:
+          We no longer source common.tcl since it's part of the startup.
+
+
+2008-03-10  Damon Courtney <damon@installjammer.com>
+    * lib/build.tcl, lib/file.tcl:
+          Fixed a bug that caused the Setup Actions group to never actually
+          execute.
+
+
+2008-03-09  Damon Courtney <damon@installjammer.com>
+    * lib/installapi.tcl:
+          Fixed a bug in ::InstallAPI::PromptForFile on Windows.
+
+
+2008-03-03  Damon Courtney <damon@installjammer.com>
+    * lib/build.tcl:
+          Fix a small bug for command-line builds.
+
+    * lib/common.tcl:
+          Fix a bug in installers with non-ASCII characters.
+
+
+2008-02-22  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl:
+          Fixed a bug where condition failure messages would pop up in the
+          wrong place on some systems.
+
+    * lib/file.tcl:
+          Fixed a bug where symlink'd files on UNIX were being truncated once
+          installed on Windows.
+           Fixed a bug where a symlink'd directory would end up creating a
+          recursive symlink on the target system during installation.
+
+
+2008-02-20  Damon Courtney <damon@installjammer.com>
+    * lib/preview.tcl:
+          Fix a bug in preview.
+
+    * lib/Actions/WizardActions/MoveToPane.action:
+          Subst for aliases in the Pane property.
+
+    * lib/Actions/WizardActions/ModifyWidget.action:
+          Fixed a bug in the Modify Widget action where the parent could not
+          be determined if the action was attached to a checkbutton or
+          something else.
+
+
+2008-02-05  Damon Courtney <damon@installjammer.com>
+    *** InstallJammer 1.2.5 RELEASED ***
+
+
+2008-02-05  Damon Courtney <damon@installjammer.com>
+    * lib/class.tcl:
+          Added new Size property to Components.
+          
+           Added new Size property to File Groups.
+          
+           Added new Display Name property to Components.
+          
+           Added new Display Name property to Setup Types.
+
+    * lib/common.tcl:
+          Added some new code to help get language-specific virtual text.
+
+    * lib/convert.tcl:
+          Unset the Size property of File Groups that was previously stored in
+          the project file.  It was never seen by the user, and now the user
+          can set it.
+
+    * lib/file.tcl:
+          Open and Save project files with a utf-8 encoding so that non-ASCII
+          text is automatically translated and made correct with each load and
+          save.
+
+    * lib/gui-common.tcl:
+          Fixed a small GUI bug that was incorrectly populating text fields
+          for Components.
+
+    * lib/install.tcl:
+          Changes to facilitate the new Size properties for Components and
+          File Groups.
+
+    * lib/installapi.tcl:
+          Changes to facilitate the new Size properties for Components and
+          File Groups.
+
+    * lib/main.tcl:
+          Bumped the version.
+
+    * lib/utils.tcl:
+          Fixed a bug where copying and pasting and object would miss the text
+          properties.
+
+    * lib/Actions/FileActions/ReadFileIntoVirtualText.action:
+          Added a new Encoding property to the Read File Into Virtual Text
+          action.
+
+    * lib/Actions/InstallActions/InstallSelectedFiles.action:
+          Took a first whack at making sure the same file listed multiple
+          times within the same file group are not counted or installed twice.
+           The next step is to make sure that the same file doesn't get
+          installed twice no matter what group it's in.
+
+    * lib/Actions/WizardActions/PopulateComponents.action,
+      lib/Actions/WizardActions/PopulateSetupTypes.action:
+          Check for a Display Name when populating components and setup types.
+           If it's empty, use the standard name.
+
+    * lib/Actions/WindowsRegistryActions/RegisterWindowsLibrary.action,
+      lib/Actions/WindowsRegistryActions/UnregisterWindowsLibrary.action:
+          Added new Register Windows Library action.
+          
+           Added new Unregister Windows Library action.
+
+    * lib/Conditions/WindowsConditions/WindowsServiceTestCondition.condition:
+          Fixed a bug in the Windows Service Test condition where the
+          condition would error-out if the service did not exist.
+
+    * docs/InstallJammer User Guide.pdf, docs/InstallJammer.chm,
+      docs/html/123.html, docs/html/124.html, docs/html/Components.html,
+      docs/html/ContinueWindowsService.html, docs/html/FHKeywords.html,
+      docs/html/FHSearch.js, docs/html/FHTocTab.js,
+      docs/html/GroupsAndFiles.html, docs/html/ImportWindowsRegistryFile.html,
+      docs/html/ReadFileIntoVirtualText.html,
+      docs/html/RegisterWindowsLibrary.html, docs/html/ReleaseNotes.html,
+      docs/html/RemoveWindowsRegistryKey.html, docs/html/SetupTypes.html,
+      docs/html/UnregisterWindowsLibrary.html:
+          Updated docs.
+
+
+2008-02-02  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/ShortcutActions/InstallWindowsShortcut.action,
+      lib/Actions/WizardActions/AddWidget.action,
+      lib/Actions/WizardActions/FocusOnWidget.action,
+      lib/Actions/WizardActions/ModifyWidget.action, lib/common.tcl,
+      lib/gui-osx.tcl:
+          Fixed a bug in the Modify Widget action that didn't handle framed
+          widgets.
+          
+           Fixed a bug in the Focus on Widget action where it didn't handle
+          widgets embedded in frames.
+          
+          Make sure that SetText handle framed widgets by searching for the
+          first label widget and using that.
+
+
+2008-01-13  Damon Courtney <damon@installjammer.com>
+    *** InstallJammer 1.2.4 RELEASED ***
+
+
+2008-01-13  Damon Courtney <damon@installjammer.com>
+    * lib/BWidget/choosedir.tcl:
+          Fixed some minor bugs in the Choose Directory dialog.
+           Added a check for illegal characters in a directory name.
+
+    * lib/BWidget/tree.tcl:
+          Fixed a bug in keyboard navigation in the choose directory dialog.
+
+    * lib/Actions/FileActions/ReadFileIntoVirtualText.action:
+          Read File Into Virtual Text now reads files as text instead of
+          binary by default.
+
+    * lib/Actions/InstallActions/InstallSelectedFiles.action:
+          Some minor cleanup.
+
+    * lib/Actions/InstallActions/RemoveFromUninstall.action:
+          Added new Remove From Uninstall action.
+
+    * lib/Actions/WindowsServiceActions,
+      lib/Actions/WindowsServiceActions/ContinueWindowsService.action,
+      lib/Actions/WindowsServiceActions/CreateWindowsService.action,
+      lib/Actions/WindowsServiceActions/DeleteWindowsService.action,
+      lib/Actions/WindowsServiceActions/PauseWindowsService.action,
+      lib/Actions/WindowsServiceActions/StartWindowsService.action,
+      lib/Actions/WindowsServiceActions/StopWindowsService.action:
+          Added new actions to deal with Windows services.
+
+    * lib/Actions/UninstallActions/UninstallSelectedFiles.action:
+          Added checks for the new Remove from Uninstall action.
+
+    * lib/Actions/WizardActions/ModifyWidget.action:
+          Fixed a bug in Modify Widget where modifying existing text
+          properties was not modifying the text properly.
+
+    * lib/Actions/WizardActions/PopulateComponents.action:
+          Fixed a bug where populating components with radiobuttons where no
+          button was checked would make them all checked.
+
+    * lib/build.tcl:
+          Installs are now built entirely to a temporary file and only renamed
+          to their final location once the build has completely successfully. 
+          This means that broken builds will not overwrite good installers
+          that area already there.
+           If a build fails with errors, it is now reported as having failed
+          instead of completed.
+           The files being packed are now shown as full paths instead of
+          filenames.  This makes it easier to identify files within a build at
+          the expense of some clutter.
+           Building solid archives now shows packing log messages.
+
+    * lib/common.tcl:
+          Reading project files no longer assumes a UTF-8 encoding.
+           Added a new debugging command to turn debugging on and off more
+          easily from the console as well as log debug information to a file.
+           Fixed a bug where the WINDOWS virtual text was being reported
+          incorrectly on some systems.  Despite my better judgment, we'll
+          trust the environment variables.
+           Browsing for a directory will now initialize to the current
+          directory if it exists.
+           Symbolic links are now created using the system 'ln -s'.  The
+          built-in Tcl 'file link' command seems to be poorly thought out.
+           Checking conditions can now have a boolean AND or OR instead of
+          just always being AND.
+
+    * lib/conditions.tcl:
+          Added the ability to specify that conditions should be matched with
+          an AND (Match all of the following) or an OR (Match any of the
+          following).
+
+    * lib/dobuild.tcl:
+          Echo the full file path on progress.  Let the program decide what to
+          do with it once it has it.
+
+    * lib/gui-common.tcl:
+          Added a Build Failure project preference to tell InstallJammer how
+          to handle missing files when building from the GUI.
+
+    * lib/install.tcl:
+          Added checks for the new Remove From Uninstall action.
+
+    * lib/installapi.tcl:
+          Added new ExecuteAction API call.
+
+    * lib/new.tcl:
+          Set the default Build Failure property for new projects.
+
+    * Themes/Modern_Wizard/ar.msg, Themes/Modern_Wizard/de.msg,
+      Themes/Modern_Wizard/es.msg, Themes/Modern_Wizard/fr.msg,
+      Themes/Modern_Wizard/pl.msg, Themes/Modern_Wizard/pt_br.msg:
+          Removed dummy license text from all but English translations so that
+          a single license will display correctly in all languages.
+
+    * Themes/Modern_Wizard/pt_br.msg:
+          Minor correction from translator.
+
+    * Themes/Classic_Wizard/hu.msg, Themes/Classic_Wizard/it.msg,
+      Themes/Classic_Wizard/nl.msg, Themes/Modern_Wizard/hu.msg,
+      Themes/Modern_Wizard/it.msg, Themes/Modern_Wizard/nl.msg,
+      lib/msgs/installer/hu.msg, lib/msgs/installer/it.msg,
+      lib/msgs/installer/nl.msg, lib/msgs/languages.txt:
+          Added Dutch translations (thanks to Jethro Borsje!).
+           Added Italian translations (thanks to LukenShiro!).
+           Added Hungarian translations (thanks to Nagy Istvan!).
+
+    * lib/Conditions/WindowsConditions/WindowsServiceTestCondition.condition:
+          Added new Windows Service Test condition.
+
+    * lib/Actions/WindowsServiceActions/CreateWindowsService.action:
+          Add Database and System properties to Create Windows Service action.
+
+    * docs/InstallJammer User Guide.pdf, docs/InstallJammer.chm,
+      docs/html/122.html, docs/html/123.html, docs/html/AddPaneToOrder.html,
+      docs/html/ContinueWindowsService.html,
+      docs/html/CreateWindowsService.html,
+      docs/html/DeleteWindowsService.html, docs/html/FHKeywords.html,
+      docs/html/FHSearch.js, docs/html/FHTocTab.js,
+      docs/html/PauseWindowsService.html,
+      docs/html/RegistryEntryExistsCondition.html,
+      docs/html/ReleaseNotes.html, docs/html/RemoveWindowsRegistryKey.html,
+      docs/html/StartWindowsService.html, docs/html/StopWindowsService.html,
+      docs/html/WhatIsVirtualText.html,
+      docs/html/WindowsServiceTestCondition.html:
+          Updated documentation.
+
+    * lib/main.tcl:
+          Bumped the version.
+
+
+2007-12-30  Damon Courtney <damon@installjammer.com>
+    * lib/BWidget/wizard.tcl:
+          Added -minwidth and -minheight options to wizard.
+
+    * lib/build.tcl:
+          Added some new conf variables.
+
+    * lib/header.tcl:
+          Added some new conf variables.
+
+    * lib/new.tcl:
+          Fixed a bug where the buttons on the new project wizard would
+          sometimes not appear correctly.
+
+
+2007-10-26  Damon Courtney <damon@installjammer.com>
+    *** InstallJammer 1.2.3 RELEASED ***
+
+
+2007-10-26  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/WindowsRegistryActions/AddWindowsRegistryKey.action:
+          Fixed a typo Add Windows Registry action.
+
+    * lib/common.tcl:
+          Fixed a bug in the Alias handling code that caused new projects to
+          fail with an error saying Install Actions could not be found.
+
+    * lib/utils.tcl:
+          Fixed a bug that causes multiple projects loaded in the same session
+          to build and output into the wrong directories.
+
+
+2007-10-25  Damon Courtney <damon@installjammer.com>
+    *** InstallJammer 1.2.2 RELEASED ***
+
+
+2007-10-25  Damon Courtney <damon@installjammer.com>
+    * lib/installapi.tcl:
+          Fixed a typo in ::InstallAPI::EncodeURL that would cause Launch Web
+          Browser actions to fail. [Bug #1819487]
+
+    * lib/Actions/UninstallActions/UninstallSelectedFiles.action:
+          Fixed a typo in Uninstall Selected Files that would cause a failure
+          when restoring a registry value on Windows. [Bug #1819503]
+
+    * lib/Actions/InstallActions/InstallSelectedFiles.action, lib/common.tcl,
+      lib/dobuild.tcl, lib/install.tcl:
+          Fixed a bug on UNIX platforms where creating a directory that isn't
+          writable would cause the rest of the install to fail when it tried
+          to write into that directory.  Directory permissions are now set
+          after all files have been installed.
+
+
+2007-10-24  Damon Courtney <damon@installjammer.com>
+    * LICENSE.txt, docs/InstallJammer User Guide.pdf, docs/InstallJammer.chm,
+      docs/html/Credits.html, docs/html/FHSearch.js, docs/html/License.html,
+      docs/html/ReleaseNotes.html:
+          Updated LICENSE and docs.
+
+
+2007-10-23  Damon Courtney <damon@installjammer.com>
+    *** InstallJammer 1.2.1 RELEASED ***
+
+
+2007-10-23  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/GeneralActions/LaunchWebBrowser.action:
+          Fixed missing argument to EncodeURL.
+
+    * lib/Actions/UninstallActions/UninstallSelectedFiles.action:
+          Fixed a bug where forcefully removing a directory didn't actually
+          work.
+          
+          Adding some debugging output.
+
+    * lib/Actions/WindowsRegistryActions/AddWindowsRegistryKey.action:
+          Fixed a typo that caused this action to disappear from the last
+          release.
+
+    * lib/Actions/WizardActions/AddWidget.action:
+          Added Label Justify property to specify how labels should be
+          justified on the screen.
+
+    * lib/common.tcl:
+          Fixed a bug where setting an alias might not always work.
+
+    * lib/convert.tcl:
+          Fixed a bug where a project that was converted during a command-line
+          build would fail with an error.
+
+    * lib/file.tcl:
+          Changed some of the dialog messages.
+
+    * lib/gui-common.tcl:
+          Added new New Project Wizard item to the File menu.  the New item
+          now just creates a default project.
+
+    * lib/gui-osx.tcl:
+          OS X changes.
+
+    * lib/main.tcl:
+          Upped the version to 1.2.1.
+
+    * lib/new.tcl:
+          Added commands to build a new project from defaults with no wizard.
+
+    * lib/trees-filegroup.tcl:
+          Fixed a bug where the Target Filename property on files was not
+          working.
+
+    * lib/uninstall.tcl:
+          Added some debugging messages to the registry cleanup process.
+
+    * lib/utils.tcl:
+          Fixed a bug that would cause an error in command-line builds if a
+          new file was found during the build.
+          
+          Added a new Duplicate Project right-click option from the project
+          tab.
+          
+          Added a new Rename Project right-click option from the project tab.
+          
+          Made Delete project a lot safer.  We will now only attempt to delete
+          what we can reasonably assume is ours.
+          
+          Made the message on the delete dialog a lot clearer about what is
+          about to happen.
+
+    * ChangeLog:
+          Committing ChangeLog.
+
+    * docs/InstallJammer User Guide.pdf, docs/InstallJammer.chm,
+      docs/html/12b2.html, docs/html/Command-LineOptions.html,
+      docs/html/FHKeywords.html, docs/html/FHSearch.js, docs/html/FHTocTab.js,
+      docs/html/ReleaseNotes.html:
+          Committing updated docs.
+
+
+2007-10-22  Damon Courtney <damon@installjammer.com>
+    * Binaries/FreeBSD-x86/Tktable2.9/libTktable2.9.so,
+      Binaries/FreeBSD-x86/Tktable2.9/pkgIndex.tcl,
+      Binaries/FreeBSD-x86/craplzma0.1/libcraplzma0.1.so,
+      Binaries/FreeBSD-x86/installkit,
+      Binaries/FreeBSD-x86/tkdnd1.0/libtkdnd1.0.so,
+      Binaries/FreeBSD-x86/tkdnd1.0/pkgIndex.tcl:
+          Updated FreeBSD binaries.
+
+
+2007-10-21  Damon Courtney <damon@installjammer.com>
+    *** InstallJammer 1.2 RELEASED ***
+
+
+2007-10-21  Damon Courtney <damon@installjammer.com>
+    * docs/html/12b1.html, docs/html/12b2.html, docs/html/AddWidget.html,
+      docs/html/AddWindowsRegistryKey.html,
+      docs/html/ApplicationInformation.html,
+      docs/html/Command-LineOptions.html, docs/html/ConsoleGetUserInput.html,
+      docs/html/ExecuteExternalProgram.html, docs/html/FHKeywords.html,
+      docs/html/FHSearch.js, docs/html/FHTocTab.js,
+      docs/html/PackageAndArchiveInformation.html,
+      docs/html/PlatformInformation.html, docs/html/ReleaseNotes.html,
+      docs/html/VirtualDirectoryDefinitions.html:
+          Updated documentation.
+
+    * docs/InstallJammer User Guide.pdf, docs/InstallJammer.chm:
+          Updated documentation.
+
+    * ChangeLog:
+          Committing ChangeLog.
+
+    * ANNOUNCE.txt:
+          Update ANNOUNCE.txt.
+
+    * lib/build.tcl, lib/convert.tcl, lib/main.tcl:
+          Added a conversion for 1.2 because of the installkit
+          incompatibilities.
+
+
+2007-10-20  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/FileActions/ReplaceTextInFile.action:
+          Let Tcl translate the linefeeds when reading the a file and we'll
+          handle writing.
+
+    * lib/Actions/FileActions/AdjustLineFeeds.action:
+          Let Tcl translate the linefeeds when reading the a file and we'll
+          handle writing.
+
+    * lib/Actions/JavaActions/LocateJavaRuntime.action:
+          Search for JDK directories on Windows.  This caused a bug where
+          requiring JDK would always fail since they were never included in
+          the search for Windows.
+
+    * lib/build.tcl, lib/utils.tcl:
+          Use new procs for build and output directories.
+
+    * lib/common.tcl:
+          Cleaned up GetText.
+
+    * lib/file.tcl:
+          Fix for command-line builds.
+
+    * lib/install.tcl:
+          Call a command when the program folder changes.
+
+    * ChangeLog, lib/main.tcl:
+          Rewrote the command-line parsing procs.
+
+    * lib/install.tcl:
+          We don't need to call the modify proc if the program folder changes.
+           Only if the all users value changes.
+
+    * lib/Actions/ShortcutActions/InstallProgramFolderShortcut.action:
+          Install for All Users now accepts a null value which means to
+          default to whatever the current default for the installer is.  This
+          means to take whatever the value of <%ProgramFolder%> is instead of
+          overriding it for all or the current user.
+
+    * lib/utils.tcl:
+          Added an editboolean property type.  This is an editable boolean
+          showing Yes or No as options but also allowing for virtual text.
+
+    * lib/Actions/ShortcutActions/InstallProgramFolderShortcut.action:
+          Install for All Users can now accept a virtual text.
+
+    * lib/Actions/ShortcutActions/InstallProgramFolderShortcut.action:
+          Default Install for All Users to null.
+
+    * lib/Actions/ShortcutActions/InstallDesktopShortcut.action:
+          Allow for virtual text in Install for All Users.
+          
+          Make default follow whatever is default for the program folder.
+
+    * lib/common.tcl:
+          Added <%COMMON_QUICK_LAUNCH%> virtual directory on Windows.
+
+    * lib/Actions/ShortcutActions/InstallDesktopShortcut.action:
+          Fix.
+
+    * lib/main.tcl:
+          Added --verbose command-line option.
+
+    * lib/build.tcl:
+          Added --verbose command-line option.
+          
+          Removed superfluous code with regards to background builds.  All
+          builds are done the same now.
+
+    * lib/cmdline.tcl:
+          Removed backgroundBuild variable.
+
+
+2007-10-17  Damon Courtney <damon@installjammer.com>
+    * lib/virtualtext.tcl:
+          Add AutoRefreshFile to reserved virtual text.
+
+    * lib/file.tcl:
+          Remove quotes.  We don't need them.
+
+    * lib/tclkit.tcl:
+          Remove tclkit.tcl.  It hasn't been used in years.
+
+    * lib/common.tcl:
+          Look for a double for progress bars instead of just an int.
+
+    * lib/gui-osx.tcl:
+          Remove images in menus.
+
+
+2007-10-13  Damon Courtney <damon@installjammer.com>
+    * lib/file.tcl:
+          Fixed a bug when finding symlinks.
+
+    * lib/gui-common.tcl:
+          Remember the pane settings for the main window.
+          
+          Added new project preference, Refresh File List Before Building,
+          which
+          is enabled by default.  This is the current behavior, but this can
+          now
+          be turned off, and the user can refresh on-demand.
+          
+          Added the Zip Archive platform.
+
+    * lib/header.tcl:
+          POTENTIAL INCOMPATIBILITY ***
+          
+          Virtual text variables are no longer auto adjusted for boolean
+          values.
+          This was originally done to make checkbuttons easier, but it caused
+          so
+          many problems that it seems silly to make a case for something small
+          like checkbuttons when the rest of the world suffers.
+          
+          Checkbuttons are now handled separately, and virtual text variables
+          are not manipulated by InstallJammer when being read or written.
+
+    * lib/help.tcl:
+          Fix for OS X.
+
+    * lib/installapi.tcl:
+          Added EncodeURL API call.
+
+    * lib/main.tcl:
+          POTENTIAL INCOMPATIBILITY ***
+          
+          Rewrote the code that parses command-line arguments passed to
+          InstallJammer.  This should only affect someone who is passing
+          a VALUE of an argument that starts with --.  Otherwise, arguments
+          should be parsed exactly as they were.
+          
+          The new method of parsing assumes that arguments are not necessarily
+          delineated by a space.  Instead, the value of an option ends when
+          either another option is found or we see -- which signifies the end
+          of options.
+
+    * lib/trees-filegroup.tcl:
+          Show comments on files and directories.
+
+    * lib/virtualtext.tcl:
+          Fixed a bug with a missing variable.
+
+    * ChangeLog:
+          Committing ChangeLog.
+
+    * lib/common.tcl:
+          Fixed a bug in checkFileMethod.
+
+    * lib/actions.tcl:
+          Don't open action groups on a new project.
+
+    * lib/new.tcl:
+          Don't open action groups on a new project.
+
+
+2007-10-12  Damon Courtney <damon@installjammer.com>
+    * installjammer.tcl:
+          Normalize the working directory before startup.
+
+    * lib/Actions/ConsoleActions/ConsoleGetUserInput.action:
+          Added Echo Input property.
+
+    * lib/Actions/ExecuteActions/ExecuteExternalProgram.action:
+          Added Watch Regular Expression property to specify the regexp that
+          IJ will look for when watching progressive output for special
+          strings.
+          
+          Fixed some places where an error would not be returned.
+          
+          Remove \r from Windows output before checking for watch strings.
+          
+          Fixed a bug where Include Stderr would leave a $1 turd file behind.
+
+    * lib/Actions/FileActions/CopyFile.action:
+          Allow Source to accept patterns instead of just a single file or
+          directory
+
+    * lib/Actions/GeneralActions/LaunchWebBrowser.action:
+          Encode any special characters in the URL before launching the
+          browser.
+
+    * lib/Actions/GeneralActions/ModifyObject.action:
+          Use "set Active" instead of "active."
+
+    * lib/Actions/InstallActions/InstallSelectedFiles.action:
+          Added some verbose debugging output.
+
+    * lib/Actions/InstallActions/InstallUninstaller.action:
+          Mount a unique path.
+
+    * lib/Actions/ShortcutActions/InstallProgramFolderShortcut.action:
+          Fixed a bug on Windows where the folder name was being ignored.
+
+    * lib/Actions/SystemActions/AddDirectoryToPath.action:
+          Make sure we only add directories once.
+
+    * lib/Actions/SystemActions/AddEnvironmentVariable.action:
+          Fixed a bug in Restore on Uninstall.
+
+    * lib/Actions/UninstallActions/UninstallSelectedFiles.action:
+          Fixed a bug in removing paths on Windows.
+
+    * lib/Actions/WindowsRegistryActions/AddWindowsRegistryKey.action:
+          Added Restore on Uninstall property.
+
+    * lib/Actions/WindowsRegistryActions/RemoveWindowsRegistryKey.action:
+          Fixed a bug in the Value property.
+
+    * lib/Actions/WizardActions/AddWidget.action:
+          Added On and Off Value properties.
+
+    * lib/BWidget/combobox.tcl:
+          Bug fix for OS X.
+
+    * lib/BWidget/properties.tcl:
+          Bug fix for OS X.
+
+    * lib/BWidget/scrollw.tcl:
+          Bug fix for OS X.
+
+    * lib/BWidget/dynhelp.tcl, lib/BWidget/init.tcl, lib/BWidget/utils.tcl:
+          Make help balloons fade out on OS X.
+
+    * lib/Icons/InstallJammer.crystal.png.tkico:
+          Added new images.
+
+    * lib/Conditions/SystemConditions/EnvVariableTestCondition.condition:
+          Subst for virtual text.
+
+    * Binaries/MacOS-X, Binaries/MacOS-X/Tktable2.9,
+      Binaries/MacOS-X/Tktable2.9/README.txt,
+      Binaries/MacOS-X/Tktable2.9/libTktable2.9.dylib,
+      Binaries/MacOS-X/Tktable2.9/license.txt,
+      Binaries/MacOS-X/Tktable2.9/pkgIndex.tcl,
+      Binaries/MacOS-X/Tktable2.9/tkTable.tcl, Binaries/MacOS-X/installkit,
+      lib/gui-osx.tcl:
+          Adding preliminary OS X binaries.  These are still very much in the
+          rough stages.
+
+    * lib/actions.tcl:
+          Open new action groups for drag-and-drop
+
+    * lib/build.tcl:
+          Moved some code around to support the new Auto Refresh File Groups
+          option.
+          
+          Fixed a bug where command-line failures were not being stopped.
+          
+          If a command-line build fails for missing files, it will not fail
+          further up in the process and not delete any existing install that
+          may have previously been there.
+          
+          Added code to support building zip files.
+          
+          Added progress to .tar and .zip platform builds.
+
+    * lib/common.tcl:
+          Subst the pattern string before splitting on ; in file patterns.
+          
+          Fixed a bug in sym link installation.
+
+    * lib/dobuild.tcl:
+          Catch and output any error message.
+
+
+2007-10-07  Damon Courtney <damon@installjammer.com>
+    * Binaries/AIX-ppc/Tktable2.9/libTktable2.9.so,
+      Binaries/AIX-ppc/installkit, Binaries/AIX-ppc/tkdnd1.0/libtkdnd1.0.so,
+      Binaries/HPUX-hppa/Tktable2.9/libTktable2.9.sl,
+      Binaries/HPUX-hppa/craplzma0.1/libcraplzma0.1.sl,
+      Binaries/HPUX-hppa/installkit,
+      Binaries/HPUX-hppa/tkdnd1.0/libtkdnd1.0.sl,
+      Binaries/Linux-x86/Tktable2.9/libTktable2.9.so,
+      Binaries/Linux-x86/craplzma0.1/libcraplzma0.1.so,
+      Binaries/Linux-x86/installkit,
+      Binaries/Solaris-sparc/Tktable2.9/libTktable2.9.so,
+      Binaries/Solaris-sparc/installkit, Binaries/Windows/installkit.exe:
+          Updated binaries.
+
+    * installjammer.exe:
+          Updated binaries.
+
+
+2007-07-23  Damon Courtney <damon@installjammer.com>
+    * ChangeLog, lib/Actions/ExecuteActions/ExecuteExternalProgram.action,
+      lib/gui-common.tcl, lib/install.tcl, lib/main.tcl:
+          lib/gui-common.tcl
+          Fixed a bug where browse button for Windows Icon was not a toolbar
+          button.
+          
+           lib/install.tcl
+          Fixed a bug where SetInstallDir was being called with an argument.
+          
+           lib/main.tcl
+          Updated version to 1.2.
+          
+           lib/Actions/ExecuteActions/ExecuteExternalProgram.action
+          Fixed a bug that caused progressive output for console installs to
+          fail.
+
+
+2007-07-22  Damon Courtney <damon@installjammer.com>
+    * lib/gui-common.tcl:
+          Changed some wording.
+
+    * docs/InstallJammer User Guide.pdf, docs/InstallJammer.chm,
+      docs/html/112.html, docs/html/12b1.html,
+      docs/html/AddDirectoryToPath.html,
+      docs/html/AddEnvironmentVariable.html, docs/html/AddWidget.html,
+      docs/html/Command-LineOptions.html,
+      docs/html/CommandLineTestCondition.html,
+      docs/html/DebuggingAnInstall.html,
+      docs/html/DeleteEnvironmentVariable.html, docs/html/ErrorMessage.html,
+      docs/html/ExecuteExternalProgram.html,
+      docs/html/ExecuteScriptCondition.html, docs/html/FHKeywords.html,
+      docs/html/FHSearch.js, docs/html/FHTocParas.js, docs/html/FHTocTab.js,
+      docs/html/FHTop.html, docs/html/FetchURL1.html,
+      docs/html/FilePermissionCondition.html,
+      docs/html/FilesAndDirectories.html, docs/html/FindProcesses.html,
+      docs/html/GetAction.html, docs/html/GetActionGroup.html,
+      docs/html/ModifyObject1.html, docs/html/ObjectIsActiveCondition.html,
+      docs/html/PauseInstall.html, docs/html/PlatformInformation.html,
+      docs/html/RebootOrShutdownSystem.html, docs/html/ReleaseNotes.html,
+      docs/html/SetActiveSetupType.html, docs/html/SetObjectProperty.html,
+      docs/html/SetObjectProperty1.html, docs/html/SetPlatformProperty.html,
+      docs/html/SetVirtualText.html, docs/html/SetVirtualText1.html,
+      docs/html/SubstVirtualText.html, docs/html/URLIsValid.html,
+      docs/html/UnzipFile.html, docs/html/VirtualTextDefinitions.html,
+      docs/html/VirtualTextExists.html,
+      docs/html/VirtualTextExistsCondition.html,
+      docs/html/WhatAreActionGroups.html, docs/html/WhatIsTheBuilderAPI.html,
+      docs/html/WhatIsTheInstallAPI.html:
+          Checking in new documentation
+
+    * docs/InstallJammer User Guide.pdf:
+          Updated version strings in docs.
+
+    * ANNOUNCE.txt:
+          Updating announcement.
+
+
+2007-07-21  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/ConsoleActions/ConsoleGetUserInput.action,
+      lib/Actions/ExecuteActions/ExecuteAction.action,
+      lib/Actions/ExecuteActions/ExecuteExternalProgram.action,
+      lib/Actions/ExecuteActions/ExecuteScript.action,
+      lib/Actions/FileActions/UnzipFile.action,
+      lib/Actions/GeneralActions/ModifyObject.action,
+      lib/Actions/GeneralActions/SetInstallPassword.action,
+      lib/Actions/GeneralActions/SetObjectProperty.action,
+      lib/Actions/GeneralActions/TextWindow.action,
+      lib/Actions/InstallActions/InstallSelectedFiles.action,
+      lib/Actions/InstallActions/InstallUninstaller.action,
+      lib/Actions/SystemActions/AddDirectoryToPath.action,
+      lib/Actions/SystemActions/AddEnvironmentVariable.action,
+      lib/Actions/SystemActions/DeleteEnvironmentVariable.action,
+      lib/Actions/SystemActions/RemoveDirectoryFromPath.action,
+      lib/Actions/UninstallActions/UninstallSelectedFiles.action,
+      lib/Actions/WindowsRegistryActions/AddWindowsRegistryKey.action,
+      lib/Actions/WindowsRegistryActions/ImportWindowsRegistryFile.action,
+      lib/Actions/WindowsRegistryActions/RemoveWindowsRegistryKey.action,
+      lib/Actions/WizardActions/AddWidget.action,
+      lib/Actions/WizardActions/PopulateComponents.action,
+      lib/Conditions/FileConditions/FilePermissionCondition.condition,
+      lib/Conditions/GeneralConditions/CommandLineTestCondition.condition,
+      lib/Conditions/GeneralConditions/ObjectTestCondition.condition,
+      lib/Conditions/GeneralConditions/PasswordTestCondition.condition,
+      lib/Conditions/GeneralConditions/VirtualTextTestCondition.condition,
+      lib/build.tcl, lib/builderapi.tcl, lib/class.tcl, lib/common.tcl,
+      lib/conditions.tcl, lib/convert.tcl, lib/edit.tcl, lib/editor.tcl,
+      lib/file.tcl, lib/gui-common.tcl, lib/header.tcl, lib/install.tcl,
+      lib/installapi.tcl, lib/main.tcl, lib/msgs/installer/ar.msg,
+      lib/msgs/installer/de.msg, lib/msgs/installer/en.msg,
+      lib/msgs/installer/es.msg, lib/msgs/installer/fr.msg,
+      lib/msgs/installer/pl.msg, lib/msgs/installer/pt_br.msg,
+      lib/preview.tcl, lib/tclkit.tcl, lib/trees-filegroup.tcl, lib/trees.tcl,
+      lib/uninstall.tcl, lib/unpack.tcl, lib/utils.tcl, lib/virtualtext.tcl:
+          This is a pretty massive commit.  I've been lazy with my commits
+          lately.  Meh.
+          
+           lib/build.tcl
+          Added new Fallback to Console platform property that allows an
+          installer
+          or uninstaller to fall back to a console install if the GUI
+          initialization
+          fails.
+          
+          Search for available packages in the project directory and in the
+          lib/packages directory and include any found in the installer.
+          
+           lib/builderapi.tcl
+          Added new ::BuilderAPI::ModifyObject command.
+          
+          Added new ::BuilderAPI::SetPlatformProperty command.
+          
+           lib/class.tcl
+          Added new FallbackToConsole platform property for UNIX platforms
+          that
+          defaults to Yes.
+          
+           lib/common.tcl
+          Check and set a variable if we're on Vista.
+          
+          Added new ScriptExt virtual text.
+          
+          Added new InstallRegistryInfo virtual text.
+          
+          When installing on Vista, always install program folder icons for
+          all users.
+          
+          Added new InstallDirSuffix virtual text.
+          
+          Added new InstallDrive virtual text on Windows.
+          
+          If the Cancel button is disabled on a pane, the X button is also now
+          disabled.
+          
+          Added new UpdateSelectedWidgets proc that will only update selected
+          widgets.
+          
+          Fixed a bug that was severely slowing down the performance of
+          requesting
+          recursive children of an object.
+          
+          Added new FindUpdateWidgets proc that will take a list of virtual
+          text
+          and find all the widgets on the current pane that would actually use
+          them.
+          
+          When an uninstall fails to remove a file for any reason, the
+          uninstall
+          will not delete itself on exit and instead populate itself with the
+          information it needs to complete the uninstall on a subsequent run.
+          
+          Fixed a bug where Abort/Retry/Ignore message boxes would also end up
+          with
+          a No button.
+          
+          Record information about the command-line options passed in for use
+          later.
+          
+          Fixed a bug where calling an installer with .. in the path would
+          cause
+          the installer to fail with the help usage.
+          
+          When exiting the installer, we will broadcast an event to Windows to
+          update the registry environment if it has been changed during
+          installation.
+          
+          Fixed a bug where a line of just the right width could go over when
+          wrapping text in console mode.
+          
+          Subst the value the Target Filename if one exists for a value.
+          
+          Fixed a bug where conditions failing in console mode would cause an
+          error.
+          
+           lib/conditions.tcl
+          Action groups now have the same Check Condition values as actions.
+          
+           lib/convert.tcl
+          Fixed a minor bug in the conversion of projects from 1.1b1 to 1.1.
+          
+           lib/edit.tcl
+          Fixed a bug where pasting text would paste the same text twice.
+          
+           lib/editor.tcl
+          Added the ability to specify a font when creating an edit window.
+          
+           lib/file.tcl
+          Fixed a bug where cancelling the save when exiting the program could
+          cause the builder to get into an unknown state where the title of
+          the
+          window would not be updated.
+          
+          Fixed a bug where aliases on files were not being written out to the
+          installer, so files could not be referenced by their alias.
+          
+           lib/gui-common.tcl
+          Added a new Fall Back to Console platform property for non-Windows
+          platforms that tells InstallJammer to fall back to a console when
+          the GUI initialization fails.
+          
+           lib/header.tcl
+          Added the ability to add actions and commands to the udpate of
+          virtual
+          text so that a particular action or command could be called anytime
+          a
+          virtual text variable is updated.
+          
+           lib/install.tcl
+          Fixed a bug in the calculation of required install size.
+          
+          Added a new InstallRegistryInfo variable that, if false, means that
+          InstallJammer will not install information to a separate registry
+          directory.  Instead, the uninstall information will be stored
+          directly
+          into the uninstaller itself.
+          
+          Fixed a bug where install messages were being wrongly output during
+          a
+          silent install.
+          
+          Greatly improved the performance of file installation on larger and
+          longer-running installers.
+          
+          Fixed a bug where passing --prefix on the command-line while root
+          would be ignored.
+          
+           lib/installapi.tcl
+          Added new ::InstallAPI::ErrorMessage command to display errors.
+          
+          Fixed a bug where multiple calls to FetchURL with proxy arguments
+          would continue to use the same proxy once set.
+          
+          Updated ::InstallAPI::FindProcesses to work on Windows using the
+          TWAPI
+          extension to find processes.
+          
+          Added new ::InstallAPI::SetObjectProperty command to set any
+          property
+          on an object.
+          
+          Added -action and -command arguments to ::InstallAPI::SetVirtualText
+          to
+          specify an action or command to execute whenever the specified
+          virtual
+          text is modified.
+          
+          Added new ::InstallAPI::URLIsValid command to validate a given URL.
+          
+           lib/main.tcl
+          Fixed a bug where certain project files passed into the builder
+          would
+          not work.  The project file passed is now normalized before
+          continuing on.
+          
+          Updated version to 1.2b2.
+          
+           lib/preview.tcl
+          Fixed a bug that made previewing panes impossible on UNIX.
+          
+           lib/trees.tcl
+          Allowed the re-ordering of acion groups in the bulider.
+          
+          Fixed a bug where re-ordering components wouldn't actually update
+          their order during installation.
+          
+           lib/tress-filegroup.tcl
+          Fixed a bug where source file locations were not always being
+          substituted
+          properly.
+          
+           lib/uninstall.tcl
+          Uninstallers will now look for their uninstall information files
+          from
+          within themselves first before checking for a registry directory.
+          
+           lib/unpack.tcl
+          Increased the speed of file installation by letting the unpack
+          routines
+          evaluate messages before passing them back to the installer and not
+          passing any messages we don't have to.
+          
+           lib/utils.tcl
+          The pane code editor is now a Courier 10 font.
+          
+          Changing the Alias of a pane, action or action group will not
+          automatically update its title in the builder for easier
+          recognition.
+          
+          When searching for Windows icons, the builder will now check the
+          project
+          directory first before looking in its own directory structure.
+          
+           lib/virtualtext.tcl
+          Made ScriptExt a reserved virtual text.
+          
+           lib/Actions/ConsoleActions/ConsoleGetUserInput.action
+          Fixed a bug where the resulting user input would not be saved in the
+          virtual text if the virtual text didn't exist to begin with.
+          
+           lib/Actions/ExecuteActions/ExecuteAction.action
+          Fixed a bug where if the action being executed was an action group,
+          the action groups conditions would not be checked.
+          
+          Action groups now check conditions before to see if the action group
+          should be executed and then after to see if the install should move
+          forward or execute the whole action group again.
+          
+           lib/Actions/ExecuteActions/ExecuteExternalProgram.action
+          Added new Include Stderr property to include the standard error
+          channel
+          on recorded output.
+          
+          When showing progressive output, we blank the text widget at the
+          start
+          of our action and then we tell InstallJammer not to automatically
+          update
+          this widget anymore, which means that the output from the program
+          will
+          not be erased as soon as the action is over.
+          
+          Fixed a bug where progressive output actions would never show that
+          they
+          had completed and thereby leave the installer in a frozen state.
+          
+          Changed the mapping for Windows output so that the text looks right
+          in
+          a progressive output widget.
+          
+          Show progressive output even in console mode.
+          
+           lib/Actions/ExecuteActions/ExecuteScript.action
+          Changed the text editor for the Tcl Script property to a fixed font.
+          
+           lib/Actions/FileActions/UnzipFile.action
+          Added Progressive Virtual Text property to specify a virtual text
+          variable to update with the percentage complete as the files are
+          unzipped.
+          
+          Added Status Virtual Text property to specify a virtual text
+          variable
+          to update with a progressive status as the files are unzipped.
+          
+          Fixed a bug where multiple calls to this action would actually stack
+          up
+          the files and continue to unpack previous files into other
+          locations.
+          
+           lib/Actions/GeneralActions/SetObjectProperty.action
+          Added new Set Object Property action to set properties on objects.
+          
+           lib/Actions/GeneralActions/TextWindow.action
+          Make sure that the Text Window action only executes in GUI mode.
+          
+           lib/Actions/InstallActions/InstallSelectedFiles.action
+          Made rollback on cancelled installs a lot cleaner and faster.
+          
+          Moved the update Windows registry call to the end of the install.
+          
+           lib/Actions/InstallActions/InstallUninstaller.action
+          The uninstaller no longer adds itself to the list of files to be
+          uninstalled.  It will automatically remove itself when appropriate
+          during uninstallation.
+          
+           lib/Actions/SystemActions/AddDirectoryToPath.action
+          Added new Add to Uninstall property to specify that the new path
+          added should be removed automatically during uninstallation.
+          
+          Updated this action to work on UNIX platforms.
+          
+           lib/Actions/SystemActions/AddEnvironmentVariable.action
+          New action to add environment variables.  This works for all
+          platforms.
+          
+           lib/Actions/SystemActions/DeleteEnvironmentVariable.action
+          New action to delete environment variables.  This works only on
+          Windows.
+          
+           lib/Actions/UninstallActions/UninstallSelectedFiles.action
+          If we fail to remove all of the files for any reason, the uninstall
+          will remain on the system for later removal.
+          
+          Added routines to remove environment variables that are added during
+          installation.
+          
+          Added routines to remove paths from directory environment variables
+          that are added during installation.
+          
+           lib/Actions/WindowsRegistryActions/AddWindowsRegistryKey.action
+          Fixed a bug where registry keys that were added to the uninstall
+          were
+          not being removed properly.
+          
+           lib/Actions/WizardActions/AddWidget.action
+          Added new Action property to specify an action to be executed
+          whenever
+          the user clicks a button or modifies a radiobutton or checkbutton.
+          
+          Added new "button" type to create buttons on a pane.
+          
+           lib/Actions/WizardActions/PopulateComponents.action
+          Fixed a bug that would cause component population on a screen to act
+          very weird when moving back and forth through an installation. 
+          Components
+          that were inactive used to be excluded from the shown list, but
+          since
+          IJ marks components as inactive when they are unchecked, this would
+          cause
+          them to disappear on subsequent runs.
+          
+          Now, the only way to get a component to not show up is by setting
+          its
+          ShowComponent property to false.  This can be done with the new API
+          call or by the new Set Object Property action.
+          
+           lib/Conditions/FileConditions/FilePermissionCondition.condition
+          Fixed a bug where installing to a root drive on Windows could cause
+          an infinite loop to occur when validating that directory.
+          
+           lib/Conditions/GeneralConditions/ObjectTestCondition.condition
+          Added new operators: "does not exist" and "exists" to the Object
+          Test
+          Condition.
+          
+           lib/Conditions/GeneralConditions/VirtualTextTestCondition.condition
+          Added new "was set from the command line" operator to the Virtual
+          Text
+          Test condition that will test whether the given virtual text was set
+          by any option from the command line.
+          
+           lib/Conditions/GeneralConditions/CommandLineTest.condition
+          Added new Command Line Test condition to test the options passed on
+          the
+          command line.
+
+    * ChangeLog:
+          Committing ChangeLog.
+
+
+2007-05-28  Damon Courtney <damon@installjammer.com>
+    * docs/InstallJammer 1.1 User Guide.pdf, docs/InstallJammer User
+      Guide.pdf, docs/html/11.html, docs/html/112.html,
+      docs/html/AddWidget.html, docs/html/ConditionStandardProperties.html,
+      docs/html/ContinueInstall.html, docs/html/ExecuteExternalProgram.html,
+      docs/html/FHKeywords.html, docs/html/FHSearch.js, docs/html/FHTocTab.js,
+      docs/html/FetchURL1.html, docs/html/FindProcesses.html,
+      docs/html/LocateJavaRuntime.html, docs/html/ModifyWidget.html,
+      docs/html/ReleaseNotes.html, docs/html/UnzipFile.html,
+      docs/html/VirtualTextDefinitions.html,
+      docs/html/WhatIsTheInstallAPI.html, docs/html/WriteTextToFile.html,
+      docs/html/index.html:
+          Updating documentation
+
+    * docs/InstallJammer.chm:
+          Updating documentation
+
+    * ANNOUNCE.txt:
+          Updating release announcement.
+
+
+2007-05-24  Damon Courtney <damon@installjammer.com>
+    * Themes/Modern_Wizard/Install/InstallPassword.pane,
+      Themes/Modern_Wizard/Install/InstallPassword.tcl,
+      Themes/Modern_Wizard/en.msg:
+          Adding a new pane to specify an install password.
+
+    * lib/msgs/installer/ar.msg, lib/msgs/installer/de.msg,
+      lib/msgs/installer/en.msg, lib/msgs/installer/es.msg,
+      lib/msgs/installer/fr.msg, lib/msgs/installer/pl.msg,
+      lib/msgs/installer/pt_br.msg:
+          Updating messages.
+
+    * lib/class.tcl:
+          Added Failure Focus property to conditions.
+
+    * lib/common.tcl:
+          Added Failure Focus property to conditions.
+
+    * lib/uninstall.tcl:
+          Get rid of the temp directories from our installer.  We need new
+          ones with each run.
+
+    * lib/install.tcl:
+          Small changes.
+
+
+2007-05-19  Damon Courtney <damon@installjammer.com>
+    * Themes/Classic_Wizard/fr.msg, Themes/Modern_Wizard/pl.msg:
+          A couple of translation fixes.
+
+
+2007-05-18  Damon Courtney <damon@installjammer.com>
+    * lib/build.tcl, lib/gui-common.tcl:
+          Add an Install Password property to encrypt an install.
+
+    * lib/Actions/FileActions/UnzipFile.action:
+          Adding new Unzip File action.
+
+    * lib/Actions/FileActions/UnzipFile.action:
+          Added new Add to Uninstall property to Unzip File.
+
+    * lib/common.tcl:
+          Fixed a bug where message boxes could popup non-transient.
+
+    * lib/Actions/ExecuteActions/ExecuteExternalProgram.action:
+          Error out with a message if we can't find a suitable terminal.
