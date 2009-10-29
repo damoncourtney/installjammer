@@ -1,49 +1,14 @@
-1.2.14 (September 18th, 2009)
+1.2.14 (October 1st, 2009)
 
 This release contains minor bug fixes and enhancements.
 
 
 Minor Bug Fixes
-Fixed a bug where the uninstaller on Windows would sometimes fail to delete the uninstall.exe which would cause an empty directory error.
-Fixed a bug where the uninstaller would pop up an error message after finishing if the machine had host scripting disabled.
-Fixed a bug where desktop icons were not being created on the Linux-x86_64 platform.
-Fixed a bug where desktop icons created when installing as root could not be read by a normal user.
-Fixed a bug where desktop icons need to be created with the executable bit set for some platforms and window managers.
-Fixed a bug where clicking the delete button in the virtual text tab would not delete the virtual text currently being edited.
-Fixed a bug where the Default to System Language property was not being saved in the installer, so the value was ignored.
-Fixed the display of Polish language strings in the installer and uninstaller.
-Fixed a bug in the Create File Link action where the order of the link and its target were accidentally reversed on non-Windows platforms.
-Fixed a bug where toggling components in certain cases could cause an error.
-Fixed a bug where attempting to focus on a browse entry widget would focus on nothing when it should focus on the browse button.
-Fixed a bug where if the last pane of a wizard was conditional, the wizard could end up displaying a blank pane at the end instead of exiting when the wizard moved forward.
-Fixed a bug where editing the long description of a command-line option would fail in an error.
-Fixed a bug where writing out script properties in project files could make them end up very difficult to read.  This changes the way object properties are written for anyone manipulating project files by hand.
-Fixed a bug where encrypted installers would not install files correctly on non-Windows platforms.
-Fixed a bug where Add Directory to Path on non-Windows systems could mangle the PATH environment variable after executing.
-Removed more hard-coded English strings from the uninstaller.  They still require translation for other languages, but they're no longer hard-coded into the code.
-Fixed a selection bug in the choose directory dialog.
-Fixed a bug where the selection in the entry of the choose directory dialog would incorrectly highlight the directory.
-Fixed a bug where the builder would not run propertly on x86_64 Linux machines.
-Fixed a bug where specifying a password did not encrypt separate archives when in Build Separate Archives mode.
-Fixed a bug where the Install UNIX Shortcut action did not offer the Command Line Arguments property even though it was supposed by other actions.
-Fix a bug in the Execute External Program action where terminals taken from the TERM environment variable could fail because of the hard-coded -t title option.
-Fixed a bug where building Windows installers on non-Windows platforms could result in symlinks being packaged incorrectly as links and not followed as files.
-Fixed a bug where --version on non-Windows platforms would error out.
-Fixed a bug where the "can create" operator in the File Test condition was reporting incorrectly on non-Windows platforms.
-Fixed a bug that removed the hidden value for the Window State property of the Install Windows Shortcut action.
+Fixed a bug where excluding a parent component could cause an error to happen when loading the child component in the installer.
+Fixed a bug where selecting Update File Text on the Install Selected Files action would cause the wrong messages to be displayed during a console install.  Console installs do not support per-file installation progress at this time.
 
 Minor Enhancements
-Added a Control-click to the virtual text table to select a row for deletion without editing the contents.
-Added a Shift-click to the virtual text table to select multiple rows within the table for deletion.
-Added Czech translations (thanks to Kamil P?\195?\161ral!)
-Changed the title of the default silent actions and the main install action on the Copy Files pane to better represent what is going on when reading the tree.
-Added new <%InstallStartupDir%> and <%UninstallStartupDir%> virtual text variables that contain the directory the (un)installer was launched from.
-Changed the wording of the Yes and No buttons on the license pane.  They were a holdover from the Classic Wizard, and the text doesn't make sense in the context of the new pane.
-Added a new WizardAPI API call.
-Added a new Description property to the Create Windows Service action that will allow the action to specify a description of the service being created.
-Added titles to the default console actions to give a better idea of what's going on when looking at them in the tree.
-Added a new SetInstallPassword API.
-Made it possible to copy-and-paste objects between two different instances of InstallJammer.
-Added a new PropertyFileAPI API call to handle reading .properties files.
-Added new <%Tolower string%> and <%Toupper string%> virtual text.
-Removed the "Install Error" and "Exit Setup" hard-coded English strings and added new virtual text in the English message catalog to replace them.
+An uninstaller will now prompt for a root password if it needs to.
+Prompt for root password will no longer work in console or silent mode.  Instead, the (un)installer issues a message that the program require root and then exits.  If a suitable graphical utility can be found to prompt for the root password, it will still do so in GUI mode.
+Messages to the console will no longer include any title text.  Previously, messages looked like "Root Required: This program requires root."  The "Root Required: " part is no longer displayed for console messages.
+Added a new Exit Actions action group that executes as the last set of actions as the installer goes to exit.  This action group is the last place to insert your own actions and happens just before the temporary directory is cleaned off the disk.

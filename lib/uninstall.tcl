@@ -321,11 +321,19 @@ proc ::InstallJammer::UninstallMain {} {
     global conf
     global info
 
-    if {$::tcl_platform(platform) eq "unix"} {
+    if {$conf(unix)} {
         if {$info(RequireRoot) && !$info(UserIsRoot)} {
-            ::InstallJammer::Message -title "Root Required" -message \
-                "You must be root to run uninstall this application."
-            exit 1
+            if {$info(GuiMode) && $info(PromptForRoot)} {
+                set msg [sub "<%PromptForAdministratorText%>"]
+                set cmd [concat [list [info nameofexecutable]] $::argv]
+                ::InstallJammer::ExecAsRoot $cmd -message $msg
+                ::exit 0
+            }
+
+            set title   [sub "<%RequireRootTitleText%>"]
+            set message [sub "<%RequireRootUninstallText%>"]
+            ::InstallJammer::Message -title $title -message $message
+            ::exit 1
         }
     }
 

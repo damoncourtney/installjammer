@@ -1179,7 +1179,9 @@ proc ::InstallJammer::GetFileDestination { id } {
         set dest $dir
         if {[$id isfile]} { set dest [file join $dir $name] }
     } elseif {[$parent is filegroup]} {
-        set dest [file join [$parent destdirname] $name]
+        set dir [$parent destdirname]
+        if {$dir eq ""} { set dir "<%InstallDir%>" }
+        set dest [file join $dir $name]
     } else {
         set dest [file join [::InstallJammer::GetFileDestination $parent] $name]
     }

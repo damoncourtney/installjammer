@@ -2721,6 +2721,8 @@ proc ::InstallJammer::ModifyInstallDir {} {
         if {![string match "*$suf" $dir]} { set dir [file join $dir $suf] }
     }
 
+    if {[file pathtype $dir] eq "relative"} { set dir [file normalize $dir] }
+
     set info(InstallDir) [::InstallJammer::Normalize $dir platform]
 
     if {$conf(windows)} {
@@ -3095,12 +3097,7 @@ proc ::InstallJammer::Message { args } {
         set chan stdout
         if {$_args(-icon) eq "error"} { set chan stderr }
 
-        if {[info exists _args(-title)]} {
-            puts $chan "$_args(-title): $_args(-message)"
-        } else {
-            puts $chan "$_args(-message)"
-        }
-
+        puts  $chan "$_args(-message)"
         flush $chan
     }
 }
@@ -3470,8 +3467,7 @@ proc ::InstallJammer::ExecAsRoot { command args } {
 
     array set _args {
         -title   ""
-        -message "Please enter your root password."
-        -failmessage ""
+        -message "<%PromptForRootText%>"
     }
     array set _args $args
 
@@ -3479,8 +3475,8 @@ proc ::InstallJammer::ExecAsRoot { command args } {
     if {[info exists _args(-wait)]} { set wait $_args(-wait) }
 
     set cmd   [list]
-    set msg   $_args(-message)
-    set title $_args(-title)
+    set msg   [sub $_args(-message)]
+    set title [sub $_args(-title)]
 
     set i 0
     set x [llength $command]
@@ -3493,81 +3489,68 @@ proc ::InstallJammer::ExecAsRoot { command args } {
         if {[incr i] < $x} { append cmdline " " }
     }
 
-    ## Determine the best way to ask for the root password.
     if {$info(GuiMode)} {
-        ## Check the known desktops first and try to find
-        ## their appropriate graphical SU program.
-        set desktop [::InstallJammer::GetDesktopEnvironment]
-
-        if {$desktop eq "KDE"} {
-            if {[string length [auto_execok kdesu]]} {
-                set cmd [list kdesu -d -c $cmdline]
-            }
-        } elseif {$desktop eq "Gnome"} {
-            if {[string length [auto_execok gksu]]} {
-                set cmd [list gksu $cmdline]
-            } elseif {[string length [auto_execok gnomesu]]} {
-                set cmd [list gnomesu $cmdline]
-            }
-
-            if {[llength $cmd] && [string length $title]} {
-                set cmd [linsert $cmd 1 --title $title]
-            }
+        ## Try to find a graphical SU utility we can use.
+        if {[::InstallJammer::GetDesktopEnvironment] eq "Gnome"} {
+            set list {gksudo gksu gnomesu kdesudo kdesu xsu}
+        } else {
+            set list {kdesudo kdesu gksudo gksu gnomesu xsu}
         }
 
-        ## We either have an unknown desktop, or we didn't find
-        ## the appropriate program for the desktop we have.
-        ## Try and figure out the best option here.
-        if {![llength $cmd]} {
-            if {[string length [auto_execok kdesu]]} {
-                set cmd [list kdesu -d -c $cmdline]
-            } elseif {[string length [auto_execok gksu]]} {
-                set cmd [list gksu $cmdline]
-                if {[string length $title]} {
-                    set cmd [linsert $cmd 1 --title $title]
+        foreach app $list {
+            if {[auto_execok $app] eq ""} { continue }
+            
+            set cmd [list $app $cmdline]
+            catch {exec $app --help} help
+            if {$app eq "kdesu" || $app eq "kdesudo"} {
+                set cmd [linsert $cmd 1 -d -c]
+                if {$msg ne "" && [string match "*--comment*" $help]} {
+                    set cmd [linsert $cmd 1 --comment $msg]
                 }
-            } elseif {[string length [auto_execok gnomesu]]} {
-                set cmd [list gnomesu $cmdline]
-                if {[string length $title]} {
-                    set cmd [linsert $cmd 1 --title $title]
+            } elseif {$app eq "gksu" || $app eq "gksudo"} {
+                if {$msg ne "" && [string match "*--message*" $help]} {
+                    set cmd [linsert $cmd 1 --message $msg]
                 }
-            } elseif {[string length [auto_execok xsu]]} {
-                set cmd [list xsu $cmdline]
-                if {[string length $title]} {
-                    set cmd [linsert $cmd 1 --title $title]
-                }
-            } elseif {!$info(HaveTerminal)} {
-                ## Better to ask on the terminal (if we have one)
-                ## than to pop up an ugly xterm to ask for the root
-                ## password.
-                set cmd [list xterm -e "echo '$msg' && su -c \"$cmdline\""]
-
-                if {$title eq ""} { set title "xterm" }
-                set cmd [linsert $cmd 1 -T $title]
             }
+
+            if {!$wait} { lappend cmd & }
+            catch { eval exec $cmd }
+            return 1
         }
     }
 
-    if {![llength $cmd]} {
-        ## We never found a good X utility to ask for the root
-        ## password, so we'll just do it the old fashioned way
-        ## and do it via the command-line.
+    ## If we didn't find a GUI we could use, and we don't have a
+    ## terminal to talk to, we really can't do anything.
+    if {!$info(HaveTerminal)} { return 0 }
 
-        puts  stdout "$msg\n"
-        flush stdout
+    ## We never found a good GUI to ask for the root password,
+    ## so we'll just ask on the command line.
 
-        if {[info exists _args(-wait)] && !$wait} { append cmdline " &" }
+    if {[string is punct [string index $msg end]]} {
+        set msg [string range $msg 0 end-1]
+    }
 
-        set res [system su -c \"$cmdline\"]
+    if {[auto_execok sudo] ne ""} {
+        ## Always invalidate the sudo timestamp.  We don't want
+        ## someone running an installer as root without knowing it.
+        if {[catch {exec sudo -k} err]} { return 0 }
 
-        if {$res && $_args(-failmessage) ne ""} {
-            echo $_args(-failmessage) 1
+        set cmd [list sudo]
+        if {$msg ne ""} { lappend cmd -p "\[sudo\] $msg: " }
+        if {$wait} {
+            eval exec $cmd $command
+        } else {
+            if {[catch {eval exec $cmd -v} err]} { return 0 }
+            set res [catch {eval system sudo $cmdline &} err]
         }
     } else {
-        if {!$wait} { lappend cmd & }
-
-        catch { eval exec $cmd }
+        puts  stdout "$msg\n\[su root\] "
+        flush stdout
+        if {!$wait} { append cmdline " &" }
+        set res [system su -c \"$cmdline\"]
     }
+
+    return 1
 }
 
 proc ::InstallJammer::GetFilesForPattern { patternString args } {
@@ -3941,6 +3924,8 @@ proc ::InstallJammer::CommonExit { {cleanupTmp 1} } {
             if {$pid ne ""} { catch {exec kill -HUP $pid} }
         }
     }
+
+    catch { ::InstallJammer::ExecuteActions "Exit Actions" }
 
     catch {
         foreach chan [file channels] {
@@ -4488,11 +4473,7 @@ itcl::class File {
     }
 
     method destdir {} {
-        ::set dir [::InstallJammer::SubstText [destdirname]]
-        if {[file pathtype $dir] eq "relative"} {
-            ::set dir [::InstallJammer::SubstText <%InstallDir%>/[destdirname]]
-        }
-        return $dir
+        return [::InstallJammer::SubstText [destdirname]]
     }
 
     method destdirname {} {

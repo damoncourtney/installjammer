@@ -1,5 +1,53 @@
+2009-09-22  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl, lib/install.tcl, lib/msgs/installer/en.msg,
+      lib/uninstall.tcl:
+          An uninstaller will now prompt for a root password if it needs to.
+          
+          Prompt for root password will no longer work in console or silent
+          mode.  Instead, the (un)installer issues a message that the program
+          require root and then exits.  If a suitable graphical utility can be
+          found to prompt for the root password, it will still do so in GUI
+          mode.
+          
+          Messages to the console will no longer include any title text. 
+          Previously, messages looked like "Root Required: This program
+          requires root."  The "Root Required: " part is no longer displayed
+          for console messages.
+
+    * lib/file.tcl:
+          Fixed a bug where excluding a parent component could cause an error
+          to happen when loading the child component in the installer.
+
+
+2009-09-20  Damon Courtney <damon@installjammer.com>
+    * lib/Actions/InstallActions/InstallSelectedFiles.action:
+          Fixed a bug where selecting Update File Text on the Install Selected
+          Files action would cause the wrong messages to be displayed during a
+          console install.  Console installs do not support per-file
+          installation progress at this time.
+
+    * lib/Actions/InstallActions/InstallSelectedFiles.action:
+          Fix the console progress bug the right way.
+
+    * lib/common.tcl:
+          Added a new Exit Actions action group that executes as the last set
+          of actions as the installer goes to exit.  This action group is the
+          last place to insert your own actions and happens just before the
+          temporary directory is cleaned off the disk.
+
+
 2009-09-18  Damon Courtney <damon@installjammer.com>
     *** InstallJammer 1.2.14 RELEASED ***
+
+
+2009-09-18  Damon Courtney <damon@installjammer.com>
+    * lib/common.tcl, lib/trees-filegroup.tcl:
+          Fixed a bug where a relative install dir would end up appending a
+          second copy of the install dir to the final installation path.
+          
+           Fixed a bug where a relative install path would save relative paths
+          to the uninstall log which means the uninstall would do nothing
+          because it can't find the files.
 
 
 2009-09-17  Damon Courtney <damon@installjammer.com>
@@ -36,7 +84,7 @@
           Fixed a bug where the uninstaller on Windows would sometimes fail to
           delete the uninstall.exe which would cause an empty directory error.
           
-          Fixed a bug where the uninstaller would pop up an error message
+           Fixed a bug where the uninstaller would pop up an error message
           after finishing if the machine had host scripting disabled.
 
 
@@ -48,9 +96,9 @@
       lib/packages/xdg-utils/xdg-mime, lib/packages/xdg-utils/xdg-open:
           Fixed a bug where desktop icons were not being created on the
           Linux-x86_64 platform.
-          Fixed a bug where desktop icons created when installing as root
+           Fixed a bug where desktop icons created when installing as root
           could not be read by a normal user.
-          Fixed a bug where desktop icons need to be created with the
+           Fixed a bug where desktop icons need to be created with the
           executable bit set for some platforms and window managers.
 
 
@@ -59,10 +107,10 @@
           Fixed a bug where clicking the delete button in the virtual text tab
           would not delete the virtual text currently being edited.
           
-          Added a Control-click to the virtual text table to select a row for
+           Added a Control-click to the virtual text table to select a row for
           deletion without editing the contents.
           
-          Added a Shift-click to the virtual text table to select multiple
+           Added a Shift-click to the virtual text table to select multiple
           rows within the table for deletion.
 
 
@@ -120,7 +168,7 @@
     * lib/common.tcl, lib/installapi.tcl:
           Added a new WizardAPI API call.
           
-          Fixed a bug where if the last pane of a wizard was conditional, the
+           Fixed a bug where if the last pane of a wizard was conditional, the
           wizard could end up displaying a blank pane at the end instead of
           exiting when the wizard moved forward.
 
@@ -156,7 +204,7 @@
       lib/installapi.tcl, lib/unpack.tcl:
           Fixed a bug where encrypted installers would not install files
           correctly on non-Windows platforms.
-          Added a new SetInstallPassword API.
+           Added a new SetInstallPassword API.
 
 
 2009-08-24  Damon Courtney <damon@installjammer.com>
@@ -235,7 +283,7 @@
           Fixed a bug where --version on non-Windows platforms would error
           out.
           
-          Fixed a bug where the "can create" operator in the File Test
+           Fixed a bug where the "can create" operator in the File Test
           condition was reporting incorrectly on non-Windows platforms.
 
     * Binaries/Windows/twapi/shell.tcl:

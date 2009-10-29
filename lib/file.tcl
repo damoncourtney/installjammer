@@ -873,6 +873,7 @@ proc ::InstallJammer::SaveComponents { args } {
 
     set data ""
 
+    set save(Components) 1
     foreach id [Components children recursive] {
         if {[info exists _args(-platform)]
             && [lsearch -exact [$id platforms] $_args(-platform)] < 0} {
@@ -880,6 +881,12 @@ proc ::InstallJammer::SaveComponents { args } {
         }
 
         if {$_args(-build) && ![$id active]} { continue }
+
+        set parent [$id parent]
+        if {$_args(-build) && ![info exists save($parent)]} {
+            BuildLog "Removing [$id name] component: parent not included"
+            continue
+        }
 
         set save($id) 1
 

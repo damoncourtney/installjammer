@@ -140,6 +140,11 @@ proc ::InstallJammer::actions::InstallSelectedFiles { obj } {
     set conf(directoryPermissions) {}
     set conf(ShowConsoleProgress)  [$obj get ShowConsoleProgress]
 
+    if {!$info(GuiMode)} {
+        set conf(UpdateFileText)       0
+        set conf(UpdateFilePercentage) 0
+    }
+
     if {$conf(UpdateFileText)} {
         set info(Status) "<%FileBeingInstalledText%>"
     } else {

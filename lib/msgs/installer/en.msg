@@ -128,6 +128,9 @@ PasswordIncorrectText
 ProgramFilesDescription
 "Common Program Files"
 
+PromptForAdministratorText
+"This program requires administrator privileges.  Please enter your password."
+
 PromptForDirectoryMessage
 "Please choose a directory, then select OK."
 
@@ -145,6 +148,12 @@ RequireAdministratorText
 
 RequireRootText
 "You must be root to run this installer."
+
+RequireRootTitleText
+"Root Required"
+
+RequireRootUninstallText
+"You must be root to uninstall this application."
 
 SelectLanguageText
 "Please select the installation language"
