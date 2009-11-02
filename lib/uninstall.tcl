@@ -63,9 +63,7 @@ proc ::InstallJammer::GetUninstallInfo {} {
     set installdir  $info(InstallDir)
     set uninstaller $info(Uninstaller)
 
-    set conf(uninstall)        $uninstaller
-    set conf(UninstallRemoved) 0
-    set conf(UninstallRenamed) 0
+    set conf(uninstall) $uninstaller
 
     set sort [list]
     foreach file $files {
@@ -381,6 +379,9 @@ proc ::InstallJammer::InitUninstall {} {
     set conf(stop)  [::InstallJammer::TmpDir .stop]
     set conf(pause) [::InstallJammer::TmpDir .pause]
     set conf(lastPercent) 0
+    set conf(uninstall) [info nameofexecutable]
+    set conf(UninstallRemoved) 0
+    set conf(UninstallRenamed) 0
 
     set conf(modes) "Standard Silent"
     if {!$conf(windows)} { lappend conf(modes) "Console" }
