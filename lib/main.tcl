@@ -495,7 +495,6 @@ proc init {} {
         }
     }
 
-    set conf(BuildVersion) [file size [file join $conf(pwd) ChangeLog.1.2]]
     set conf(CompressionMethods) {lzma "lzma (solid)" none zlib "zlib (solid)"}
 
     if {![catch { package require miniarc::crap::lzma }]} {
@@ -675,6 +674,16 @@ proc init {} {
     set bindir [file dirname [info nameofexecutable]]
     if {!$conf(windows) && [lsearch -exact $::auto_path $bindir] < 0} {
         lappend ::auto_path $bindir
+    }
+
+    set verfile [file join $conf(pwd) .buildversion]
+    set gitfile [file join $conf(pwd) .git refs heads v1.2]
+    if {[file exists $verfile]} {
+        set conf(BuildVersion) [string trim [read_file $verfile]]
+    } elseif {[file exists $gitfile]} {
+        set conf(BuildVersion) [string range [read_file $gitfile] 0 6]
+    } else {
+        set conf(BuildVersion) "unknown"
     }
 
     if {!$conf(cmdline)} {
