@@ -87,6 +87,8 @@ proc ::InstallJammer::actions::UninstallSelectedFiles {obj {forceUninstall 0}} {
             set file [lindex $list 0]
             set tail [file tail $file]
 
+            if {[file type $file] eq "directory"} { continue }
+
             set info(FileBeingUninstalled) $tail
             ::InstallJammer::UpdateUninstallProgress
 
@@ -131,6 +133,8 @@ proc ::InstallJammer::actions::UninstallSelectedFiles {obj {forceUninstall 0}} {
         set installdir [::InstallJammer::Normalize $info(InstallDir)]
         foreach list [lsort -index 0 -decreasing $array(:DIR)] {
             lassign $list dir force
+
+            if {[file type $dir] ne "directory"} { continue }
 
             if {$checkRemove && [regexp $pattern $dir]} {
                 if {$::verbose} {
