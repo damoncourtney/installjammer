@@ -402,3 +402,12 @@ proc ConvertProject {} {
 
     return $modified
 }
+
+if {[info commands ::_installComponentClass] eq ""} {
+    rename ::InstallComponent ::_installComponentClass
+    proc ::InstallComponent {id args} {
+        array set _args $args
+        unset -nocomplain _args(-command)
+        eval ::_installComponentClass $id [array get _args]
+    }
+}
