@@ -279,7 +279,12 @@ proc ::InstallJammer::actions::AddWidget { obj } {
         eval lappend opts -style $id
         eval [list ::InstallJammer::NewStyle $id $style] $newStyleOpts
     }
-
+    
+    foreach event [split $validate \;] {
+        lappend events [string trim $event]
+    }
+    set validate $events
+        
     if {[info exists label] || [info exists browse]} {
         set xopts [list]
         if {$bg ne "system"} {
@@ -345,6 +350,13 @@ proc ::InstallJammer::actions::AddWidget { obj } {
                 }
             }
             lappend cmd -variable $varName
+            if {$command ne ""} {
+                set x [lsearch -exact $validate "Select"]
+                if {$x != -1} {
+                    lappend cmd -command $command
+                    set validate [lreplace $validate $x $x]
+                }
+            }
 
             ttk::button $widget.b -text $text -command $cmd
             grid $widget.b -row 1 -column 2 -padx 2
@@ -362,9 +374,8 @@ proc ::InstallJammer::actions::AddWidget { obj } {
     bind $widget <Destroy> \
         "+unset -nocomplain ::InstallJammer::UserWidgets($id)"
 
-    if {$validate ne "" && $command ne ""} {
-        foreach event [split $validate \;] {
-            set event [string trim $event]
+    if {[llength $validate] && $command ne ""} {
+        foreach event $validate {
             if {$event eq "Create"} {
                 eval $command
             } else {

@@ -3129,6 +3129,11 @@ proc ::InstallJammer::ChooseDirectory { args } {
     set _args(-canceltext) [::InstallJammer::SubstText "<%Cancel%>"]
     array set _args $args
 
+    if {[info exists _args(-command)]} {
+        set command $_args(-command)
+        unset _args(-command)
+    }
+
     if {[info exists _args(-variable)]} {
         upvar 1 $_args(-variable) dir
         unset _args(-variable)
@@ -3156,6 +3161,7 @@ proc ::InstallJammer::ChooseDirectory { args } {
 
     if {$res ne ""} {
         set dir $res
+        if {[info exists command]} { uplevel #0 $command }
         return $dir
     }
 }
@@ -3165,6 +3171,11 @@ proc ::InstallJammer::ChooseFile { args } {
 
     ::InstallJammer::SetDialogArgs ChooseFile _args
     array set _args $args
+
+    if {[info exists _args(-command)]} {
+        set command $_args(-command)
+        unset _args(-command)
+    }
 
     if {[info exists _args(-variable)]} {
         upvar 1 $_args(-variable) file
@@ -3192,6 +3203,7 @@ proc ::InstallJammer::ChooseFile { args } {
 
     if {$res ne ""} {
         set file $res
+        if {[info exists command]} { uplevel #0 $command }
         return $file
     }
 }
