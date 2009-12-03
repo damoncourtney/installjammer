@@ -499,10 +499,10 @@ proc ReadableArrayGet { arrayName {newname ""} {arrayset ""} } {
     append string "$arrayset \{\n"
     foreach elem [lsort [array names array]] {
 	append string "[list $elem]\n"
-        if {[info complete $array($elem)]} {
-            append string "\{$array($elem)\}\n\n"
-        } else {
+        if {[catch {array set x "x \{$array($elem)\}"}]} {
             append string "[list $array($elem)]\n\n"
+        } else {
+            append string "\{$array($elem)\}\n\n"
         }
     }
     append string "\}"
