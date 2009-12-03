@@ -5007,7 +5007,6 @@ itcl::class File {
     public variable window      ""
     public variable created     0
     
-    public variable command     ""
     public variable operator    "AND"
     public variable component   ""
     public variable arguments   ""
