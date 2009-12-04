@@ -295,8 +295,12 @@ proc Window.installjammer { {base .installjammer} } {
     BIND $base <F7> { Build }
     BIND $base <Control-F5> { TestInstall }
 
-    BIND $base <Control-b> { Build }
+    BIND $base <Control-b> { ::InstallJammer::QuickBuild }
+    BIND $base <Control-B> { ::InstallJammer::QuickBuild }
+    BIND $base <Control-Shift-b> { Build }
+    BIND $base <Control-Shift-B> { Build }
     BIND $base <Control-r> { TestInstall }
+    BIND $base <Control-R> { TestInstall }
 
     BIND $base <Control-n> "NewFromWizard"
     BIND $base <Control-o> "Open"
@@ -363,16 +367,17 @@ proc Window.installjammer { {base .installjammer} } {
 
     $m add cascade -label Build -menu $m.build -underline 0
 
-    $m.build add command -label "Build Install" -underline 0 \
-    	-accel "Ctrl+B" -command "Build" \
-    	-image [GetImage build16] -compound left
     $m.build add command -label "Quick Build Install" -underline 0 \
     	-accel "Ctrl+B" -command ::InstallJammer::QuickBuild \
     	-image [GetImage quickbuild16] -compound left
+    $m.build add command -label "Build Install" -underline 0 \
+    	-accel "Ctrl+Shift+B" -command "Build" \
+    	-image [GetImage build16] -compound left
+    $m.build add separator
     $m.build add command -label "Stop Build" -underline 0 \
     	-command ::InstallJammer::StopBuild \
         -image [GetImage actstop16] -compound left
-    	
+    $m.build add separator
     $m.build add command -label "Run Install" -underline 0 \
     	-accel "Ctrl+R" -command "TestInstall" \
     	-image [GetImage actrun16] -compound left
