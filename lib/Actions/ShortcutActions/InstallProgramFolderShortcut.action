@@ -30,6 +30,11 @@ Property AdditionalArguments longtext "Additional Arguments"
 
 Property CommandLineArguments shorttext "Command Line Arguments"
 
+Property Description shorttext "Description"
+Help Description "Specifies the description of the shortcut.  This is the\
+    tooltip the user will see over the shortcut and is stored in the Comments\
+    field of the shortcut properties. (Windows only)"
+
 Property FileName short "File Name" "<%ShortAppName%>-program"
 
 Property IconPath installedfile "Icon Path"

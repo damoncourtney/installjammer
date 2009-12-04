@@ -24,6 +24,10 @@
 Action InstallWindowsShortcut "Install Windows Shortcut"
 
 Property CommandLineArguments shorttext "Command Line Arguments"
+Property Description shorttext "Description"
+Help Description "Specifies the description of the shortcut.  This is the\
+    tooltip the user will see over the shortcut and is stored in the Comments\
+    field of the shortcut properties."
 Property IconPath installedfile "Icon Path"
 Property IconPathIndex shorttext "Icon Path Index" "0"
 Property ShortcutName shorttext "Shortcut Name"
@@ -72,6 +76,9 @@ proc ::InstallJammer::actions::InstallWindowsShortcut { obj } {
         set args [list $linkPath -path $a(path) -showcmd $a(show)]
         if {[info exists a(args)]} { lappend args -args $a(args) }
         if {[info exists a(work)]} { lappend args -workdir $a(work) }
+        if {$props(Description) ne ""} {
+            lappend args -desc $props(Description)
+        }
         if {[info exists a(icon)]} {
             lappend args -iconpath $a(icon) -iconindex $a(idx)
         }
