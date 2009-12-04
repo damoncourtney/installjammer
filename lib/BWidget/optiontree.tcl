@@ -89,6 +89,9 @@ proc OptionTree::create { path args } {
     $path bindImage <Button-1> [list OptionTree::_select $path 1]
     $path bindImage <Double-1> [list OptionTree::_select $path 1]
 
+    set c [$path getcanvas]
+    bind $c <Key-space> [list OptionTree::_select $path 1]
+
     proc ::$path { cmd args } \
     	"return \[OptionTree::_path_command [list $path] \$cmd \$args\]"
 
@@ -301,7 +304,9 @@ proc OptionTree::_path_command { path cmd larg } {
 }
 
 
-proc OptionTree::_select { path toggle node } {
+proc OptionTree::_select { path toggle {node ""} } {
+    if {$node eq ""} { set node [$path selection get] }
+
     set opath $path#opttree
     set onode $path.$node#opttree
 
