@@ -1282,11 +1282,13 @@ proc ::InstallAPI::PropertyFileAPI { args } {
         -file        { string 0 }
         -key         { string 0 }
         -line        { string 0 }
+        -separator   { string 0 "=" }
         -value       { string 0 }
     }
 
     upvar 1 $_args(-array) array
 
+    set sep $_args(-separator)
     if {$_args(-do) eq "read"} {
         if {![info exists _args(-file)]} {
             return -code error "missing required option -file"
@@ -1370,11 +1372,11 @@ proc ::InstallAPI::PropertyFileAPI { args } {
             foreach x [lreverse $array($key!lines)] {
                 set array(!lines) [lreplace $array(!lines) $x $x]
             }
-            set array(!lines) [linsert $array(!lines) $x "$key=$value"]
+            set array(!lines) [linsert $array(!lines) $x "$key$sep$value"]
             set array($key!lines) $x
         } else {
             lappend array(!keys) $key
-            lappend array(!lines) "$key=$value"
+            lappend array(!lines) "$key$sep$value"
             set array($key!lines) [expr {[llength $array(!lines)] - 1}]
         }
     } elseif {$_args(-do) eq "unset"} {
@@ -1405,12 +1407,12 @@ proc ::InstallAPI::PropertyFileAPI { args } {
         } elseif {[info exists array(!keys)]} {
             foreach key $array(!keys) {
                 if {![info exists array($key)]} { continue }
-                lappend lines "$key=$array($key)"
+                lappend lines "$key$sep$array($key)"
             }
         } else {
             foreach key [lsort [array names array]] {
                 if {[string match "*!*" $key]} { continue }
-                lappend lines "$key=$array($key)"
+                lappend lines "$key$sep$array($key)"
             }
         }
 
