@@ -50,9 +50,10 @@ proc ChooseFile::create { path args } {
 
     Widget::getVariable $dialog data
 
-    set data(histidx)  0
-    set data(history)  [list]
-    set data(realized) 0
+    set data(histidx)    0
+    set data(history)    [list]
+    set data(realized)   0
+    set data(showHidden) 0
 
     set n [expr {20 / [set x [font measure TkTextFont " "]]}]
     if {$x * $n < 20} { incr n }
@@ -202,8 +203,13 @@ proc ChooseFile::create { path args } {
     $frame.listbox bindText  <Double-1> [list ChooseFile::_double_click $path]
     $frame.listbox bindImage <Double-1> [list ChooseFile::_double_click $path]
 
+    ttk::checkbutton $frame.hiddencb -text "Show hidden directories" \
+        -variable [Widget::widgetVar $dialog data(showHidden)] \
+        -command  [list ChooseFile::_refresh_view $path]
+    grid $frame.hiddencb -row 3 -column 1 -sticky nw -padx 10 -pady 2
+
     set f [frame $frame.bottom]
-    grid $f -row 3 -column 1 -sticky ew -padx 5
+    grid $f -row 4 -column 1 -sticky ew -padx 5
 
     grid columnconfigure $f 1 -weight 1
 
@@ -547,6 +553,12 @@ proc ChooseFile::_double_click { path item } {
 }
 
 
+proc ChooseFile::_refresh_view { path } {
+    Widget::getVariable $path#choosefile data
+    ChooseFile::_select_directory $path $data(directory)
+}
+
+
 proc ChooseFile::_select_directory { path directory {appendHistory 1} } {
     set dialog $path#choosefile
 
@@ -623,7 +635,9 @@ proc ChooseFile::_select_directory { path directory {appendHistory 1} } {
     if {$::tcl_platform(platform) eq "windows"} { set sort -dict }
 
     set dirs [glob -nocomplain -dir $directory -type d *]
-    eval lappend dirs [glob -nocomplain -dir $directory -type {d hidden} *]
+    if {$data(showHidden)} {
+        eval lappend dirs [glob -nocomplain -dir $directory -type {d hidden} *]
+    }
 
     set include [Widget::getoption $dialog -includevfs]
     foreach dir [lsort $sort $dirs] {
