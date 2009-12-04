@@ -1260,6 +1260,7 @@ proc ::InstallJammer::GetSetupFileList { args } {
                 continue
             }
             
+            set type $s(type)
             set doappend $append
             if {$type eq "link"} {
                 file stat $file s
