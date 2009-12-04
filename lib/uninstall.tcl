@@ -226,7 +226,7 @@ proc ::InstallJammer::CleanupTmpDir {} {
             catch {wm withdraw .}
             set i 0
             while {[file exists $dir] && [incr i] < 600} {
-                file delete -force -- $dir
+                catch {file delete -force -- $dir}
                 after 100
             }
         }
