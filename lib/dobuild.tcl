@@ -57,7 +57,7 @@ if {[info exists ::parentThread]} {
     }
 
     foreach file {common.tcl} {
-        set file [file join $conf(pwd) lib $file]
+        set file [file join $conf(pwd) $file]
         if {[catch { source $file } error]} {
             echo $::errorInfo
         }
