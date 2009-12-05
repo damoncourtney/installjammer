@@ -280,6 +280,7 @@ proc ::InstallJammer::actions::AddWidget { obj } {
         eval [list ::InstallJammer::NewStyle $id $style] $newStyleOpts
     }
     
+    set events {}
     foreach event [split $validate \;] {
         lappend events [string trim $event]
     }
