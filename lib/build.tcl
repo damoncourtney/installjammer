@@ -833,6 +833,7 @@ proc BuildAppBundle {} {
     if {![file exists $appdir]} {
         file copy $defdir $appdir
     }
+    file mkdir [file join $appdir Contents MacOS]
     file copy -force $conf(executable) \
         [file join $appdir Contents MacOS installer]
 
