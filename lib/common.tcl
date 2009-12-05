@@ -4860,7 +4860,7 @@ proc ::obj::private::next {args} {
     }
 
     method destdir {} {
-        return [::InstallJammer::SubstText [destdirname]]
+        return [::InstallJammer::SubstText [my destdirname]]
     }
 
     method destdirname {} {
