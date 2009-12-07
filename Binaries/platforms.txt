@@ -7,6 +7,7 @@ HPUX-hppa
 Linux-x86
 Linux-x86_64
 MacOS-X
+MacOS-X-ppc
 Solaris-sparc
 Solaris-x86
 Windows

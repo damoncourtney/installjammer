@@ -695,6 +695,7 @@ proc ::InstallJammer::BuildPackageData { platform } {
         ## lib/packages directory to include.
         set dir [file dirname $dir]
         foreach pkg [glob -nocomplain -type d -dir $dir -tails *] {
+            if {$pkg eq "Default.app"} { continue }
             if {[info exists done($pkg)]} { continue }
             set done($pkg) 1
 
@@ -828,7 +829,11 @@ proc BuildAppBundle {} {
 
     BuildLog "Building .app bundle..."
 
-    set defdir [file join $conf(pwd) Binaries MacOS-X Default.app]
+    set defdir [InstallDir packages/Default.app]
+    if {![file exists $defdir]} {
+        set defdir [file join $conf(pwd) Binaries MacOS-X Default.app]
+    }
+
     set appdir [::InstallJammer::BuildDir $conf(executable).app]
     if {![file exists $appdir]} {
         file copy $defdir $appdir
