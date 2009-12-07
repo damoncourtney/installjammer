@@ -1,8 +1,0 @@
-Package: Ffidl
-Version: 0.6
-
-The ffidl package is used to load functions from within a shared library file
-and then make those functions available to the installer through a new command
-name.
-
-The Ffidl package is currently only available on Windows.
