@@ -18,7 +18,11 @@ namespace eval Text {
         {-foreground          Color   "SystemWindowText" 0}
         {-disabledbackground  Color   "SystemButtonFace" 0}
         {-disabledforeground  Color   "SystemDisabledText" 0}
+
+        {-bg                  Synonym -background}
     }
+
+    bind ReadonlyText <Key> {Text::_handle_key_movement %W %K}
 }
 
 
@@ -32,6 +36,7 @@ proc Text::create { path args } {
     Widget::initFromODB Text $path $maps(Text)
 
     bind $path <Destroy> [list Text::_destroy $path]
+    bindtags $path [list $path ReadonlyText Text [winfo toplevel $path] all]
 
     Widget::getVariable $path data
 
@@ -193,6 +198,26 @@ proc Text::_handle_variable_trace { path name1 name2 op } {
         $path:cmd insert end $var
     } else {
         set var [$path:cmd get 1.0 end-1c]
+    }
+}
+
+
+proc Text::_handle_key_movement { path key } {
+    if {[Widget::getoption $path -state] eq "readonly"} {
+        switch -- $key {
+            "Up"    { set cmd [list yview scroll -1 unit] }
+            "Down"  { set cmd [list yview scroll  1 unit] }
+            "Left"  { set cmd [list xview scroll -1 unit] }
+            "Right" { set cmd [list xview scroll  1 unit] }
+            "Prior" { set cmd [list yview scroll -1 page] }
+            "Next"  { set cmd [list yview scroll  1 page] }
+            "Home"  { set cmd [list yview moveto 0.0] }
+            "End"   { set cmd [list yview moveto 1.0] }
+        }
+        if {[info exists cmd]} {
+            eval [list $path:cmd] $cmd
+            return -code break
+        }
     }
 }
 

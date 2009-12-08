@@ -1931,10 +1931,16 @@ proc ::InstallJammer::SetText { args } {
         ## We're using the -maxundo property as a trick for other
         ## code to tell us not to update this widget.
         if {![$w cget -maxundo]} {
-            $w configure -state normal
-            $w delete 0.0 end
-            $w insert end $text
-            $w configure -state disabled
+            set state [$w cget -state]
+            if {$state eq "disabled"} { $w configure -state normal }
+            if {$state eq "readonly"} {
+                $w clear
+                $w Insert end $text
+            } else {
+                $w delete 0.0 end
+                $w insert end $text
+            }
+            if {$state eq "disabled"} { $w configure -state disabled }
         }
     } elseif {($class eq "Label" || $class eq "TLabel")
     	&& [string length [$w cget -textvariable]]} {
