@@ -2457,8 +2457,10 @@ proc ::InstallJammer::Error { args } {
 
 proc ::InstallJammer::CopyPropertiesValue {} {
     global conf
+    set data [$conf(prop) itemcget $conf(node) -value]
+    if {$data eq ""} { return }
     clipboard clear
-    clipboard append [$conf(prop) itemcget $conf(node) -value]
+    clipboard append $data
 }
 
 proc ::InstallJammer::PastePropertiesValue {} {
