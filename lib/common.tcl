@@ -1224,6 +1224,11 @@ proc ::InstallJammer::ExecuteActions { id args } {
 
         if {$_args(-type) ne "" && $type ne $_args(-type)} { continue }
 
+        if {[$id type] eq "actiongroup"} {
+            eval ::InstallJammer::ExecuteActions [list $id] $args
+            continue
+        }
+
         ## If we have a parent, it means that we're an ExecuteAction
         ## action that is calling another action, which can also be
         ## an action group.  We want the action we're executing
