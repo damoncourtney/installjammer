@@ -1274,7 +1274,11 @@ proc ::InstallJammer::ExecuteActions { id args } {
             if {$pane eq "next"} {
                 ::InstallJammer::Wizard next 1
             } else {
-                ::InstallJammer::Wizard raise $pane
+                if {$pane eq $info(CurrentPane)} {
+                    ::InstallJammer::Wizard reload
+                } else {
+                    ::InstallJammer::Wizard raise $pane
+                }
             }
             break
         }
@@ -1529,6 +1533,10 @@ proc ::InstallJammer::Wizard { args } {
             if {[llength $args] == 1} { lappend args 1 }
             $info(Wizard) order [concat [$info(Wizard) order] $id]
             eval [list $info(Wizard) raise] $args
+        }
+
+        "reload" {
+            event generate $info(Wizard) "<<WizardStep>>"
         }
 
         "show" {
