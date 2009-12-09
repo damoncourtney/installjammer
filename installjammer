@@ -56,6 +56,9 @@ platform() {
             ;;
         Darwin)
             PLATFORM="MacOS-X"
+            if test "$MACHINE" = "ppc"; then
+                PLATFORM="$PLATFORM-$MACHINE"
+            fi
             ;;
         FreeBSD)
             VERSION=`uname -r | cut -f 1 -d .`
