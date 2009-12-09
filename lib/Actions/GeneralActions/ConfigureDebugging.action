@@ -65,7 +65,7 @@ Script {
         debugging $props(LogToConsole) console
     }
 
-    if {$props(SaveTempDirectory ne ""} {
+    if {$props(SaveTempDirectory) ne ""} {
         set info(SaveTempDirectory) $props(SaveTempDirectory)
     }
 }

@@ -1699,11 +1699,11 @@ proc CreatePaneFrame { id } {
 
     $prop insert end root standard -text "Standard Properties" -open 1
     if {[llength [$obj properties 0]]} {
-        $prop insert end root advanced -text "Advanced Properties" -open 0
+        $prop insert end root advanced -text "Advanced Properties" -open 1
     }
     $obj addproperties $prop $id
 
-    $prop insert end root text -text "Text Properties"
+    $prop insert end root text -text "Text Properties" -open 1
     $obj addtextfields $prop text $id
 }
 
