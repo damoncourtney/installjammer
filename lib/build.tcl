@@ -831,7 +831,7 @@ proc BuildAppBundle {} {
 
     set defdir [InstallDir packages/Default.app]
     if {![file exists $defdir]} {
-        set defdir [file join $conf(pwd) Binaries MacOS-X Default.app]
+        set defdir [file join $conf(lib) packages Default.app]
     }
 
     set appdir [::InstallJammer::BuildDir $conf(executable).app]
