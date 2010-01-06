@@ -80,12 +80,7 @@ proc Open { {filename ""} } {
 
     set modified 0
 
-    if {[info commands ::_fileClass] eq ""} {
-        rename ::File ::_fileClass
-        proc File { args } { lappend ::filesLoaded $args }
-    }
     set ::filesLoaded {}
-
     uplevel #0 [list source [file join $conf(lib) convert.tcl]]
 
     if {[catch { eval [read_file $filename -encoding utf-8] } error]} {

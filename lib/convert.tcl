@@ -373,10 +373,26 @@ if {[info commands ::_installComponentClass] eq ""} {
 if {[info commands ::_conditionClass] eq ""} {
     rename ::Condition ::_conditionClass
     proc ::Condition {id args} {
-        array set _args $args
-
         dict unset args -TreeObject::id
         if {![dict exists $args -setup]} { dict set args -setup "Install" }
         ::_conditionClass $id {*}$args
+    }
+}
+
+if {[info commands ::_fileClass] eq ""} {
+    rename ::File ::_fileClass
+    proc ::File {id args} {
+        if {[dict exists $args -savefiles]} {
+            if {[string is true [dict get $args -savefiles]]} {
+                set method "Save all files and directories"
+            } else {
+                set method "Do not save files and directories"
+            }
+            set tail [namespace tail $id]
+            set ::InstallJammer::Properties($tail,FileSaveMethod) $method
+            dict unset args -savefiles
+        }
+
+        lappend ::filesLoaded [list $id {*}$args]
     }
 }
