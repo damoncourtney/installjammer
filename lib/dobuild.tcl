@@ -163,7 +163,7 @@ catch {
         }
 
         set opts {}
-        if {[info exists _args(password)]} {
+        if {[info exists _args(password)] && $_args(password) ne ""} {
             lappend opts -password $_args(password)
         }
 
