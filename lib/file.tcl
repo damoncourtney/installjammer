@@ -1460,7 +1460,7 @@ proc BuildInstall {} {
         ## Add a check box to the build platform tree.
         set text [PlatformText $pf]
 
-        set conf(build,$pf) [string is true -strict [$pf active]]
+        set conf(build,$pf) 1
         $widg(BuildTree) insert end root #auto -type checkbutton \
             -variable ::conf(build,$pf) -text $text
     }
