@@ -48,6 +48,8 @@ proc ::InstallJammer::actions::UnpackStoredFile { obj } {
 
     set file [file join $dir $filename]
 
+    debug "Unpacking $file"
+
     set dir [file dirname $file]
     if {![file exists $dir]} { ::InstallJammer::CreateDir $dir }
 
