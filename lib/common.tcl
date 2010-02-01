@@ -1248,6 +1248,8 @@ proc ::InstallJammer::ExecuteActions { id args } {
         set info(CurrentAction) $id
         ::InstallJammer::CurrentObject push $id
 
+        $obj executed 0
+
         set when "Before Action is Executed"
         if {$_args(-conditions) && ![$obj checkConditions $when]} {
             debug "Skipping action $id - [$id title] - conditions failed"
@@ -2634,6 +2636,14 @@ interp alias {} sub {} ::InstallJammer::SubstText
 
 proc settext {var val} {
     set ::info($var) $val
+}
+
+proc getobj {text} {
+    if {[info exists ::InstallJammer::aliases($text)]} {
+        return $::InstallJammer::aliases($text)
+    } elseif {[info exists ::InstallJammer::names($text)]} {
+        return $::InstallJammer::names($text)
+    }
 }
 
 proc vercmp {ver1 ver2} {
@@ -4253,6 +4263,7 @@ proc ::InstallJammer::Class { name body } {
                 $parent children insert $index $id
             }
         }
+        if {$name ne ""} { set ::InstallJammer::names($name) $id }
     }
 
     destructor {
@@ -4992,34 +5003,36 @@ itcl::class File {
     }
 
     method execute {} {
-        if {$type eq "action"} {
-            debug "Executing action $id - [$id title]" $id
+        if {$type ne "action"} { return }
 
-            ::set ::info(CurrentAction) $id
-            ::InstallJammer::CurrentObject push $id
+        ::set executed 1
 
-            ## Remember our current directory.
-            if {[file exists .]} { ::set pwd [pwd] }
+        debug "Executing action $id - [$id title]" $id
 
-            ::set err [catch {::InstallJammer::actions::$component $this} res]
+        ::set ::info(CurrentAction) $id
+        ::InstallJammer::CurrentObject push $id
 
-            ## Actions can sometimes change to a directory.  We want
-            ## to make sure to change back if the action didn't do
-            ## that itself.
-            if {[info exists pwd] && [file exists .]
-                && [file exists $pwd] && $pwd ne [pwd]} {
-                cd $pwd
-            }
+        ## Remember our current directory.
+        if {[file exists .]} { ::set pwd [pwd] }
 
-            ::InstallJammer::CurrentObject pop
+        ::set err [catch {::InstallJammer::actions::$component $this} res]
 
-            if {$err && ![get IgnoreErrors]} {
-                ::set msg "Error in action $component\n\n$::errorInfo"
-                return -code error $msg
-            }
-
-            return $res
+        ## Actions can sometimes change to a directory.  We want
+        ## to make sure to change back if the action didn't do
+        ## that itself.
+        if {[info exists pwd] && [file exists .]
+            && [file exists $pwd] && $pwd ne [pwd]} {
+            cd $pwd
         }
+
+        ::InstallJammer::CurrentObject pop
+
+        if {$err && ![get IgnoreErrors]} {
+            ::set msg "Error in action $component\n\n$::errorInfo"
+            return -code error $msg
+        }
+
+        return $res
     }
 
     method setup       { args } { eval cfgvar setup       $args }
@@ -5027,6 +5040,7 @@ itcl::class File {
     method window      { args } { eval cfgvar window      $args }
     method created     { args } { eval cfgvar created     $args }
     method command     { args } { eval cfgvar command     $args }
+    method executed    { args } { eval cfgvar executed    $args }
     method operator    { args } { eval cfgvar operator    $args }
     method component   { args } { eval cfgvar component   $args }
     method arguments   { args } { eval cfgvar arguments   $args }
@@ -5037,6 +5051,7 @@ itcl::class File {
     public variable title       ""
     public variable window      ""
     public variable created     0
+    public variable executed    0
     
     public variable operator    "AND"
     public variable component   ""
@@ -5214,7 +5229,7 @@ itcl::class File {
 
         ::InstallJammer::CurrentObject pop
 
-        return $res
+        ::set passed $res
     }
 
     method name {} {
@@ -5227,6 +5242,7 @@ itcl::class File {
     method id        { args } { eval cfgvar id        $args }
     method title     { args } { eval cfgvar title     $args }
     method active    { args } { eval cfgvar active    $args }
+    method passed    { args } { eval cfgvar passed    $args }
     method parent    { args } { eval cfgvar parent    $args }
     method component { args } { eval cfgvar component $args }
 
@@ -5234,6 +5250,7 @@ itcl::class File {
     public variable type      "condition"
     public variable title     ""
     public variable active    1
+    public variable passed    -1
     public variable parent    ""
     public variable component ""
 } ; ## ::itcl::class Condition
