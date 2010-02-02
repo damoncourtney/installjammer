@@ -2418,18 +2418,13 @@ proc ::InstallJammer::SetWindowsPlatform {} {
             "Windows NT" {
                 switch -- $::tcl_platform(osVersion) {
                     "4.0" { set string "WinNT" }
+                    "4.9" { set string "WinME" }
                     "5.0" { set string "Win2k" }
                     "5.1" { set string "WinXP" }
                     "5.2" { set string "Win2003" }
                     "6.0" { set string "Vista" }
+                    "6.1" { set string "Windows7" }
                 }
-            }
-
-            default {
-                ## Not really sure what ME puts out, but if we
-                ## didn't match one of the above, that's probably
-                ## what we've got.
-                set string "WinME"
             }
         }
     }
