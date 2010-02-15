@@ -385,7 +385,7 @@ proc ::InstallJammer::DownloadPlatform { platform {error 1} } {
     foreach ver [list $conf(Version) $conf(MinorVersion)] {
         set url  $conf(DownloadURL)/installkit/$ver/$platform.zip
         set code 400
-        if {[catch {http::geturl $url -validate 1} tok]} {
+        if {![catch {http::geturl $url -validate 1} tok]} {
             set code [http::ncode $tok]
             http::cleanup $tok
         }
@@ -2782,6 +2782,7 @@ proc ::InstallJammer::Platform {} {
 	}
 
         "Darwin" {
+            if {$machine eq "ppc"} { return "MacOS-X-ppc" }
             return MacOS-X
         }
 

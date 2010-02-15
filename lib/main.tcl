@@ -520,7 +520,7 @@ proc init {} {
         HomePage                "http://www.installjammer.com/"
         HelpURL                 "http://www.installjammer.com/docs/"
         ForumsURL               "http://www.installjammer.com/forums/"
-        DownloadURL             "http://www.installjammer.com/downloads"
+        DownloadURL             "http://downloads.installjammer.com/"
         HelpTopic               "Welcome"
         DefaultHelpTopic        "Welcome"
 
