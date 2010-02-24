@@ -821,6 +821,7 @@ proc ::InstallJammer::CommonPostInit {} {
 
 proc ::InstallJammer::InitializeGui {} {
     global conf
+    global info
 
     if {[info exists ::InstallJammer]} { return }
     if {[info exists conf(InitGui)]} { return }
@@ -835,6 +836,16 @@ proc ::InstallJammer::InitializeGui {} {
     }
     bind Text <Tab> "# nothing"
     bind Text <Shift-Tab> ""
+
+    wm protocol $info(Wizard) WM_DELETE_WINDOW ::InstallJammer::CloseButton
+}
+
+proc ::InstallJammer::CloseButton {} {
+    global info
+
+    if {[grab current] eq "" || [grab current] eq $info(Wizard)} {
+        $info(Wizard) cancel 1
+    }
 }
 
 proc ::InstallJammer::InitializeMessageCatalogs {} {

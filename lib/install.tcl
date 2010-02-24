@@ -1134,10 +1134,7 @@ proc ::InstallJammer::InitInstall {} {
 
     ::InstallJammer::ParseCommandLineArguments $::argv
 
-    if {$info(GuiMode)} {
-        SourceCachedFile gui.tcl
-        InitGui
-    }
+    if {$info(GuiMode)} { ::InstallJammer::InitializeGui }
 
     ::InstallJammer::CommonPostInit
 
