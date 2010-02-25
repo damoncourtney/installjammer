@@ -2310,7 +2310,7 @@ proc ::InstallJammer::Explore { {initdir ""} } {
             set explorer [list exec open]
 	} else {
             set explorer [list exec xdg-open]
-            if {$initdir eq ""} { set initdir ~ }
+            if {$initdir eq ""} { set initdir [file normalize ~] }
 	}
     }
 

@@ -112,7 +112,9 @@ proc ::FileTree::Uncheck {tree {types ""}} {
 
 proc ::Tree::DropFiles { tree files } {
     set node [lindex [$tree selection get] 0]
-    set id   [$tree itemcget $node -data]
+    if {$node eq ""} { return }
+
+    set id [$tree itemcget $node -data]
     if {[$id type] eq "filegroup"} {
         AddFiles -files [lsort $files]
     }
