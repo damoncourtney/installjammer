@@ -223,6 +223,27 @@ proc ::InstallAPI::DestroyWidget { args } {
     }
 }
 
+proc ::InstallAPI::DecodeURL { args } {
+    ::InstallAPI::ParseArgs _args $args {
+        -url { string 1 }
+    }
+
+    global conf
+
+    variable urlDecodeMap
+    if {![info exists urlDecodeMap]} {
+        for {set i 0} {$i < 256} {incr i} {
+            set c [format %c $i]
+            if {$c eq "?" || $c eq "=" || $c eq "&"} { continue }
+            if {![string match {[a-zA-Z0-9]} $c]} {
+                lappend urlDecodeMap %[format %02x $i] $c
+            }
+        }
+    }
+
+    return [string map $urlDecodeMap $_args(-url)]
+}
+
 proc ::InstallAPI::EncodeURL { args } {
     ::InstallAPI::ParseArgs _args $args {
         -url { string 1 }

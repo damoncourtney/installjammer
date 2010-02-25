@@ -496,6 +496,7 @@ proc AddFiles { args } {
 
         if {[string match "file:*" $file]} {
             set file [string range $file 5 end]
+            set file [::InstallAPI::DecodeURL -url $file]
         }
 
         if {[string equal $::tcl_platform(platform) "windows"]} {
