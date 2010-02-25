@@ -95,5 +95,5 @@ if test ! -f "$INSTALLKIT"; then
     exit 1
 fi
 
-chmod +x ${INSTALLKIT}
+chmod -f +x ${INSTALLKIT}
 exec "${INSTALLKIT}" "${INSTALLJAMMER_HOME}/installjammer.tcl" $*
