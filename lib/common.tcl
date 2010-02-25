@@ -675,7 +675,10 @@ proc ::InstallJammer::CommonInit {} {
     set conf(NativeMessageBox)       [expr {!$conf(unix)}]
     set conf(NativeChooseDirectory)  [expr {!$conf(unix)}]
 
-    if {![info exists ::InstallJammer]} {
+    msgcat::Init
+    if {[info exists ::InstallJammer]} {
+        msgcat::mclocale en
+    } else {
         ## Running from an installer or uninstaller
 
         ## Setup common variables for an install or uninstall.
@@ -744,7 +747,6 @@ proc ::InstallJammer::CommonInit {} {
                 set info(Language) [GetLanguageCode $info(DefaultLanguage)]
             }
 
-            msgcat::Init
             set info(SystemLanguage) [::msgcat::mclocale]
             set codes [::InstallJammer::GetLanguageCodes]
             foreach lang [::msgcat::mcpreferences] {
