@@ -40,7 +40,7 @@ proc lassign { list args } {
 proc lremove { list args } {
     foreach arg $args {
 	set x [lsearch -exact $list $arg]
-	set list [lreplace $list $x $x]
+        if {$x > -1} { set list [lreplace $list $x $x] }
     }
     return $list
 }
@@ -3304,11 +3304,21 @@ proc ::InstallJammer::Wrap { args } {
 proc ::InstallJammer::Grab { command args } {
     variable GrabStack
 
-    if {![info exists GrabStack]} { set GrabStack [list] }
+    if {![info exists GrabStack]} {
+        set GrabStack [list]
+        bind GrabWindow <Destroy> [list ::InstallJammer::Grab release %W]
+    }
+
+    ## Cleanup the stack before we do anything.
+    set stack {}
+    foreach w $GrabStack {
+        if {[winfo exists $w]} { lappend stack $w }
+    }
+    set GrabStack $stack
 
     switch -- $command {
         "current" {
-            return [lindex $GrabStack end]
+            return [grab current]
         }
 
         "stack" {
@@ -3317,25 +3327,27 @@ proc ::InstallJammer::Grab { command args } {
 
         "release" {
             set window [lindex $args 0]
-            set search [lsearch -exact $GrabStack $window]
-            if {$search < 0} { return }
-            if {$search != [expr {[llength $GrabStack] - 1}]} {
-                return -code error "$window is not last in the grab stack."
-            }
             grab release $window
-            set GrabStack [lreplace $GrabStack end end]
-            if {[llength $GrabStack]} { grab [lindex $GrabStack end] }
+            set GrabStack [lremove $GrabStack $window]
+            if {[llength $GrabStack] && [grab current] eq ""} {
+                grab [lindex $GrabStack end]
+            }
         }
 
         "set" {
             set window [lindex $args 0]
             grab $window
+            set tags [bindtags $window]
+            if {[lsearch -exact $tags GrabWindow] < 0} {
+                bindtags $window [concat $tags GrabWindow]
+            }
+            set x [lsearch -exact $GrabStack $window]
+            if {$x > -1} { set GrabStack [lreplace $GrabStack $x $x] }
             lappend GrabStack $window
         }
 
         default {
-            grab $command
-            lappend GrabStack $command
+            ::InstallJammer::Grab set $command
         }
     }
 
