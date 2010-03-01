@@ -630,6 +630,32 @@ proc ::InstallAPI::GetComponentsForSetupType { args } {
     return [$obj get Components]
 }
 
+proc ::InstallAPI::GetDisplayText { args } {
+    ::InstallAPI::ParseArgs _args $args {
+        -object     { string  1 }
+    }
+
+    set object [::InstallJammer::ID $_args(-object)]
+    if {![::InstallJammer::ObjExists $object]} {
+        return -code error "object '$_args(-object)' does not exist"
+    }
+
+    set text ""
+    switch -- [$object type] {
+        "filegroup" {
+            set text [sub [$object get DisplayName]]
+            if {$text eq ""} { set text [$object name] }
+        }
+
+        "component" - "setuptype" {
+            set text [::InstallJammer::GetText $object DisplayName]
+            if {$text eq ""} { set text [$object name] }
+        }
+    }
+
+    return $text
+}
+
 proc ::InstallAPI::GetInstallSize { args } {
     ::InstallAPI::ParseArgs _args $args {
         -object     { string  0 "" }

@@ -447,6 +447,7 @@
         standard CompressionMethod choice "Compression Method" "" \
             [concat {{}} $::conf(CompressionMethods)]
         standard Destination       installedfile "Destination Directory"
+        standard DisplayName short "Display Name"
         standard FileUpdateMethod  filemethod "File Update Method" \
             "Update files with more recent dates"
         standard FollowDirLinks boolean "Follow Directory Links" "Yes"

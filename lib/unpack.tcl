@@ -50,7 +50,8 @@ proc ::InstallJammer::InstallFiles {} {
     ::InstallJammer::CreateDir $info(InstallDir)
 
     foreach group $groups {
-        output [list :GROUP [$group name] [$group directory]]
+        set name [::InstallAPI::GetDisplayText -object $group]
+        output [list :GROUP $name [$group directory]]
 
         $group install
 

@@ -41,9 +41,7 @@ proc ::InstallJammer::actions::PopulateSetupTypes { obj } {
     foreach id [SetupTypes children] {
         if {![$id active] || ![$id get ShowSetupType]} { continue }
 
-        set text [::InstallJammer::GetText $id DisplayName]
-        if {$text eq ""} { set text [$id name] }
-
+        set text [::InstallAPI::GetDisplayText -object $id]
         $listbox insert end $id -text $text -data [$id name]
         if {[$id name] eq $info(InstallType)} {
             ::InstallJammer::SelectSetupType $id

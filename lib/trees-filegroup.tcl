@@ -981,6 +981,7 @@ proc ::FileGroupTree::RaiseNode { node } {
         set details(Alias)             [$id alias]
         set details(Comment)           [$id get Comment]
         set details(Destination)       [$id directory]
+        set details(DisplayName)       [$id get DisplayName]
         set details(TargetFilename)    [$id targetfilename]
         set details(FileUpdateMethod)  [$id filemethod]
         set details(CompressionMethod) [$id compressionmethod]
