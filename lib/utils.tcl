@@ -1931,18 +1931,22 @@ proc AddProperty { prop index parent id name varName args } {
     eval $prop insert $index $parent $data(-node) $opts
 }
 
-proc ::InstallJammer::CheckAlias { id alias } {
+proc ::InstallJammer::CheckAlias { id alias {showError 1} } {
     variable aliases
 
     if {$alias eq "all"} {
-        ::InstallJammer::Error -message \
-            "The word '$alias' is reserved and cannot be used as an alias"
+        if {$showError} {
+            ::InstallJammer::Error -message \
+                "The word '$alias' is reserved and cannot be used as an alias"
+        }
         return 0
     }
 
     if {[info exists aliases($alias)] && $aliases($alias) ne $id} {
-        ::InstallJammer::Error -message \
-            "The alias '$alias' is being used by another object"
+        if {$showError} {
+            ::InstallJammer::Error -message \
+                "The alias '$alias' is being used by another object"
+        }
         return 0
     }
 
@@ -2678,6 +2682,10 @@ proc ::InstallJammer::GetActiveComponent {} {
     if {[info exists ::InstallJammer::ActiveComponent]} {
         return $::InstallJammer::ActiveComponent
     }
+}
+
+proc ::InstallJammer::SetActiveProperty {prop value} {
+    set ::InstallJammer::active($prop) $value
 }
 
 proc ::InstallJammer::RenameComponent { id name } {

@@ -393,7 +393,16 @@ proc ::InstallJammer::Tree::DoRename { tree item newtext } {
         } elseif {$tree eq $widg(SetupTypeTree)} {
             ::SetupTypeTree::rename $item $newtext
         } else {
-            ::$item title $newtext
+            set alias   [$item alias]
+            set default [::InstallJammer::GetDefaultTitle $item]
+            if {$newtext ne $default && ($alias eq "" || $alias eq $oldtext)
+                && [::InstallJammer::CheckAlias $item $newtext 0]} {
+                $item alias $newtext
+                ::InstallJammer::SetActiveProperty Alias $newtext
+            }
+
+            $item title $newtext
+
             ::InstallJammer::RefreshComponentTitles $item
         }
 
