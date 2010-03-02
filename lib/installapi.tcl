@@ -739,7 +739,11 @@ proc ::InstallAPI::GetSelectedFiles { args } {
                 if {$_args(-fileids)} {
                     lappend files $file
                 } else {
-                    lappend files [$file destfile]
+                    if {[$file is dir]} {
+                        lappend files [$file destdir]
+                    } else {
+                        lappend files [$file destfile]
+                    }
                 }
             }
         }
