@@ -25,6 +25,21 @@ namespace eval ::InstallAPI {}
 namespace eval ::InstallJammer {}
 namespace eval ::InstallJammer::subst {}
 
+rename ::source ::tcl_source
+proc source {args} {
+    if {[llength $args] == 1} {
+        uplevel 1 [list ::tcl_source [lindex $args 0]]
+    } elseif {[llength $args] == 3 && [lindex $args 0] eq "-encoding"} {
+        set enc [encoding system]
+        encoding system [lindex $args 1]
+        uplevel 1 [list ::tcl_source [lindex $args 2]]
+        encoding system $enc
+    } else {
+        return -code error \
+            {wrong # args: should be "source ?-encoding encodingName? fileName"}
+    }
+}
+
 proc lempty { list } {
     if {[catch {expr [llength $list] == 0} ret]} { return 0 }
     return $ret
@@ -92,9 +107,38 @@ proc recursive_glob {dir pattern} {
 
 proc noop {args} {}
 
+proc open_text {file {mode "r"} args} {
+    set fp [open $file $mode]
+    eval fconfigure $fp $args
+
+    if {![catch {fileevent $fp readable}]} {
+        ## Look for an options: line followed by a blank line.
+        gets $fp line
+        if {[string match "# options: -*" $line] && [gets $fp] eq ""} {
+            eval fconfigure $fp [lrange $line 2 end]
+        } else {
+            seek $fp 0 start
+        }
+    }
+
+    if {[llength $args] && ![catch {fileevent $fp writable}]} {
+        puts $fp "# options: $args"
+        puts $fp ""
+    }
+
+    return $fp
+}
+
 proc read_file { file args } {
     set fp [open $file]
     eval [list fconfigure $fp] $args
+    set x [read $fp]
+    close $fp
+    return $x
+}
+
+proc read_textfile {file args} {
+    set fp [eval open_text [list $file] $args]
     set x [read $fp]
     close $fp
     return $x
@@ -3291,7 +3335,7 @@ proc ::InstallJammer::ObjExists { obj } {
 
 proc ::InstallJammer::ReadMessageCatalog { catalog } {
     set catalog [file join $::installkit::root catalogs $catalog]
-    eval [read_file $catalog -encoding utf-8]
+    eval [read_textfile $catalog]
 }
 
 proc ::InstallJammer::Wrap { args } {
@@ -3696,9 +3740,7 @@ proc ::InstallJammer::ReadProperties { data arrayName } {
 
 proc ::InstallJammer::ReadPropertyFile { file arrayName } {
     upvar 1 $arrayName array
-    set fp [open $file]
-    ::InstallJammer::ReadProperties [read $fp] array
-    close $fp
+    ::InstallJammer::ReadProperties [read_textfile $file] array
 }
 
 proc ::InstallJammer::ShowUsageAndExit { {message ""} {title ""} } {

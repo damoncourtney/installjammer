@@ -195,10 +195,9 @@ proc ::InstallJammer::UnpackMain {} {
 
     set conf(pwd) [file dirname [info nameofexe]]
 
-    if {![threaded]} {
-        set info(Temp) $conf(pwd)
-        uplevel #0 [list source [file join $conf(pwd) unpack.ini]]
-    }
+    if {![threaded]} { set info(Temp) $conf(pwd) }
+
+    uplevel #0 [list source -encoding utf-8 [lindex $::argv end]]
 
     set conf(stop)        [TmpDir .stop]
     set conf(pause)       [TmpDir .pause]

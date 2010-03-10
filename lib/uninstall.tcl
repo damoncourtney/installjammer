@@ -93,7 +93,7 @@ proc ::InstallJammer::GetUninstallInfo {} {
 
         set file [file join $dir $id.log]
         if {[file exists $file]} {
-            append data [read_file $file]
+            append data [read_textfile $file]
         }
     }
 
@@ -166,7 +166,8 @@ proc ::InstallJammer::CleanupInstallInfoDirs {} {
             }
         }
 
-        set fp [open [::InstallJammer::TmpDir $id.log] w]
+        set log [::InstallJammer::TmpDir $id.log]
+        set fp [open_text $log w -translation lf -encoding utf-8]
 
         foreach var [array names ::leftovers] {
             foreach list [lreverse $::leftovers($var)] {
@@ -176,7 +177,7 @@ proc ::InstallJammer::CleanupInstallInfoDirs {} {
 
         close $fp
 
-        ::InstallJammer::StoreLogsInUninstall
+        if {!$conf(windows)} { ::InstallJammer::StoreLogsInUninstall }
     }
 
     foreach id $conf(UninstallIDs) {
@@ -221,12 +222,40 @@ proc ::InstallJammer::CleanupTmpDir {} {
         ## we do is remove the temporary directory.
         set tmp [::InstallJammer::TmpDir ij[pid]cleanup.tcl]
         set fp [open $tmp w]
-        puts $fp "set dir [list [::InstallJammer::TmpDir]]"
+        puts $fp "catch {wm withdraw .}"
+        puts $fp "set temp [list [::InstallJammer::TmpDir]]"
+
+        if {[info exists conf(uninstall)]} {
+            puts $fp "set uninstall [list $conf(uninstall)]"
+        }
+
+        if {[info exists conf(uninstall)] && !$conf(UninstallRemoved)} {
+            ## The uninstaller was created but was not remvoed.  This
+            ## happens when we were unable to delete some file because
+            ## of permissions, so we need to store the remainder of our
+            ## install info into the uninstaller.  We do that here in
+            ## the cleanup because we have to wait until the uninstaller
+            ## becomes writable.
+            puts $fp {
+                set pattern {*[.info|.log|.dead]}
+                foreach file [glob -nocomplain -type f -dir $temp $pattern] {
+                    lappend files $file
+                    lappend names [file tail $file]
+                }
+                set i 0
+                while {[incr i] < 600 && [file exists $uninstall] &&
+                    [catch {installkit::addfiles $uninstall $files $names}]} {
+                    after 100
+                }
+            }
+        }
+
+        ## Attempt to cleanup our temp directory for about a minute and
+        ## then give up and move on.
         puts $fp {
-            catch {wm withdraw .}
             set i 0
-            while {[file exists $dir] && [incr i] < 600} {
-                catch {file delete -force -- $dir}
+            while {[file exists $temp] && [incr i] < 600} {
+                catch {file delete -force -- $temp}
                 after 100
             }
         }
@@ -237,7 +266,6 @@ proc ::InstallJammer::CleanupTmpDir {} {
             ## We want to make several safety checks before doing
             ## this though.
 
-            puts $fp "set uninstall [list $conf(uninstall)]"
             puts $fp {
                 set i 0
                 while {[file exists $uninstall] && [incr i] < 300} {

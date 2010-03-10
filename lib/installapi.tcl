@@ -982,24 +982,15 @@ proc ::InstallAPI::LoadMessageCatalog { args } {
     }
 
     foreach file $files lang $langs {
-        set fp [open $file]
+        set opts {}
         if {[info exists _args(-encoding)]} {
-            fconfigure $fp -encoding $_args(-encoding)
+            lappend opts -encoding $_args(-encoding)
         }
 
-        set data [string trim [gets $fp]]
-        if {[string index $data 0] eq "#"} {
-            catch { eval [list fconfigure $fp] [string trimleft $data #] }
-            set data [read $fp]
-        } else {
-            append data \n[read $fp]
-        }
-
+        set data [eval read_textfile [list $file] r $opts]
         if {[catch { ::msgcat::mcmset $lang $data } error]} {
-            close $fp
             return -code error "error reading message catalog '$file': $error"
         }
-        close $fp
     }
 
     if {[info exists _args(-data)]} {

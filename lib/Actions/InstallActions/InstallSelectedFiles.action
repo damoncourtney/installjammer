@@ -156,7 +156,7 @@ proc ::InstallJammer::actions::InstallSelectedFiles { obj } {
         thread::errorproc ::InstallJammer::HandleThreadError
 
         set conf(UnpackThread) $tid
-        thread::send $tid [list source $unpackInf]
+        thread::send $tid [list set ::argv [list $unpackInf]]
         thread::send -async $tid [list source $unpackScript]
     } else {
         set cmd "|[list $unpackBin] [list $unpackScript] -- [list $unpackInf]"

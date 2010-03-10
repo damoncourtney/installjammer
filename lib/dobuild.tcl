@@ -92,10 +92,14 @@ proc Progress { file in out } {
         echo [list :FILEPERCENT $x]
     }
 
-    set x [expr {round( ($::total * 100.0) / $::totalSize )}]
-    if {$x != $::lasttotal} {
-        set ::lasttotal $x
-        echo [list :PERCENT $x]
+    if {$::totalSize == 0} {
+        echo [list :PERCENT 100]
+    } else {
+        set x [expr {round( ($::total * 100.0) / $::totalSize )}]
+        if {$x != $::lasttotal} {
+            set ::lasttotal $x
+            echo [list :PERCENT $x]
+        }
     }
 }
 
@@ -104,8 +108,12 @@ proc Progress { file } {
 
     if {[string length $::lastfile]} {
         iincr ::total $::sizes($::lastfile)
-        set x [expr {round( ($::total * 100.0) / $::totalSize )}]
-        echo [list :PERCENT $x]
+        if {$::totalSize == 0} {
+            echo [list :PERCENT 100]
+        } else {
+            set x [expr {round( ($::total * 100.0) / $::totalSize )}]
+            echo [list :PERCENT $x]
+        }
     }
     echo [list :FILE $file]
     set ::lastfile $file
@@ -149,13 +157,14 @@ catch {
         }
     }
 
-    if {[info exists _argv(--archive-manifest)]} {
-        set outputDir $_argv(--output)
+    set build  $_argv(--build)
+    set output $_argv(--output)
 
+    if {[info exists _argv(--archive-manifest)]} {
         echo [list :ECHO "Building archives..."]
 
         set i 0
-        file mkdir $outputDir
+        file mkdir $output
         set manifest [read_file $_argv(--archive-manifest)]
         foreach {id file group size mtime method} $manifest {
             set sizes($file) $size
@@ -169,7 +178,7 @@ catch {
 
         foreach {id file group size mtime method} $manifest {
             if {![info exists fp($group)]} {
-                set archive [file join $outputDir setup[incr i].ijc]
+                set archive [file join $output setup[incr i].ijc]
                 set fp($group) [eval miniarc::open crap [list $archive] w $opts]
             }
             Progress $file
@@ -181,9 +190,28 @@ catch {
         }
     }
 
+    ## FIXME:  Remove this crud when all of the installkits get the ability
+    ## to do this in the next version.  This is renaming the main.tcl script
+    ## to main2.tcl and replacing main.tcl with a version that sources main2
+    ## in utf-8 encoding, which is what it's stored in.
+    set newMain [file join $build main.tcl]
+
+    set fp [open $newMain w]
+    puts $fp {set enc [encoding system]}
+    puts $fp {encoding system utf-8}
+    puts $fp {source [file join $::installkit::root main2.tcl]}
+    puts $fp {encoding system $enc}
+    close $fp
+
+    set x [lsearch -exact $args $_args(mainScript)]
+    set args [lreplace $args $x $x $newMain]
+
     echo [list :ECHO "Building install executable..."]
     if {[catch {eval ::installkit::wrap -command ::Progress $args}]} {
         echo $::errorInfo
+    } else {
+        installkit::addfiles $_args(executable) [list $_args(mainScript)] \
+            -name main2.tcl -corefile 1
     }
 } error
 

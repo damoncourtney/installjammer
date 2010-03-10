@@ -2929,16 +2929,7 @@ proc ::InstallJammer::LoadMessages { args } {
             unset -nocomplain messages
         }
 
-        set fp [open $file]
-        set line [string trim [gets $fp]]
-        if {[string index $line 0] eq "#"} {
-            catch { eval [list fconfigure $fp] [string trimleft $line #] }
-        } else {
-            seek $fp 0 start
-        }
-
-        set data [read $fp]
-        close $fp
+        set data [read_textfile $file]
 
         unset -nocomplain first
         foreach line [split $data \n] {

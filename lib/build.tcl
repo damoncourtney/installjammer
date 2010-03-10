@@ -655,12 +655,11 @@ proc ::InstallJammer::BuildFileManifest {filelist} {
 
     BuildLog "Building file manifest..."
 
-    set fp [open $conf(packManifest) w]
-    fconfigure $fp -translation lf
+    set fp [open_text $conf(packManifest) w -translation lf -encoding utf-8]
 
     if {$conf(buildArchives)} {
-        set ffp [open $conf(fileManifest) w]
-        fconfigure $ffp -translation lf
+        set ffp [open_text $conf(fileManifest) w -translation lf \
+            -encoding utf-8]
     }
 
     set i 0
@@ -1018,8 +1017,8 @@ proc Build { {platforms {}} } {
     BuildLog "Building message catalogs..."
 
     if {$real} {
-        set fp [open [::InstallJammer::BuildDir messages] w]
-        fconfigure $fp -translation lf -encoding utf-8
+        set msgfile [::InstallJammer::BuildDir messages]
+        set fp [open_text $msgfile w -translation lf -encoding utf-8]
         puts $fp [::InstallJammer::GetTextData -setups Install \
             -activeonly 1 -build 1]
         close $fp
@@ -1126,8 +1125,7 @@ proc BuildForPlatform { platform } {
 
     BuildLog "Building main.tcl..."
 
-    set fp [open $conf(main) w]
-    fconfigure $fp -translation lf
+    set fp [open_text $conf(main) w -translation lf -encoding utf-8]
 
     puts $fp [read_file [file join $conf(lib) header.tcl]]
 
@@ -1179,7 +1177,7 @@ proc BuildForPlatform { platform } {
     ## next time.
     if {$rebuildOnly && [file exists $conf(fileDataFile)]
         && [file exists $conf(executable)]} {
-        set fileData [read_file $conf(fileDataFile)]
+        set fileData [read_textfile $conf(fileDataFile)]
     } else {
         set rebuildOnly 0
         if {$conf(refreshFiles)} {
@@ -1192,9 +1190,9 @@ proc BuildForPlatform { platform } {
         ::InstallJammer::GetSetupFileList -platform $platform \
             -errorvar missing -listvar filelist -procvar fileData
 
-        set ofp [open $conf(fileDataFile) w]
-        fconfigure $ofp -translation lf
-        puts  $ofp $fileData
+        set ofp [open_text $conf(fileDataFile) w -translation lf \
+            -encoding utf-8]
+        puts $ofp $fileData
         close $ofp
     }
 
@@ -1379,6 +1377,7 @@ proc BuildForPlatform { platform } {
 
     set cmd [list [BuildBinary] $buildScript -o $conf(tmpExecutable)]
     eval lappend cmd $cmdargs
+    lappend cmd --build $conf(buildDir)
     lappend cmd --output $conf(outputDir)
 
     lappend cmd -temp [::InstallJammer::BuildDir]

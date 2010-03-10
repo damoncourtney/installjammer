@@ -1,4 +1,4 @@
-# -encoding utf-8
+# options: -encoding utf-8
 
 Background {
     Title

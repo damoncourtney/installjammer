@@ -466,7 +466,7 @@ proc ::InstallJammer::BuildUnpackInfo { groupList groupArray } {
 
     set unpack [TmpDir unpack.ini]
 
-    set fp [open $unpack w]
+    set fp [open_text $unpack w -translation lf -encoding utf-8]
 
     ## Some pieces of the internal configuration need to be
     ## sent to the unpack process.
@@ -500,6 +500,10 @@ proc ::InstallJammer::BuildUnpackInfo { groupList groupArray } {
     }
     puts $fp "}"
 
+    puts $fp $::InstallJammer::files(files.tcl)
+    puts $fp $::InstallJammer::files(setup.tcl)
+    puts $fp $::InstallJammer::files(components.tcl)
+
     close $fp
 
     return $unpack
@@ -514,11 +518,9 @@ proc ::InstallJammer::BuildUnpack {} {
     set unpack [TmpDir unpack.tcl]
     set conf(UnpackScript) $unpack
 
-    set fp [open $unpack w]
-    fconfigure $fp -translation lf
-    foreach file {common.tcl files.tcl setup.tcl components.tcl unpack.tcl} {
-	puts $fp $::InstallJammer::files($file)
-    }
+    set fp [open_text $unpack w -translation lf -encoding utf-8]
+    puts $fp $::InstallJammer::files(common.tcl)
+    puts $fp $::InstallJammer::files(unpack.tcl)
     close $fp
 
     return $unpack
@@ -602,8 +604,7 @@ proc ::InstallJammer::CreateApplicationInstallLog {} {
         set file [::InstallJammer::TmpDir $info(InstallID).info]
     }
 
-    set fp [open $file w]
-    fconfigure $fp -translation lf
+    set fp [open_text $file w -translation lf -encoding utf-8]
 
     set    string ""
     append string "ApplicationID: <%ApplicationID%>\n"
@@ -641,7 +642,9 @@ proc ::InstallJammer::CreateInstallLog { {file ""} } {
         }
     }
 
-    if {[catch { open $file w } fp]} { return }
+    if {[catch { open_text $file w -translation lf -encoding utf-8 } fp]} {
+        return
+    }
 
     ::InstallJammer::LogFile $file
 
@@ -702,12 +705,12 @@ proc ::InstallJammer::CheckAndUpdateInstallRegistry {} {
             file rename -force $file [file join $dir $newid.log]
 
             set file [file join $dir $newid.log]
-            foreach x [split [string trim [read_file $file]] \n] {
+            foreach x [split [string trim [read_textfile $file]] \n] {
                 if {[lindex $x 0] eq ":DIR"} {
                     set installdir [lindex $x 1]
 
-                    set fp [open [file join $dir $newid.info] w]
-                    fconfigure $fp -translation lf
+                    set info [file join $dir $newid.info]
+                    set fp [open_text $info w -translation lf -encoding utf-8]
                     puts  $fp "ApplicationID: $info(ApplicationID)"
                     puts  $fp "Dir:           $installdir"
                     puts  $fp "Date:          [file mtime $file]"
@@ -840,8 +843,9 @@ proc ::InstallJammer::StoreVersionInfo { {dir ""} {file ""} } {
         catch { file delete -force $file }
     }
 
-    if {[catch { open $file w } fp]} { return }
-    fconfigure $fp -translation lf
+    if {[catch {open_text $file w -translation lf -encoding utf-8} fp]} {
+        return
+    }
 
     ::InstallJammer::LogFile $file
 
@@ -870,7 +874,7 @@ proc ::InstallJammer::ReadVersionInfo {} {
     }
 
     if {[file exists $file]} {
-        set fp [open $file]
+        set fp [open_text $file]
 
         while {[gets $fp line] != -1} {
             switch -- [lindex $line 0] {
