@@ -690,7 +690,7 @@
             my set FallBackToConsole "Yes"
         }
 
-        if {[my name] eq "macos-x"} {
+        if {[my name] in "macos-x macos-x-pcc"} {
             my set BuildType ".app bundle"
             my set VersionDescription "<%AppName%> <%Version%> Setup"
         }

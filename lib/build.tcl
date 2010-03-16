@@ -212,8 +212,10 @@ proc ::InstallJammer::FinishBuild { {errors 0} } {
         Status "$pretty build errored." 3000
         ::InstallJammer::CallHook OnBuildFailure $platform
     } else {
-        if {$platform eq "MacOS-X"
-            && [$platform get BuildType] eq ".app bundle"} { BuildAppBundle }
+        if {$platform in "MacOS-X MacOS-X-ppc"
+            && [$platform get BuildType] eq ".app bundle"} {
+            BuildAppBundle $platform
+        }
 
         set secs  [expr [clock seconds] - $conf(buildForPlatformStart)]
         set fmt "%Mm%Ss"
@@ -822,7 +824,7 @@ proc PlatformProgress { amt } {
     }
 }
 
-proc BuildAppBundle {} {
+proc BuildAppBundle {platform} {
     global conf
 
     variable ::InstallJammer::buildInfo
@@ -842,7 +844,7 @@ proc BuildAppBundle {} {
     file copy -force $conf(executable) \
         [file join $appdir Contents MacOS installer]
 
-    set map [list @VersionDescription@ [sub [MacOS-X get VersionDescription]]]
+    set map [list @VersionDescription@ [sub [$platform get VersionDescription]]]
     foreach {var val} [array get buildInfo] {
         lappend map @$var@ [sub $val]
     }

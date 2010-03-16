@@ -78,6 +78,8 @@ proc ::InstallJammer::EditCopy {} {
     set tree [::InstallJammer::EditGetTree]
 
     if {$tree ne ""} {
+        ::InstallJammer::SaveActiveComponent
+
         set list [list ##IJCV1##]
         foreach item [::InstallJammer::EditGetSelectedItems] {
             lappend list [::InstallJammer::DumpObject $item]

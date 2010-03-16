@@ -1062,7 +1062,7 @@ proc ::InstallJammer::CreatePlatformFrame { platform } {
             executable installer or that the files should be packaged\
             separately in archives to be distributed with the installer"
 
-    if {$platform eq "MacOS-X"} {
+    if {$platform in "MacOS-X MacOS-X-ppc"} {
         $p insert end $node #auto -text "Build Type" \
             -values {".app bundle" "single executable"}  -editable 0 \
             -editfinishcommand $cmd -data BuildType \
@@ -1196,7 +1196,7 @@ proc ::InstallJammer::CreatePlatformFrame { platform } {
                 the Default Destination Directory will be used"
     }
 
-    if {$platform eq "MacOS-X"} {
+    if {$platform in "MacOS-X MacOS-X-ppc"} {
         $p insert end $node #auto -text "Version Description" \
             -editfinishcommand $cmd -data VersionDescription \
             -value [$platform get VersionDescription] \

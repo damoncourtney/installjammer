@@ -385,7 +385,7 @@ proc ::InstallJammer::DownloadPlatform { platform {error 1} } {
     foreach ver [list $conf(Version) $conf(MinorVersion)] {
         set url  $conf(DownloadURL)/installkit/$ver/$platform.zip
         set code 400
-        if {[catch {http::geturl $url -validate 1} tok]} {
+        if {![catch {http::geturl $url -validate 1} tok]} {
             set code [http::ncode $tok]
             http::cleanup $tok
         }
@@ -2055,11 +2055,17 @@ proc ::InstallJammer::EditTextFieldNode { path id field varName substVarName } {
     set entry [$path edit entrypath]
     set check $path.editTextFieldSubst
 
-    $check configure -variable $substVarName
+    $check configure -variable $substVarName -command \
+    	[list ::InstallJammer::ChangeTextFieldSubst $id $field $substVarName]
     pack  $check -in $frame -side left -before $entry
     raise $check
 
     return 1
+}
+
+proc ::InstallJammer::ChangeTextFieldSubst {id field substVarName} {
+    upvar #0 $substVarName subst
+    $id set $field,subst $subst
 }
 
 proc ::InstallJammer::FinishEditTextFieldNode { path id field varName
@@ -2782,6 +2788,7 @@ proc ::InstallJammer::Platform {} {
 	}
 
         "Darwin" {
+            if {$machine eq "ppc"} { return "MacOS-X-ppc" }
             return MacOS-X
         }
 
@@ -2947,7 +2954,7 @@ proc ::InstallJammer::GetActiveLanguages {} {
 proc ::InstallJammer::DumpObject { obj } {
     variable ::InstallJammer::Properties
 
-    ## List = type properties options textproperties children
+    ## List = type properties options children
     set list {}
 
     lappend list [$obj type]
@@ -2955,21 +2962,12 @@ proc ::InstallJammer::DumpObject { obj } {
     $obj properties props
     lappend list [array get props]
 
-    array set opts [$obj serialize]
+    array set opts [$obj options]
     foreach opt {-setup -parent -command -conditions} {
         unset -nocomplain opts($opt)
     }
 
     lappend list [array get opts]
-
-    set textprops {}
-    foreach prop [[$obj object] textfields] {
-        lappend textprops $prop
-        lappend textprops [::InstallJammer::GetText $obj $prop -subst 0]
-        lappend textprops [$obj get $prop,subst]
-    }
-
-    lappend list $textprops
 
     set childlist {}
     if {![catch { $obj conditions } conditions]} {
@@ -2990,11 +2988,9 @@ proc ::InstallJammer::DumpObject { obj } {
 }
 
 proc ::InstallJammer::CreateComponentFromDump { setup list {parent ""} } {
-    lassign $list type props opts textprops children
+    lassign $list type props opts children
 
     array set _opts $opts
-
-    set component $_opts(-component)
 
     set args [list]
 
@@ -3006,9 +3002,10 @@ proc ::InstallJammer::CreateComponentFromDump { setup list {parent ""} } {
         lappend args -title $_opts(-title)
     }
 
+    set component $_opts(-component)
     switch -- $type {
         "pane" - "window" {
-            set id [::InstallJammer::AddPane $setup $_opts(-component) \
+            set id [::InstallJammer::AddPane $setup $component \
                 -addnew 0 -title $_opts(-title)]
         }
 
@@ -3026,14 +3023,9 @@ proc ::InstallJammer::CreateComponentFromDump { setup list {parent ""} } {
     }
 
     if {$id ne ""} {
-        eval $id configure $opts
-
         $id set $props
 
-        foreach {prop lang text subst} $textprops {
-            ::InstallJammer::SetVirtualText $lang $id $prop $text
-            $id set $prop,subst $subst
-        }
+        eval $id configure $opts
 
         foreach childlist $children {
             ::InstallJammer::CreateComponentFromDump $setup $childlist $id
@@ -3195,7 +3187,10 @@ proc ::InstallJammer::HistoryAppend {place} {
     if {$conf(historyIndex) == $last} {
         incr conf(historyIndex)
     } else {
-        set conf(history) [lreplace $conf(history) $conf(historyIndex)+1 end]
+        set idx $conf(historyIndex)
+        if {[llength $conf(history)] >= ($idx + 1)} {
+            set conf(history) [lreplace $conf(history) $idx+1 end]
+        }
         set conf(historyIndex) [llength $conf(history)]
     }
     set prev [lindex $conf(history) end]
