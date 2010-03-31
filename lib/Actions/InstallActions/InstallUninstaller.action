@@ -70,7 +70,7 @@ proc ::InstallJammer::actions::InstallUninstaller { obj } {
 
     set uninstall [::InstallJammer::TmpDir uninstall.tcl]
 
-    set fp [open $uninstall w]
+    set fp [open_text $uninstall w -translation lf -encoding utf-8]
     puts $fp "namespace eval ::InstallAPI {}"
     puts $fp "namespace eval ::InstallJammer {}"
 
