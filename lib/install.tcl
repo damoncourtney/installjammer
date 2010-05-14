@@ -79,6 +79,8 @@ proc ::InstallJammer::UpdateInstallInfo {} {
 proc ::InstallJammer::SelectComponent { paneId } {
     global info
 
+    ::InstallJammer::UpdateInstallInfo
+
     set id   $paneId
     set tree [$id widget get ComponentTree]
     set text [$id widget get DescriptionText]
@@ -89,8 +91,6 @@ proc ::InstallJammer::SelectComponent { paneId } {
 
     ::InstallJammer::SetVirtualText $info(Language) $id \
         [list DescriptionText $desc]
-
-    ::InstallJammer::UpdateInstallInfo
 }
 
 proc ::InstallJammer::ToggleComponent { tree id node } {
