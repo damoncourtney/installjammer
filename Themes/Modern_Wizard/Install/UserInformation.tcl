@@ -41,6 +41,7 @@ proc CreateWindow.UserInformation { wizard id } {
 
     entry $frame.userEntry -textvariable info(UserInfoName)
     grid  $frame.userEntry -row 1 -column 0 -sticky ew
+    $id widget set UserNameEntry -widget $frame.userEntry -type entry
 
     label $frame.companyLabel -anchor w -padx 0
     grid  $frame.companyLabel -row 2 -column 0 -sticky w -pady 5
@@ -48,4 +49,5 @@ proc CreateWindow.UserInformation { wizard id } {
 
     entry $frame.companyEntry -textvariable info(UserInfoCompany)
     grid  $frame.companyEntry -row 3 -column 0 -sticky ew
+    $id widget set CompanyEntry -widget $frame.userEntry -type entry
 }
