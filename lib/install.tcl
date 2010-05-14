@@ -158,34 +158,30 @@ proc ::InstallJammer::ToggleComponent { tree id node } {
 proc ::InstallJammer::SelectSetupType { {node ""} } {
     global info
 
-    set change 1
-    if {$node ne ""} {
-        set name   [$node name]
-        set change [expr {$info(InstallType) ne $name}]
+    set name ""
+    if {$node eq "" || [set name [$node name]] ne $info(InstallType)} {
         set info(InstallType) $name
-
-        if {[::InstallJammer::WizardExists]} {
-            set id [$info(Wizard) raise]
-            if {$id eq ""} { return }
-
-            set text [$id widget get DescriptionText]
-            set list [$id widget get SetupTypeListBox]
-            if {$text eq "" || $list eq ""} { return }
-
-            set desc [::InstallJammer::GetText $node Description]
-            ::InstallJammer::SetText $text $desc
-            ::InstallJammer::SetVirtualText $info(Language) $id \
-                [list DescriptionText $desc]
-
-            $list selection set $node
-        }
-    }
-
-    if {$change} {
-        set name $info(InstallType)
-        set obj  [::InstallAPI::FindObjects -type setuptype -name $name]
+        set obj [::InstallAPI::FindObjects -type setuptype -name $name]
         if {$obj eq ""} { set obj [lindex [SetupTypes children] 0] }
         ::InstallAPI::SetActiveSetupType -setuptype $obj
+    }
+
+    if {$node ne "" && [::InstallJammer::WizardExists]} {
+        set id [$info(Wizard) raise]
+        if {$id eq ""} { return }
+
+        set text [$id widget get DescriptionText]
+        set list [$id widget get SetupTypeListBox]
+        if {$text eq "" || $list eq ""} { return }
+
+        ::InstallJammer::UpdateInstallInfo
+
+        set desc [::InstallJammer::GetText $node Description]
+        ::InstallJammer::SetText $text $desc
+        ::InstallJammer::SetVirtualText $info(Language) $id \
+            [list DescriptionText $desc]
+
+        $list selection set $node
     }
 }
 
