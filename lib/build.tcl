@@ -437,8 +437,8 @@ proc BuildGuiData {} {
     set data "proc ::InitGui {} \{"
 
     append data {
-        if {[info exists ::conf(initGui)]} { return }
-        set ::conf(initGui) 1
+        if {[info exists ::conf(InitGui)]} { return }
+        set ::conf(InitGui) 1
 
 	set ::conf(x11)  0
 	set ::conf(aqua) 0

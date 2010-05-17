@@ -870,10 +870,16 @@ proc ::InstallJammer::InitializeGui {} {
     global info
 
     if {[info exists ::InstallJammer]} { return }
-    if {[info exists conf(InitGui)]} { return }
-    set conf(InitGui) 1
+    if {[info exists conf(InitializeGui)]} { return }
+    set conf(InitializeGui) 1
+
     SourceCachedFile gui.tcl
     InitGui
+
+    ## InitGui might fail because Tk cannot be loaded or because
+    ## we don't have a DISPLAY to display to.  If that happens,
+    ## we don't want to keep going with the rest of the init.
+    if {!$info(GuiMode)} { return }
 
     if {$conf(osx)} {
         bind Text <Command-Tab> [bind Text <Tab>]
