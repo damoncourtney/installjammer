@@ -158,7 +158,7 @@ proc ::InstallJammer::ToggleComponent { tree id node } {
 proc ::InstallJammer::SelectSetupType { {node ""} } {
     global info
 
-    set name ""
+    set name $info(InstallType)
     if {$node eq "" || [set name [$node name]] ne $info(InstallType)} {
         set info(InstallType) $name
         set obj [::InstallAPI::FindObjects -type setuptype -name $name]
