@@ -4108,7 +4108,7 @@ proc ::InstallJammer::DisplayConditionFailure { id } {
     }
 
     if {$icon eq ""} { set icon "error" }
-    if {$title eq ""} { set title "Install Error" }
+    if {$title eq ""} { set title [sub "<%ErrorTitle%>"] }
 
     if {$message ne ""} {
         ::InstallJammer::Message -icon $icon -title $title -message $message
