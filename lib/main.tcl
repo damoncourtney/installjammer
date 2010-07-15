@@ -731,6 +731,12 @@ proc init {} {
         lappend ::auto_path $bindir
     }
 
+    if {[file exists [file join $conf(pwd) ramdebugger]]} {
+        lappend ::auto_path [file join $conf(pwd) ramdebugger addons]
+        package require commR
+        comm::register InstallJammer 1
+    }
+
     set verfile [file join $conf(pwd) .buildversion]
     set gitfile [file join $conf(pwd) .git refs heads v1.2]
     if {[file exists $verfile]} {
