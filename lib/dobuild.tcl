@@ -151,11 +151,12 @@ catch {
         }
 
         set opts [list -flatheaders 1]
-        if {[info exists _args(password)]} {
+        if {[info exists _args(password)] && $_args(password) ne ""} {
             lappend opts -password $_args(password)
         }
         foreach group [array names files] {
             set archive [file join $outputDir setup[incr i].ijc]
+            echo [list :ECHO "Building [file tail $archive]..."]
             set fp [miniarc::open crap $archive w {*}$opts]
             miniarc::addfilelist $fp $files($group) -progress Progress
             miniarc::close $fp

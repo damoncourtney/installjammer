@@ -25,8 +25,11 @@ if {![info exists tk_patchLevel]} { return }
 if {$::tcl_platform(platform) ne "unix"} { return }
 
 set consoleInterp [interp create]
+$consoleInterp eval [list set tcl_library $tcl_library]
 $consoleInterp eval [list set tk_library $tk_library]
+$consoleInterp eval [list ::tcl::tm::add {*}[::tcl::tm::list]]
 $consoleInterp alias exit exit
+$consoleInterp eval {package require msgcat}
 $consoleInterp eval {package require Tk}
 
 proc console { sub {optarg {}} } [subst -nocommands {

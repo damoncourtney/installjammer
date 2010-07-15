@@ -46,15 +46,15 @@ proc BWidget::use { args } {
             }
 
             "png" {
-                if {[catch { package require img::png } err]} {
-                    if {[catch { package require tkpng } err]} {
-                        return -code error "Could not find img::png or tkpng\
-                            package to support PNG data"
-                    } else {
-                        set ::BWidget::imageFormat png
+                set ::BWidget::imageFormat png
+                if {$::tk_version < 8.6} {
+                    set ::BWidget::imageFormat png
+                    if {[catch { package require img::png } err]} {
+                        if {[catch { package require tkpng } err]} {
+                            return -code error "could not find version or\
+                                extension to support PNG data"
+                        }
                     }
-                } else {
-                    set ::BWidget::imageFormat PNG
                 }
 
                 if {![info exists ::BWidget::iconLibraryFile]} {

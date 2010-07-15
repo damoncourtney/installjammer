@@ -123,6 +123,7 @@ proc TestInstall {} {
 
     set file [::InstallJammer::SubstText [$info(Platform) get Executable]]
     set dir  [InstallDir output]
+    set app  [file join $dir $file.app]
     if {[$info(Platform) get BuildSeparateArchives]} {
         set dir [InstallDir output/$info(Platform)]
     }
@@ -139,8 +140,12 @@ proc TestInstall {} {
     if {$conf(TestConsole)} {
         ::InstallJammer::ExecuteInTerminal $file $args
     } else {
-        if {$conf(osx) && [file exists $file.app] && ![llength $args]} {
-            exec open $file.app &
+        if {$conf(osx) && [file exists $app]} {
+            if {![llength $args]} {
+                exec open $app &
+            } else {
+                exec [file join $app Contents MacOS installer] {*}$args &
+            }
         } elseif {$conf(windows)} {
             installkit::Windows::shellExecute open $file $args
         } else {

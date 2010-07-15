@@ -91,6 +91,8 @@ proc ::InstallJammer::BuildOutput { line {errorInfo ""} } {
 
     ::InstallJammer::CheckForBuildStop
 
+    if {$line eq ""} { return }
+
     catch { lindex $line 0 } cmd
 
     if {$errorInfo ne ""} { set line $::errorInfo }
@@ -132,14 +134,16 @@ proc ::InstallJammer::LogPackedFile { file } {
 }
 
 proc ::InstallJammer::ReadBuild { fp } {
-    gets $fp line
+    set close 0
+    if {[gets $fp line] == -1} { set close 1 }
 
-    if {[string length $line]} {
-        ::InstallJammer::BuildOutput $line
-    }
+    ::InstallJammer::BuildOutput $line
 
-    if {[eof $fp]} {
-        catch { close $fp }
+    if {$close} {
+        if {[catch { close $fp } err]} {
+            BuildLog $err -tags error
+        }
+
         ::InstallJammer::FinishBuild
     }
 }
@@ -508,15 +512,9 @@ proc BuildGuiData {} {
             wm iconbitmap . -default [file join $conf(vfs) installkit.ico]
         }
         
-	if {[package vcompare [package require Tk] 8.5] >= 0} {
-	    namespace eval :: { namespace import ::ttk::style }
-	} else {
-	    package require tile
-	}
+        namespace eval :: { namespace import ::ttk::style }
 
         if {$conf(x11)} { ttk::setTheme jammer }
-
-        package require tkpng
 
         bind TButton <Return> "%W invoke; break"
     }
@@ -738,6 +736,7 @@ proc ::InstallJammer::BuildFileManifest {filelist} {
             puts $ffp $list
             if {![info exists archives($group)]} {
                 set archives($group) setup[incr i].ijc
+                lappend conf(archiveFiles) $archives($group)
             }
         } else {
             puts $fp [list $file $srcid $method]
@@ -836,13 +835,29 @@ proc BuildAppBundle {platform} {
         set defdir [file join $conf(lib) packages Default.app]
     }
 
-    set appdir [::InstallJammer::BuildDir $conf(executable).app]
+    set execdir [file dirname $conf(executable)]
+    if {$conf(buildArchives)} {
+        set appdir [file dirname $execdir]
+        set appdir [file join $appdir [file tail $conf(executable)].app]
+    } else {
+        set appdir [::InstallJammer::BuildDir $conf(executable).app]
+    }
+    if {[file exists $appdir] && !$conf(rebuildOnly)} {
+        file delete -force $appdir
+    }
     if {![file exists $appdir]} {
         file copy $defdir $appdir
     }
     file mkdir [file join $appdir Contents MacOS]
     file copy -force $conf(executable) \
         [file join $appdir Contents MacOS installer]
+
+    if {!$conf(rebuildOnly) && $conf(buildArchives)} {
+        foreach file $conf(archiveFiles) {
+            file copy -force [file join $execdir $file] \
+                [file join $appdir Contents MacOS]
+        }
+    }
 
     set map [list @VersionDescription@ [sub [$platform get VersionDescription]]]
     foreach {var val} [array get buildInfo] {
@@ -853,6 +868,8 @@ proc BuildAppBundle {platform} {
     set fp [open [file join $appdir Contents Info.plist] w]
     puts -nonewline $fp [string map $map $pinfo]
     close $fp
+
+    file mtime $appdir [clock seconds]
 }
 
 proc BuildProgress { amt } {
@@ -1166,6 +1183,7 @@ proc BuildForPlatform { platform } {
 
     set executable [::InstallJammer::SubstText [$platform get Executable]]
     set conf(outputDir)  [::InstallJammer::OutputDir]
+    set conf(archiveFiles)  {}
     set conf(buildArchives) [$platform get BuildSeparateArchives]
     if {$conf(buildArchives)} {
         set conf(setupFileList) {}

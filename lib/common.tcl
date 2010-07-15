@@ -3747,13 +3747,23 @@ proc ::InstallJammer::ParseCommandLineArguments { argv } {
 
     ::InstallJammer::InitializeCommandLineOptions
 
-    if {$conf(osx) && [string match "-psn_0_*" [lindex $argv 0]]} {
-        set argv [lreplace $argv 0 0]
-        set ::argv [lreplace $::argv 0 0]
-        set conf(cmdlineMessages) 0
-        set info(InAppBundle) 1
-        set info(AppBundlePath) \
-            [file join {*}[lrange [file split [info nameof]] 0 end-3]]
+    if {$conf(osx)} {
+        set exec [info nameofexecutable]
+        if {[string match "-psn_0_*" [lindex $argv 0]]} {
+            set argv [lreplace $argv 0 0]
+            set ::argv [lreplace $::argv 0 0]
+            set conf(cmdlineMessages) 0
+            set info(InAppBundle) 1
+        } elseif {[string match "*.app/Contents/MacOS" [file dirname $exec]]} {
+            set info(InAppBundle) 1
+        }
+
+        if {$info(InAppBundle)} {
+            set info(AppBundleExecutable) $exec
+            set info(AppBundlePath) \
+                [file join {*}[lrange [file split $exec] 0 end-3]]
+            set info(InstallSource) [file dirname $info(AppBundlePath)]
+        }
     }
 
     set i 0
@@ -4117,10 +4127,23 @@ proc ::InstallJammer::MountSetupArchives {} {
     set found 0
     if {[info exists info(ArchiveFileList)]} {
         foreach file $info(ArchiveFileList) {
-            set file [file join $info(InstallSource) $file]
-            if {[file exists $file]} {
+            set path ""
+            if {$info(InAppBundle)} {
+                set dir  [file join $info(AppBundlePath) Contents Resources]
+                set path [file join $dir $file]
+                if {![file exists $path]} {
+                    set dir  [file dirname $info(AppBundleExecutable)]
+                    set path [file join $dir $file]
+                }
+            }
+
+            if {![file exists $path]} {
+                set path [file join $info(InstallSource) $file]
+            }
+
+            if {[file exists $path]} {
                 set found 1
-                ::InstallJammer::Mount $file $conf(vfs)
+                ::InstallJammer::Mount $path $conf(vfs)
             }
         }
     }

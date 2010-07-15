@@ -1576,7 +1576,7 @@ proc ::InstallJammer::RebuildLocations {} {
     set conf(locations) [list]
 
     foreach obj [::obj::object instances File] {
-        set location [$id location]
+        set location [$obj location]
         if {$location ne ""} { lappend conf(locations) $location }
     }
 
