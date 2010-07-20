@@ -1086,6 +1086,7 @@ proc BuildForPlatform { platform } {
     file delete -force $conf(tmpExecutable)
 
     set executable [::InstallJammer::SubstText [$platform get Executable]]
+    set executable [regsub -all {[<>:\"/\\\|\?\*]} $executable "_"]
     set conf(outputDir)  [::InstallJammer::OutputDir]
     set conf(buildArchives) [$platform get BuildSeparateArchives]
     if {$conf(buildArchives)} {
