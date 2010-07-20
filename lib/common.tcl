@@ -2795,7 +2795,7 @@ proc ::InstallJammer::TmpDir { {file ""} } {
             lappend dirs C:/Temp
 
 	} else {
-	    lappend dirs /usr/tmp /tmp /var/tmp
+	    lappend dirs /tmp /usr/tmp /var/tmp
 	}
 
 	foreach dir $dirs {
