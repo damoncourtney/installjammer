@@ -198,8 +198,8 @@ proc ::InstallJammer::actions::UninstallSelectedFiles {obj {forceUninstall 0}} {
                 eval lappend files [glob -nocomplain -dir $dir -type hidden *]
                 if {[llength $files] == 1} { continue }
             }
-            append info(Errors) "[::InstallJammer::Normalize $dir $p] "
-            append info(Errors) "is not empty\n"
+            set info(Dir) [::InstallJammer::Normalize $dir $p]
+            append info(Errors) [sub "<%DirectoryNotEmptyText%>"]
         }
     }
 
