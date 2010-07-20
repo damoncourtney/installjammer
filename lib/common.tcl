@@ -546,6 +546,51 @@ proc ::msgcat::mcclear { locale } {
     unset -nocomplain ::msgcat::Msgs_${locale}
 }
 
+## Procs for testing
+
+proc inject {cmd args} {
+    variable ::InstallJammer::tests
+
+    switch -- $cmd {
+        "before" - "after" {
+            lassign $args id script
+            lappend tests($cmd,$id) $script
+        }
+
+        "enter" - "leave" {
+            lassign $args proc script
+            trace add exec $proc $cmd [list inject run $script] }
+
+        "run" {
+            set test [lindex $args 0]
+            if {[info exists tests($test)]} {
+                foreach script $tests($test) {
+                    uplevel #0 $script
+                }
+            } else {
+                uplevel #0 $test
+            }
+        }
+    }
+}
+
+proc test_pressButton {button} {
+    set found 0
+    foreach top [::InstallJammer::Grab stack] {
+        foreach w [::InstallJammer::GetAllWidgets $top] {
+            set c [winfo class $w]
+            if {$c eq "Button" || $c eq "TButton"} {
+                if {[$w cget -text] eq $button} {
+                    set found 1
+                    $w invoke
+                    break
+                }
+            }
+        }
+        if {$found} { break }
+    }
+}
+
 namespace eval ::InstallJammer {}
 namespace eval ::InstallJammer::actions {}
 namespace eval ::InstallJammer::conditions {}
@@ -1469,6 +1514,13 @@ proc ::InstallJammer::RaiseEventHandler { wizard } {
 
     debug "Displaying pane $id - [$id title]" $id
 
+    set component [$id component]
+    if {[info exists ::InstallJammer::tests(before,$id)]} {
+        inject run before,$id
+    } elseif {[info exists ::InstallJammer::tests(before,$component)]} {
+        inject run before,$component
+    }
+
     ::InstallJammer::ExecuteActions $id -when $when
 
     ## If the wizard isn't currently displaying our object, then
@@ -1531,6 +1583,12 @@ proc ::InstallJammer::RaiseEventHandler { wizard } {
 
         set when "After Pane is Displayed"
         ::InstallJammer::ExecuteActions $id -when $when
+    }
+
+    if {[info exists ::InstallJammer::tests(after,$id)]} {
+        inject run after,$id
+    } elseif {[info exists ::InstallJammer::tests(after,$component)]} {
+        inject run after,$component
     }
 
     set info(WizardLastStep)  0
@@ -3368,7 +3426,9 @@ proc ::InstallJammer::Grab { command args } {
     variable GrabStack
 
     if {![info exists GrabStack]} {
+        global info
         set GrabStack [list]
+        if {[info exists info(Wizard)]} { lappend GrabStack $info(Wizard) }
         bind GrabWindow <Destroy> [list ::InstallJammer::Grab release %W]
     }
 
@@ -4253,6 +4313,15 @@ proc ::InstallJammer::GetCommonInstallkit { {base ""} } {
     return  [eval ::InstallJammer::Wrap $opts [list $main]]
 }
 
+proc ::InstallJammer::GetAllWidgets {parent} {
+    set widgets [list $parent]
+    foreach w [winfo children $parent] {
+        lappend widgets $w
+        eval lappend widgets [::InstallJammer::GetAllWidgets $w]
+    }
+    return $widgets
+}
+
 package require Itcl
 
 proc ::InstallJammer::Class { name body } {
@@ -5080,6 +5149,12 @@ itcl::class File {
         ::set ::info(CurrentAction) $id
         ::InstallJammer::CurrentObject push $id
 
+        if {[info exists ::InstallJammer::tests(before,$id)]} {
+            inject run before,$id
+        } elseif {[info exists ::InstallJammer::tests(before,$type)]} {
+            inject run before,$type
+        }
+
         ## Remember our current directory.
         if {[file exists .]} { ::set pwd [pwd] }
 
@@ -5091,6 +5166,12 @@ itcl::class File {
         if {[info exists pwd] && [file exists .]
             && [file exists $pwd] && $pwd ne [pwd]} {
             cd $pwd
+        }
+
+        if {[info exists ::InstallJammer::tests(after,$id)]} {
+            inject run after,$id
+        } elseif {[info exists ::InstallJammer::tests(after,$type)]} {
+            inject run after,$type
         }
 
         ::InstallJammer::CurrentObject pop
@@ -5290,9 +5371,21 @@ itcl::class File {
         ::set ::info(CurrentCondition) $id
         ::InstallJammer::CurrentObject push $id
 
+        if {[info exists ::InstallJammer::tests(before,$id)]} {
+            inject run before,$id
+        } elseif {[info exists ::InstallJammer::tests(before,$component)]} {
+            inject run before,$component
+        }
+
         ::set res [string is true [::InstallJammer::conditions::$component $id]]
         if {!$res && $showError} {
             ::InstallJammer::DisplayConditionFailure $id
+        }
+
+        if {[info exists ::InstallJammer::tests(after,$id)]} {
+            inject run after,$id
+        } elseif {[info exists ::InstallJammer::tests(after,$component)]} {
+            inject run after,$component
         }
 
         ::InstallJammer::CurrentObject pop

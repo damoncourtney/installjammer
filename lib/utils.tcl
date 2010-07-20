@@ -3218,3 +3218,39 @@ proc ::InstallJammer::GetWindowGeometry {window default} {
     set WindowGeometry($window) $geometry
     return $geometry
 }
+
+proc ::InstallJammer::SendReadySignal {} {
+    global conf
+
+    if {![info exists conf(commandSocks)]} { return }
+
+    update
+    foreach sock $conf(commandSocks) {
+        puts  $sock "OK"
+        flush $sock
+    }
+}
+
+proc ::InstallJammer::AcceptCommandConnection {sock ip port} {
+    global conf
+
+    lappend conf(commandSocks) $sock
+    fconfigure $sock -blocking 0 -buffering line -buffersize 1000000
+    fileevent  $sock readable [list ::InstallJammer::ReadCommandPort $sock]
+}
+
+proc ::InstallJammer::ReadCommandPort {sock} {
+    global conf
+
+    set data [read $sock]
+
+    if {$data eq ""} {
+        catch {close $sock}
+        set conf(commandSocks) [lremove $conf(commandSocks) $sock]
+    } else {
+        catch {uplevel #0 $data} result
+        puts  $sock $result
+        puts  $sock "OK"
+        flush $sock
+    }
+}

@@ -81,6 +81,7 @@ proc ParseCommandLineArgs {} {
         -d -p
 	--build-dir
         --build-log-file
+        --command-port
         --control-script
 	--output-dir
         --platform
@@ -144,6 +145,10 @@ proc ParseCommandLineArgs {} {
 
             "--build-log-file" {
                 set conf(buildLogFile) $val
+            }
+
+            "--command-port" {
+                set conf(commandPort) $val
             }
 
 	    "--control-script" - "-d" {
@@ -665,6 +670,11 @@ proc init {} {
     uplevel #0 source [list [file join $conf(lib) common.tcl]]
     uplevel #0 source [list [file join $conf(lib) utils.tcl]]
 
+    if {[info exists conf(commandPort)]} {
+        set conf(commandSock) [socket -server \
+            ::InstallJammer::AcceptCommandConnection $conf(commandPort)]
+    }
+
     set conf(bin) [file join $conf(pwd) Binaries [::InstallJammer::Platform]]
 
     ## We want our directories in front incase the user has an older
@@ -814,6 +824,8 @@ proc init {} {
 }
 
 proc main {} {
+    global conf
+
     set base .installjammer
 
     Status "Building windows..."
@@ -848,6 +860,10 @@ proc main {} {
         set file [lindex $::argv 0]
         set file [file normalize $file]
         Open $file
+    }
+
+    if {[info exists conf(commandPort)]} {
+        ::InstallJammer::SendReadySignal
     }
 
     return

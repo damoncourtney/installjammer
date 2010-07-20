@@ -282,6 +282,10 @@ proc BuildDone { {errors 0} } {
     } elseif {!$conf(buildStopped)} {
         BuildLog "Build completed in $time."
         Status "Build complete." 3000
+        if {$conf(cmdline) && !$conf(silent)} {
+            puts  stdout "Installer: [file normalize $conf(executable)]"
+            flush stdout
+        }
     } else {
         BuildLog "Build stopped by user." -tags error
         Status "Build stopped." 3000
@@ -901,7 +905,7 @@ proc Build { {platforms {}} } {
 	return
     }
 
-    if {$conf(modified)} {
+    if {$conf(modified) && !$conf(cmdline)} {
 	set msg "This project has been modified.  "
 	append msg "Do you want to save before building?"
 	set res [::InstallJammer::MessageBox \
