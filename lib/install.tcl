@@ -1022,7 +1022,7 @@ proc ::InstallJammer::AskUserLanguage {} {
     pack $f.cb
 
     $top add -name ok     -text "OK"
-    $top add -name cancel -text "Cancel"
+    $top add -name cancel -text "Cancel" -command {::InstallJammer::exit 1}
 
     foreach code [::msgcat::mcpreferences] {
         set lang [::InstallJammer::GetLanguage $code]
