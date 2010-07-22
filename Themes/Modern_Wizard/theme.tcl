@@ -38,7 +38,7 @@ proc ::InstallJammer::theme::NewProject { arrayName } {
         if {$vars(ViewReadmeCheckbutton)} {
             set act [::InstallJammer::AddAction Install AddWidget \
                 -parent $pane -title "View Readme Checkbutton"]
-            $act set Type checkbutton X 185 Y $y Background white \
+            $act set Type checkbutton X 185 Y $y Background #FFFFFF \
                 VirtualText ViewReadme
             $act title "View Readme Checkbutton"
             ::InstallJammer::SetVirtualText en $act Text "<%ViewReadmeText%>"
@@ -57,7 +57,7 @@ proc ::InstallJammer::theme::NewProject { arrayName } {
             incr y 20
             set act [::InstallJammer::AddAction Install AddWidget \
                 -parent $pane -title "Launch Application Checkbutton"]
-            $act set Type checkbutton X 185 Y $y Background white \
+            $act set Type checkbutton X 185 Y $y Background #FFFFFF \
                 VirtualText LaunchApplication
             $act title "Launch Application Checkbutton"
             ::InstallJammer::SetVirtualText en $act \
@@ -77,7 +77,7 @@ proc ::InstallJammer::theme::NewProject { arrayName } {
             incr y 20
             set act [::InstallJammer::AddAction Install AddWidget \
                 -parent $pane -title "Desktop Shortcut Checkbutton"]
-            $act set Type checkbutton X 185 Y $y Background white \
+            $act set Type checkbutton X 185 Y $y Background #FFFFFF \
                 VirtualText CreateDesktopShortcut
             ::InstallJammer::SetVirtualText en $act \
                 Text "<%CreateDesktopShortcutText%>"
@@ -96,7 +96,7 @@ proc ::InstallJammer::theme::NewProject { arrayName } {
             incr y 20
             set act [::InstallJammer::AddAction Install AddWidget \
                 -parent $pane -title "Quick Launch Shortcut Checkbutton"]
-            $act set Type checkbutton X 185 Y $y Background white \
+            $act set Type checkbutton X 185 Y $y Background #FFFFFF \
                 VirtualText CreateQuickLaunchShortcut
             ::InstallJammer::SetVirtualText en $act Text \
                 "<%CreateQuickLaunchShortcutText%>"

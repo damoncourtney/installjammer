@@ -274,7 +274,7 @@ proc DropSite::_init_drag { top evt source state X Y type ops data } {
     set _data    $data
 
     label $_opw -relief flat -bd 0 -highlightthickness 0 \
-        -foreground black -background white
+        -foreground #000000 -background #FFFFFF
 
     bind $top <ButtonRelease-$evt> {DropSite::_release %X %Y}
     bind $top <B$evt-Motion>       {DropSite::_motion  %X %Y}

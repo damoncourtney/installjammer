@@ -33,7 +33,7 @@ proc CreateWindow.ChooseComponents { wizard id } {
     grid $base.sw -row 0 -column 0 -sticky news -pady [list 4 0]
 
     set tree [OptionTree $base.tree -bd 2 -relief sunken \
-        -background white -highlightthickness 0 -toggleselect 0]
+        -background #FFFFFF -highlightthickness 0 -toggleselect 0]
     $base.sw setwidget $tree
     $id widget set ComponentTree -widget $tree -type tree
 

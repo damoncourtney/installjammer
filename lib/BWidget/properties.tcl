@@ -743,8 +743,10 @@ proc Properties::_create_root_node { path parent node } {
         -maxheight 10000 -maxheight 10000 -padx $padx -pady $pady \
         -variable [Widget::widgetVar $path.$node tableData]
 
-    $table tag configure sel    -relief sunken -background $bg -foreground black
-    $table tag configure active -relief sunken -background $bg -foreground black
+    $table tag configure sel    -relief sunken -background $bg \
+        -foreground #000000
+    $table tag configure active -relief sunken -background $bg \
+        -foreground #000000
 
     $table tag col $node-label 0
     $table tag col $node-value 1
@@ -932,7 +934,7 @@ proc Properties::_select_node { path {item ""} } {
     set fg [Widget::cget $path -selectforeground]
 
     if {[string length $data(selected)]} {
-        $path.c itemconfigure l:$data(selected) -fill black
+        $path.c itemconfigure l:$data(selected) -fill #000000
     }
     $path.c delete sel
 

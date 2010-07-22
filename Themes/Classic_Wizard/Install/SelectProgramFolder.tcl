@@ -51,7 +51,7 @@ proc CreateWindow.SelectProgramFolder { wizard id } {
     grid columnconfigure $base.frame 0 -weight 1
 
     listbox $base.frame.list \
-        -bg white -highlightthickness 0 -selectmode single \
+        -bg #FFFFFF -highlightthickness 0 -selectmode single \
         -xscrollcommand "$base.frame.hs set" \
         -yscrollcommand "$base.frame.vs set"
     grid $base.frame.list -row 0 -column 0 -sticky news

@@ -90,7 +90,7 @@ namespace eval TableList {
             -browsecommand -browsecmd -selectioncommand -selcmd
             -command -usecommand -validate -validatecommand -vcmd
         } initialize {
-            -background white -sparsearray 0 -rows 1 -relief flat
+            -background #FFFFFF -sparsearray 0 -rows 1 -relief flat
             -cursor "" -colstretchmode last -anchor w
             -multiline 0 -ellipsis ... -selecttype row -selectmode single
             -bordercursor sb_h_double_arrow -exportselection 0
