@@ -315,7 +315,7 @@ proc ::InstallJammer::InstallJammerHome { {file ""} } {
 proc ::InstallJammer::GuiInit {} {
     global conf
 
-    DynamicHelp::configure -topbg black -bd 1 -bg #FFFFDC -padx 2 -pady 3
+    DynamicHelp::configure -topbg #000000 -bd 1 -bg #FFFFDC -padx 2 -pady 3
 
     IconLibrary InstallJammerIcons
 
@@ -323,8 +323,8 @@ proc ::InstallJammer::GuiInit {} {
     option add *Menu.tearOff                                0
 
     option add *Installjammer*highlightThickness            0
-    option add *Installjammer*Listbox.background            white
-    option add *Installjammer*ListBox.background            white
+    option add *Installjammer*Listbox.background            #FFFFFF
+    option add *Installjammer*ListBox.background            #FFFFFF
     option add *Installjammer*Listbox.selectBorderWidth     0
     option add *Installjammer*Entry.selectBorderWidth       0
     option add *Installjammer*Text.selectBorderWidth        0
@@ -334,12 +334,12 @@ proc ::InstallJammer::GuiInit {} {
     option add *Installjammer*Menubutton.activeBorderWidth  2
     option add *Installjammer*Menubutton.highlightThickness 0
     option add *Installjammer*Menubutton.borderWidth        2
-    option add *Installjammer*Tree.background               white
+    option add *Installjammer*Tree.background               #FFFFFF
     option add *Installjammer*Properties*editfinishcommand  \
         [list ::InstallJammer::EditFinishProperty %W %n]
 
     option add *Tree*highlightThickness                     0
-    option add *ComboBox*Entry*background                   white
+    option add *ComboBox*Entry*background                   #FFFFFF
 
     #option add *Installjammer*Panedwindow.borderWidth       0
     #option add *Installjammer*Panedwindow.sashWidth         3

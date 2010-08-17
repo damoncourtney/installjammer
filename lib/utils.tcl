@@ -1286,7 +1286,7 @@ proc GetColor { w varName {property 0} } {
 
     set top [::InstallJammer::TopName .__getColor]
 
-    if {$color eq "" || $color eq "system"} { set color white }
+    if {$color eq "" || $color eq "system"} { set color #FFFFFF }
 
     set newcolor [SelectColor::menu $top [list right $w] -color $color]
 
@@ -1605,7 +1605,7 @@ proc ::InstallJammer::AddPane { setup pane args } {
 
     $pref insert $index $parent $id -text $data(-title) -image $image \
         -data pane -createcommand [list CreatePaneFrame $id] \
-        -fill [expr {$new ? "blue" : "black"}]
+        -fill [expr {$new ? "#0000FF" : "#000000"}]
 
     if {$new && $data(-addnew)} {
         variable ::InstallJammer::actions

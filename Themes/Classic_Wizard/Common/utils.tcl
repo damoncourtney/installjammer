@@ -41,13 +41,13 @@ proc ::Progressbar::Init {} {
     option add *Progressbar.relief	sunken	widgetDefault
 
     array set options {
-	-troughcolor	"white"
+	-troughcolor	"#FFFFFF"
 	-value  	0
 	-text		"0%"
-	-foreground	"black"
+	-foreground	"#000000"
 	-showtext	1
-	-doneforeground	"white"
-	-background	"darkblue"
+	-doneforeground	"#FFFFFF"
+	-background	"#1B009C"
 	-height		20
 	-width		200
     }

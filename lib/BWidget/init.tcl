@@ -57,16 +57,16 @@ namespace eval ::BWidget {
     } else {
         array set colors {
             SystemButtonFace    #d9d9d9
-            SystemButtonText    black
+            SystemButtonText    #000000
             SystemDisabledText  #a3a3a3
             SystemHighlight     #c3c3c3
-            SystemHighlightText white
+            SystemHighlightText #FFFFFF
             SystemMenu          #d9d9d9
-            SystemMenuText      white
+            SystemMenuText      #FFFFFF
             SystemScrollbar     #d9d9d9
-            SystemWindow        white
+            SystemWindow        #FFFFFF
             SystemWindowFrame   #d9d9d9
-            SystemWindowText    black
+            SystemWindowText    #000000
         }
     }
 

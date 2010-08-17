@@ -265,7 +265,7 @@ proc SelectFont::dialog { path args } {
     pack $labf2 -side left -anchor n -fill both -expand yes -padx 8
     pack $labf3 -side left -anchor n -fill both -expand yes
 
-    text $frame.sample -bg white -width 0 -height 3 \
+    text $frame.sample -bg #FFFFFF -width 0 -height 3 \
         -font "Courier 10" -wrap none
     $frame.sample tag configure text -justify center -font $font
     $frame.sample insert end [Widget::cget $widg -sampletext] text

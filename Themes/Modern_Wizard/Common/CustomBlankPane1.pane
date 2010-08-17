@@ -29,7 +29,7 @@ Property Active  boolean "Active"  "No"
 Property Buttons buttons "Buttons" "Back/Next/Cancel"
 Property Image   image   "Image"   "<%Image%>"
 
-Property WizardOptions hidden "Wizard Options" [list -bg white -separator 0]
+Property WizardOptions hidden "Wizard Options" [list -bg #FFFFFF -separator 0]
 
 Text Caption
 Text Message

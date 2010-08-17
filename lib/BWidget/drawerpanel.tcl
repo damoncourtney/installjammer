@@ -52,8 +52,8 @@ namespace eval DrawerPanel {
 
     Widget::declare DrawerPanel {
 	{-font		         String       "TkTextFont"      0}
-	{-panelbackground        String       "white"           0}
-	{-panelforeground        String       "black"           0}
+	{-panelbackground        String       "#FFFFFF"         0}
+	{-panelforeground        String       "#000000"         0}
 	{-panelbackground2       String       "#9898b534ffff"   0}
 	{-panelactiveforeground  Color        "SystemHighlight" 0}
         {-panelheight            Int          20                0 "%d > 0"}

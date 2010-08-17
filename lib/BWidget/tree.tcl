@@ -79,7 +79,7 @@ namespace eval Tree {
             -insertontime -selectborderwidth -closeenough -confine -scrollregion
             -xscrollincrement -yscrollincrement -width -height
         } initialize {
-            -background white -relief sunken -borderwidth 2 
+            -background #FFFFFF -relief sunken -borderwidth 2 
 	    -takefocus 1 -highlightthickness 1 -width 200
         }
 

@@ -46,7 +46,7 @@ proc OptionTree::create { path args } {
     array set maps [list Tree {} .c {} OptionTree {}]
     array set maps [Widget::splitArgs $args Tree OptionTree]
 
-    eval [list Tree::create $path -bg white -showlines 0] $maps(Tree)
+    eval [list Tree::create $path -bg #FFFFFF -showlines 0] $maps(Tree)
     eval [list $path.c configure] $maps(.c)
 
     Widget::initFromODB OptionTree $opath $maps(OptionTree)

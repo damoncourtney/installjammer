@@ -29,11 +29,11 @@ proc ::ThemeSetup {} {
 	option add *selectForeground    [style default . -selectforeground]
 	option add *selectBackground    [style default . -selectbackground]
 
-	option add *Listbox.background  white
+	option add *Listbox.background  #FFFFFF
 
-	option add *Entry.background    white
+	option add *Entry.background    #FFFFFF
 	option add *Entry.borderWidth   1
 
-	option add *Text.background     white
+	option add *Text.background     #FFFFFF
     }
 }

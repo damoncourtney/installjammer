@@ -73,7 +73,7 @@ proc ::InstallJammer::actions::TextWindow { obj } {
         $id widget set Caption -widget $top.caption
     }
 
-    text $top.message -bg white -bd 2 -relief sunken -wrap $props(TextWrap) \
+    text $top.message -bg #FFFFFF -bd 2 -relief sunken -wrap $props(TextWrap) \
         -yscrollcommand [list $top.vs set] -xscrollcommand [list $top.hs set]
 
     if {$props(Font) ne ""} {

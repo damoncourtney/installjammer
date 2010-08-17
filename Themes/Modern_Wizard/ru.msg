@@ -1,3 +1,5 @@
+# options: -encoding utf-8
+
 ChooseComponents {
     Title
     "Выбор компонент для установки"

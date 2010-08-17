@@ -44,7 +44,7 @@ proc CreateWindow.ChooseComponents { wizard id } {
     grid rowconfigure    $base.frame 0 -weight 1
     grid columnconfigure $base.frame 0 -weight 1
 
-    OptionTree $tree -bg white -relief flat -toggleselect 0 \
+    OptionTree $tree -bg #FFFFFF -relief flat -toggleselect 0 \
         -yscrollcommand [list $base.frame.vs set]
     grid $tree -row 0 -column 0 -sticky news
     $id widget set ComponentTree -widget $base.frame.tree -type tree

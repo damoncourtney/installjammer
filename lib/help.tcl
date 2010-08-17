@@ -160,7 +160,7 @@ proc Window.installjammer.help { file } {
 
     ScrolledWindow $top.sw
     set html $top.sw.html
-    html $html -width 500 -height 400 -bg white -base $conf(help)/trash \
+    html $html -width 500 -height 400 -bg #FFFFFF -base $conf(help)/trash \
     	-imagecommand AddHelpImage
     $top.sw setwidget $top.sw.html
 

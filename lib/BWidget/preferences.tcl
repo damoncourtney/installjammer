@@ -107,7 +107,7 @@ proc Preferences::create { path args } {
     ScrolledWindow $pane1.sw
     pack $pane1.sw -expand 1 -fill both
 
-    eval Tree $pane1.t -linesfill gray -padx 2 $maps(.panes.treeframe.t)
+    eval Tree $pane1.t -linesfill #CACACA -padx 2 $maps(.panes.treeframe.t)
     $pane1.sw setwidget $pane1.t
     $pane1.t bindText  <1> [list $path raise]
     $pane1.t bindImage <1> [list $path raise]

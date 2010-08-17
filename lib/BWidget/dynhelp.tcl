@@ -20,8 +20,8 @@ namespace eval DynamicHelp {
     Widget::define DynamicHelp dynhelp -classonly
 
     Widget::declare DynamicHelp {
-        {-foreground     Color      black           0}
-        {-topbackground  Color      black           0}
+        {-foreground     Color      "#000000"       0}
+        {-topbackground  Color      "#000000"       0}
         {-background     Color      "#FFFFC0"       0}
         {-borderwidth    Int        1               0}
         {-justify        TkResource left            0 label}

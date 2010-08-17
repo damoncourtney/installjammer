@@ -119,7 +119,7 @@ proc CreateWindow.Background { wizard id } {
     ::InstallJammer::SetTitle $base $id
 
     set gradient   0
-    set background "white"
+    set background "#FFFFFF"
     $id get TitleFont font
     $id get TextColor foreground
     $id get BackgroundGradient1 gradient1

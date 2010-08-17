@@ -28,23 +28,24 @@ proc CreateWindow.CustomBlankPane2 { wizard id } {
     grid rowconfigure    $base 3 -weight 1
     grid columnconfigure $base 0 -weight 1
 
-    frame $frame -bd 0 -relief flat -background white
+    frame $frame -bd 0 -relief flat -background #FFFFFF
     grid  $frame -row 0 -column 0 -sticky nsew
 
     grid rowconfigure    $frame 1 -weight 1
     grid columnconfigure $frame 0 -weight 1
 
-    Label $frame.title -background white -anchor nw -justify left -autowrap 1 \
-        -font TkCaptionFont -textvariable [$wizard variable $id -text1]
+    Label $frame.title -background #FFFFFF -anchor nw -justify left \
+        -autowrap 1 -font TkCaptionFont \
+        -textvariable [$wizard variable $id -text1]
     grid $frame.title -row 0 -column 0 -sticky new -padx 5 -pady 5
     $id widget set Title -widget $frame.title
 
-    Label $frame.subtitle -background white -anchor nw -autowrap 1 \
+    Label $frame.subtitle -background #FFFFFF -anchor nw -autowrap 1 \
         -justify left -textvariable [$wizard variable $id -text2]
     grid $frame.subtitle -row 1 -column 0 -sticky new -padx [list 20 5]
     $id widget set Subtitle -widget $frame.subtitle
 
-    label $frame.icon -borderwidth 0 -background white -anchor c
+    label $frame.icon -borderwidth 0 -background #FFFFFF -anchor c
     grid  $frame.icon -row 0 -column 1 -rowspan 2
     $id widget set Icon -widget $frame.icon -type image
 

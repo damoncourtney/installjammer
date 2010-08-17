@@ -389,7 +389,7 @@ proc ArrowButton::_redraw_state { path } {
         switch $state {
             normal   { set bg [Widget::getoption $path -background] }
             active   { set bg [Widget::getoption $path -activebackground] }
-            disabled { set stipple gray50; set bg black }
+            disabled { set stipple #919191; set bg #000000 }
         }
         set thrc [Widget::getoption $path -troughcolor]
         $path.c configure -background [Widget::getoption $path -background]

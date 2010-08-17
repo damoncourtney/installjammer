@@ -30,7 +30,7 @@ proc PROPERTIES { path args } {
 }
 
 proc COMBOBOX { path args } {
-    eval ComboBox $path -entrybg white -autocomplete 1 -hottrack 1 $args
+    eval ComboBox $path -entrybg #FFFFFF -autocomplete 1 -hottrack 1 $args
 }
 
 tile::setTheme jammer
@@ -45,12 +45,12 @@ option add *Installjammer*background         [style default . -background]
 option add *Installjammer*selectForeground   [style default . -selectforeground]
 option add *Installjammer*selectBackground   [style default . -selectbackground]
 
-option add *Installjammer*Listbox.background           white
+option add *Installjammer*Listbox.background           #FFFFFF
 
-option add *Installjammer*Entry.background             white
+option add *Installjammer*Entry.background             #FFFFFF
 option add *Installjammer*Entry.borderWidth            1
 
-option add *Installjammer*Text.background              white
+option add *Installjammer*Text.background              #FFFFFF
 
 option add *Installjammer*Menu.relief                  flat
 option add *Installjammer*Menu.activeBackground \

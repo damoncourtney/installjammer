@@ -156,7 +156,7 @@ proc ChooseFile::create { path args } {
     }
     pack $data(FolderCombo) -side left -padx 5 -expand 1 -fill both
 
-    set data(FolderIconLabel) [label $path.icon -bg white]
+    set data(FolderIconLabel) [label $path.icon -bg #FFFFFF]
 
     ButtonBox $f.bbox -spacing 1
     pack $f.bbox -side left

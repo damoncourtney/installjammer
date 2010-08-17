@@ -55,7 +55,7 @@ namespace eval Calendar {
         {-popupfont           String      "Arial 6"         0}
         {-popupipadx          Int         "10"              1}
         {-popupipady          Int         "3"               1}
-        {-popupbackground     String      "white"           0}
+        {-popupbackground     String      "#FFFFFF"         0}
 
         {-bg                  Synonym     -background}
         {-fg                  Synonym     -foreground}
@@ -551,7 +551,7 @@ proc Calendar::_redraw_calendar { path canvas month year calnum } {
 
     ## Add a line between the days of the week and the main calendar.
     incr y $startY
-    $canvas create line [list 0 $y $x $y] -fill darkgray -tags items
+    $canvas create line [list 0 $y $x $y] -fill #B8B8B8 -tags items
     incr y $startY
 
     set start [clock format [clock scan "1-$month-$year"] -format %A]

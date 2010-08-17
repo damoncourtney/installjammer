@@ -168,7 +168,7 @@ proc ::InstallJammer::AddAction { setup action args } {
         $pref insert $index $parent $id \
             -text $data(-title) -data action -image [GetImage appwinprops16] \
             -createcommand [list ::InstallJammer::CreateActionFrame $id] \
-            -fill [expr {$new ? "blue" : "black"}]
+            -fill [expr {$new ? "#0000FF" : "#000000"}]
     }
 
     Modified

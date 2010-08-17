@@ -22,7 +22,7 @@
 ## END LICENSE BLOCK
 
 option add *Installjammer*background                   #F0F0F0
-option add *Installjammer*Entry.background             white
+option add *Installjammer*Entry.background             #FFFFFF
 
 tk_setPalette #F0F0F0
 
@@ -288,10 +288,10 @@ proc Window.installjammer { {base .installjammer} } {
     ScrolledWindow $widg(StartPageTab).sw
     pack $widg(StartPageTab).sw -expand 1 -fill both
 
-    canvas $widg(Projects) -bg white -bd 2 -relief sunken
+    canvas $widg(Projects) -bg #FFFFFF -bd 2 -relief sunken
     $widg(StartPageTab).sw setwidget $widg(Projects)
 
-    label  $widg(Projects).logo -image logo -background white
+    label  $widg(Projects).logo -image logo -background #FFFFFF
     pack   $widg(Projects).logo -side bottom -anchor se -padx 10 -pady 10
 
     set c $widg(Projects)
@@ -1656,7 +1656,7 @@ proc Frame.commandLine { setup } {
     pack $top.sw -expand 1 -fill both -padx 5
 
     set l [TableList $top.sw.table -cols 7 -bd 1 -relief ridge \
-        -background white -selectmode extended -keycolumn 0 \
+        -background #FFFFFF -selectmode extended -keycolumn 0 \
         -editstartcommand  "::InstallJammer::EditStartCommandLine  %W %i %c" \
         -editfinishcommand "::InstallJammer::EditFinishCommandLine %W %i %c"]
 
@@ -1709,7 +1709,7 @@ proc Frame.virtualText {} {
     pack $top.listframe -expand 1 -fill both -padx 5
 
     set l [TableList $top.listframe.listbox -cols 2 -bd 1 -relief ridge \
-        -background white -selectmode extended -keycolumn 0 \
+        -background #FFFFFF -selectmode extended -keycolumn 0 \
         -editstartcommand  "::InstallJammer::EditStartVirtualText  %W %i %c" \
         -editfinishcommand "::InstallJammer::EditFinishVirtualText %W %i %c"]
 

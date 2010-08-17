@@ -38,7 +38,7 @@ proc CreateWindow.CustomTextPane1 { wizard id } {
     if {![$id get TextFont font]} { set font TkTextFont }
 
     Text $base.frame.text \
-        -state readonly -bg white -font $font\
+        -state readonly -bg #FFFFFF -font $font\
         -wrap word -highlightthickness 0 \
 	-yscrollcommand "$base.frame.vs set" \
 	-xscrollcommand "$base.frame.hs set"

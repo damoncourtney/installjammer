@@ -32,7 +32,7 @@ proc CreateWindow.SetupType { wizard id } {
     ScrolledWindow $base.sw
     grid $base.sw -row 0 -column 0 -sticky news -pady [list 4 0]
 
-    ListBox $base.list -bd 2 -relief sunken -background white \
+    ListBox $base.list -bd 2 -relief sunken -background #FFFFFF \
         -highlightthickness 0 -selectmode single -selectfill 1 -padx 0
     $base.sw setwidget $base.list
     $id widget set SetupTypeListBox -widget $base.list -type listbox

@@ -108,7 +108,7 @@ proc SelectColor::menu {path placement args} {
     set colors [concat $_baseColors $_userColors]
     foreach color $colors {
         set i [$c create rect $x $y [expr {$x + $size}] [expr {$y + $size}] \
-            -fill $color -width 1 -tags [list color $color] -outline darkgray]
+            -fill $color -width 1 -tags [list color $color] -outline #B8B8B8]
         $c bind $i <Enter> [list SelectColor::_highlight_color $path $i]
         $c bind $i <Leave> [list SelectColor::_highlight_color $path ""]
         $c bind $i <ButtonRelease-1> \
@@ -264,7 +264,7 @@ proc SelectColor::dialog {path args} {
         set tags [list val[expr {39 - $val}]]
         $c2 create rectangle 0 [expr {5*$val}] 15 [expr {5*$val+5}] -tags $tags
     }
-    $c2 create polygon 0 0 10 5 0 10 -fill black -outline white -tags target
+    $c2 create polygon 0 0 10 5 0 10 -fill #000000 -outline #FFFFFF -tags target
 
     grid $c1 -row 0 -column 0 -padx 10
     grid $c2 -row 0 -column 1 -padx 10
@@ -418,7 +418,7 @@ proc SelectColor::_select_rgb { count type {double 0} } {
     if {$_selection >= 0} {
         $frame.round$type$_selection configure -background [$frame cget -bg]
     }
-    $frame.round$type$count configure -background black
+    $frame.round$type$count configure -background #000000
 
     set _selection $count
     set bg   [$frame.color$type$count cget -background]

@@ -96,7 +96,7 @@ namespace eval Wizard {
 	{-relief          TkResource "flat"   0 frame}
 	{-borderwidth     TkResource "0"      0 frame}
 	{-background      Color      "SystemButtonFace" 0}
-	{-foreground      String     "black"  0      }
+	{-foreground      String     "#000000" 0      }
         {-backgroundimage String     ""       0      }
 	{-title           String     "Wizard" 0      }
 	{-createstep      Boolean    "0"      0      }
@@ -1263,15 +1263,15 @@ proc Wizard::layout::simple { wizard step } {
     Separator $layout.sep1 -relief groove -orient horizontal
 
     # title and subtitle and icon
-    frame $titleframe -bd 4 -relief flat -background white
+    frame $titleframe -bd 4 -relief flat -background #FFFFFF
 
-    label $title -background white \
+    label $title -background #FFFFFF \
         -textvariable [$wizard variable $step -text1]
 
-    label $subtitle -height 2 -background white -padx 15 -width 40 \
+    label $subtitle -height 2 -background #FFFFFF -padx 15 -width 40 \
     	-textvariable [$wizard variable $step -text2]
 
-    label $icon -borderwidth 0 -background white -anchor c
+    label $icon -borderwidth 0 -background #FFFFFF -anchor c
     set iconImage [$wizard getoption $step -icon]
     if {$iconImage ne ""} { $icon configure -image $iconImage }
 
@@ -1371,7 +1371,7 @@ proc Wizard::layout::classic { wizard step } {
         }
     }
 
-    label $icon -borderwidth 1 -relief sunken -background white \
+    label $icon -borderwidth 1 -relief sunken -background #FFFFFF \
         -anchor c -width 96 -image Wizard::none
     set iconImage [$wizard getoption $step -icon]
     if {[string length $iconImage]} { $icon configure -image $iconImage }
