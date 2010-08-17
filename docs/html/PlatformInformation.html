@@ -167,7 +167,7 @@ if (parent.location.href == self.location.href)
 </div>
 <p class=rvps1><span class=rvts4><br></span></p>
 <p class=rvps1><span class=rvts3>Require Administrator (Windows only)</span></p>
-<p class=rvps1><span class=rvts4>If this property is true, the resulting installer will only work if the user is an administrator on the target Windows system.&nbsp; For Vista and beyond, this means the installer is built as an executable that requires administrator privileges, and the user will be asked for an administrator password before the install is executed.&nbsp; For now, Vista and beyond are the only versions of Windows affected by this flag.&nbsp; Windows 98 and XP will simply ignore this property for now.</span></p>
+<p class=rvps1><span class=rvts4>If this property is true, the resulting installer will only work if the user is an administrator on the target Windows system.&nbsp; For Vista and beyond, this means the installer is built as an executable that requires administrator privileges, and the user will be asked for an administrator password before the install is executed.&nbsp; On earlier versions of Windows, the installer will check to see if the current user is in the Administrators group and will show an error message and exit if the user is not an administrator.</span></p>
 <p class=rvps1><span class=rvts4><br></span></p>
 <p class=rvps1><span class=rvts3>Require Root User (UNIX only)</span></p>
 <p class=rvps1><span class=rvts4>Whether or not the user must install this application as root.</span></p>

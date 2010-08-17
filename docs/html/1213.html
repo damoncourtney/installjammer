@@ -61,39 +61,15 @@ if (parent.location.href == self.location.href)
 <font size=2 color="#000000" face="Arial">
 <div><font size=5 color="#333399" face="Verdana"><b>1.2.13</b></font></div>
 </font>
-</TD><td width="120" align="right" nowrap><font face="Verdana" size="2"><a href="ReleaseNotes.html"><img src="Images/BrowseBlueLeft.png" border="0" alt="Previous Topic"></a>&nbsp;&nbsp;<a href="1212.html"><img src="Images/BrowseBlueRight.png" border="0" alt="Next Topic"></a>&nbsp;</font></td></tr></table></div><div id="FHScroll">
+</TD><td width="120" align="right" nowrap><font face="Verdana" size="2"><a href="1214.html"><img src="Images/BrowseBlueLeft.png" border="0" alt="Previous Topic"></a>&nbsp;&nbsp;<a href="1212.html"><img src="Images/BrowseBlueRight.png" border="0" alt="Next Topic"></a>&nbsp;</font></td></tr></table></div><div id="FHScroll">
 
-<p class=rvps1><span class=rvts3>1.2.13 (July 7th, 2009)</span></p>
+<p class=rvps1><span class=rvts3>1.2.13b2 (May 3rd, 2009)</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts2>This release contains minor bug fixes and enhancements.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts3>Minor Bug Fixes</span></p>
 <ul style="text-indent: 0px; margin-left: 24px; list-style-position: outside;">
-<li class=rvps1><span class=rvts2>Fix a bug in the Ask Yes or No condition that would cause an error in silent mode.</span></li>
-<li class=rvps1><span class=rvts2>Fixed a bug where clicking in the virtual text table could sometimes jump to another part of the table if another field was already being edited.</span></li>
-<li class=rvps1><span class=rvts2>Made some general bug fixes and behavior tweaks to the virtual text table.</span></li>
-<li class=rvps1><span class=rvts2>Fixed a bug where a modal dialog (like the conditions editor) could end up outside of the viewing area when switching from larger to smaller monitors.</span></li>
-<li class=rvps1><span class=rvts2>Fixed a bug in the Create Windows Service action where an error would occur when installing a Shared Process service.</span></li>
-<li class=rvps1><span class=rvts2>Fixed a bug where the .installjammer directory was being created on startup when it didn't need to be.&nbsp; This would cause some command-line builds to fail when built by a user who doesn't have a home directory.&nbsp; The directory is now created only when the builder goes to save its preference settings.</span></li>
-<li class=rvps1><span class=rvts2>Fixed a bug in Message Box and Message Panel that would allow them to execute in a console or silent install and then throw an error.&nbsp; These actions will no longer execute in a console or silent install.</span></li>
-<li class=rvps1><span class=rvts2>Fixed a bug where InstallJammer would attempt to load any *.msg file sitting next to the project file when loading the project.</span></li>
-<li class=rvps1><span class=rvts2>Fixed a bug where using the keyboard to navigate setup types would not change the description as one was selected.</span></li>
-<li class=rvps1><span class=rvts2>Fixed a bug where the SetActiveSetupType API call would not change the active setup type selected on the screen if the Setup Type pane was visible.</span></li>
-<li class=rvps1><span class=rvts2>Fixed a bug that would cause shortcuts not to work on Asian versions of Windows.</span></li>
-<li class=rvps1><span class=rvts2>Fixed a bug where failing to load a project would corrupt the builder and require it to be restarted to load another project.</span></li>
-<li class=rvps1><span class=rvts2>Fixed a bug where the uninstaller would remove ALL environment variables added by an installer on UNIX, even the ones marked not to be removed.</span></li>
-<li class=rvps1><span class=rvts2>Fixed a bug where the uninstaller would not properly default to the language chosen during installation for some of the available languages.</span></li>
-<li class=rvps1><span class=rvts2>Changed the way the uninstall handles the deletion of the uninstaller itself.&nbsp; The uninstaller now gets renamed into the temp directory instead of launching a copy of itself.</span></li>
-<li class=rvps1><span class=rvts2>Replace the restart of the gnome-panel.&nbsp; Some versions of the panel still require a restart to pick up menu changes, and until I can determine what versions need it and what don't, we'll err on the side of just doing it.</span></li>
-<li class=rvps1><span class=rvts2>Fixed a bug where zip and tar archives weren't picking up any files during a build.&nbsp; Also cleaned up when and how a refresh of the file groups is done so that it isn't done redundantly.</span></li>
-<li class=rvps1><span class=rvts2>Fixed a bug where the uninstall would default to the system language when it should keep the language used during installation.</span></li>
-<li class=rvps1><span class=rvts2>Fixed a bug where newer Gnome terminals would ignore more than one command when executing an external action in a console.&nbsp; Any command executed in a console is now stored in a file and then executed as a script.</span></li>
-<li class=rvps1><span class=rvts2>Fixed a bug from beta 1 where command-line arguments in the builder were being ignored when testing on Windows.</span></li>
-<li class=rvps1><span class=rvts2>Fixed a bug where several APIs would cause an error if executed in silent mode.&nbsp; These APIs are now restricted to GUI-only code.</span></li>
-<li class=rvps1><span class=rvts2>Fixed a bug where recursive directory links could cause an infinite loop in the builder.</span></li>
-<li class=rvps1><span class=rvts2>Fixed a bug where opening an explorer windows on UNIX platforms could fail.</span></li>
-<li class=rvps1><span class=rvts2>Fixed a bug where the /installkitvfs directory would show up in choose file and directory dialogs.</span></li>
 <li class=rvps1><span class=rvts2>Fixed a bug where the Select Destination pane would not properly substitute the destination label when updating the pane.</span></li>
 <li class=rvps1><span class=rvts2>Installing UNIX shortcuts as root will not install them for all users and not for the root user.&nbsp; This does not count for desktop icons, only for program folders and shortcuts.</span></li>
 <li class=rvps1><span class=rvts2>Removed the code to restart the gnome-panel on Gnome desktops.&nbsp; It seems like the panel will automatically pick up the changes on its own now.</span></li>
@@ -136,15 +112,6 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts3>Minor Enhancements</span></p>
 <ul style="text-indent: 0px; margin-left: 24px; list-style-position: outside;">
-<li class=rvps1><span class=rvts2>Cleaned up the --help output a little bit for a more UNIX-y style.</span></li>
-<li class=rvps1><span class=rvts2>Made some changes to the progress output during a console install (thanks to C. W. for the tips).&nbsp; It should be a lot cleaner now and look a little nicer.</span></li>
-<li class=rvps1><span class=rvts2>Added Lithuanian translations (thanks to Jonas Jasas!).</span></li>
-<li class=rvps1><span class=rvts2>Moved the debug log in the builder to a --debug-log command-line option that is disabled by default.&nbsp; We only need the debugging when something is broken in the builder, so we don't need to do it on every startup.</span></li>
-<li class=rvps1><span class=rvts2>Added the ability to span multiple discs using build separate archives.</span></li>
-<li class=rvps1><span class=rvts2>Added a debug option for uninstallers for new projects.</span></li>
-<li class=rvps1><span class=rvts2>Fixed a bug where Vista would inaccurately report that a directory was writable when it wasn't.</span></li>
-<li class=rvps1><span class=rvts2>Added new Ignore Files and Ignore Directories project preferences.&nbsp; These two properties allow a project to specify patterns of files and directories to ignore when searching the filesystem.</span></li>
-<li class=rvps1><span class=rvts2>Added a new Follow Directory Links property to file groups.&nbsp; This matches the Follow File Links property but for directories instead of files.&nbsp; The default is Yes for backward compatibility.</span></li>
 <li class=rvps1><span class=rvts2>Added a new VirtualTextAPI API call.</span></li>
 <li class=rvps1><span class=rvts2>Added a new LanguageAPI API call.</span></li>
 <li class=rvps1><span class=rvts2>Added a new Require Administrator option to the Windows platform.</span></li>

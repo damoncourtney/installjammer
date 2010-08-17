@@ -215,28 +215,6 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts4>Default Directory Location</span></p>
 <p class=rvps1><span class=rvts5>If this property is set, it specifies the default Location to use for all files and directories that are direct descendants of a file group if their own Location property is not set.&nbsp; This allows a project to specify that every file or directory in a project should be located in a particular place on the system or relative to the project file, for example.&nbsp; If a file or directory specifies its own Location, it overrides this default value.</span></p>
 <p class=rvps1><span class=rvts5><br></span></p>
-<p class=rvps1><span class=rvts4>Ignore Directories</span></p>
-<p class=rvps1><span class=rvts5>This property specifies a space-separated list of regular expression patterns to match when searching for directories in the builder.&nbsp; Any directory which matches one of the given patterns will be ignored and not added to the project.</span></p>
-<p class=rvps1><span class=rvts5><br></span></p>
-<p class=rvps1><span class=rvts4>Ignore Files</span></p>
-<p class=rvps1><span class=rvts5>This property specifies a space-separated list of regular expression patterns to match when searching for files in the builder.&nbsp; Any file which matches one of the given patterns will be ignored and not added to the project.&nbsp; This property is just like the Ignore Directories property but for files.</span></p>
-<p class=rvps1><span class=rvts5><br></span></p>
-<div class=rvps1><table border=0 cellpadding=1 cellspacing=2 style="border-width: 0px;">
-<tr valign=top>
-<td width=22>
-<p class=rvps1><img border="0" src="Images/note.jpg" alt="Note" width="32" height="32"></p>
-</td>
-<td width=604>
-<p class=rvps1><span class=rvts6>It is best to put patterns in quotes to be specific about separation, and backslashes must be escaped themselves in each pattern.&nbsp; Here is an example of two patterns which will ignore .svn and CVS directories:</span></p>
-<p class=rvps1><span class=rvts6><br></span></p>
-<p class=rvps1><span class=rvts6>\\\.svn CVS</span></p>
-<p class=rvps1><span class=rvts6><br></span></p>
-<p class=rvps1><span class=rvts6>Notice that the backslashes in the .svn pattern had to be escape so that we get a single backslash followed by escaping the . so that it matches an actual . instead of any single character in the expression.</span></p>
-</td>
-</tr>
-</table>
-</div>
-<p class=rvps1><span class=rvts5><br></span></p>
 <p class=rvps1><span class=rvts4>Include Install Debugging Options</span></p>
 <p class=rvps1><span class=rvts5>Include command-line debugging options in the install.</span></p>
 <p class=rvps1><span class=rvts5><br></span></p>

@@ -89,60 +89,60 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts3>-do (required)</span></p>
 <p class=rvps1><span class=rvts2>Specifies the action the API should take.&nbsp; Possible values are:</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
-<div class=rvps1><table border=1 cellpadding=1 cellspacing=2 style="border-width: 0px;">
+<div class=rvps1><table border=1 cellpadding=1 cellspacing=2 style="border-color: #ece9d8 #aca899 #aca899 #ece9d8; border-style: solid;">
 <tr valign=top>
-<td width=92 style="border-width : 1px; border-color: #000000; border-style: solid; border-top: none; border-right: none; border-bottom: none; border-left: none;">
+<td width=92 valign=top>
 <p class=rvps1><span class=rvts3>&nbsp;&nbsp;&nbsp; append</span></p>
 </td>
-<td width=670 style="border-width : 1px; border-color: #000000; border-style: solid; border-top: none; border-right: none; border-bottom: none; border-left: none;">
+<td width=670 valign=top>
 <p class=rvps1><span class=rvts2>Add a line to the given array that should be written to the properties file as-is.</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=92 style="border-width : 1px; border-color: #000000; border-style: solid; border-top: none; border-right: none; border-bottom: none; border-left: none;">
+<td width=92 valign=top>
 <p class=rvps1><span class=rvts3>&nbsp;&nbsp;&nbsp; data</span></p>
 </td>
-<td width=670 style="border-width : 1px; border-color: #000000; border-style: solid; border-top: none; border-right: none; border-bottom: none; border-left: none;">
+<td width=670 valign=top>
 <p class=rvps1><span class=rvts2>Return a string of data that will be written to a file if written.&nbsp; This data is the current contents of the properties file.</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=92 style="border-width : 1px; border-color: #000000; border-style: solid; border-top: none; border-right: none; border-bottom: none; border-left: none;">
+<td width=92 valign=top>
 <p class=rvps1><span class=rvts3>&nbsp;&nbsp;&nbsp; keys</span></p>
 </td>
-<td width=670 style="border-width : 1px; border-color: #000000; border-style: solid; border-top: none; border-right: none; border-bottom: none; border-left: none;">
+<td width=670 valign=top>
 <p class=rvps1><span class=rvts2>Return a list of keys in the properties array.</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=92 style="border-width : 1px; border-color: #000000; border-style: solid; border-top: none; border-right: none; border-bottom: none; border-left: none;">
+<td width=92 valign=top>
 <p class=rvps1><span class=rvts3>&nbsp;&nbsp;&nbsp; read</span></p>
 </td>
-<td width=670 style="border-width : 1px; border-color: #000000; border-style: solid; border-top: none; border-right: none; border-bottom: none; border-left: none;">
+<td width=670 valign=top>
 <p class=rvps1><span class=rvts2>Read a given properties file into the array.</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=92 style="border-width : 1px; border-color: #000000; border-style: solid; border-top: none; border-right: none; border-bottom: none; border-left: none;">
+<td width=92 valign=top>
 <p class=rvps1><span class=rvts3>&nbsp;&nbsp;&nbsp; set</span></p>
 </td>
-<td width=670 style="border-width : 1px; border-color: #000000; border-style: solid; border-top: none; border-right: none; border-bottom: none; border-left: none;">
+<td width=670 valign=top>
 <p class=rvps1><span class=rvts2>Set the value of a given key to a value.&nbsp; If the key already exists, it will be overwritten, and when it is saved to a file, it will replace the original line that set the key in the same place within the file.</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=92 style="border-width : 1px; border-color: #000000; border-style: solid; border-top: none; border-right: none; border-bottom: none; border-left: none;">
+<td width=92 valign=top>
 <p class=rvps1><span class=rvts3>&nbsp;&nbsp;&nbsp; unset</span></p>
 </td>
-<td width=670 style="border-width : 1px; border-color: #000000; border-style: solid; border-top: none; border-right: none; border-bottom: none; border-left: none;">
+<td width=670 valign=top>
 <p class=rvps1><span class=rvts2>Unset the value of a given key.&nbsp; This will remove the key from the array as well as delete any reference to the value when the file is written out.</span></p>
 </td>
 </tr>
 <tr valign=top>
-<td width=92 style="border-width : 1px; border-color: #000000; border-style: solid; border-top: none; border-right: none; border-bottom: none; border-left: none;">
+<td width=92 valign=top>
 <p class=rvps1><span class=rvts3>&nbsp;&nbsp;&nbsp; write</span></p>
 </td>
-<td width=670 style="border-width : 1px; border-color: #000000; border-style: solid; border-top: none; border-right: none; border-bottom: none; border-left: none;">
+<td width=670 valign=top>
 <p class=rvps1><span class=rvts2>Write the property array to a file.</span></p>
 </td>
 </tr>
@@ -158,6 +158,9 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts3>-line</span></p>
 <p class=rvps1><span class=rvts2>If the do action is append, this property specifies a line (or multiline) string to append directly to the given array.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
+<p class=rvps1><span class=rvts3>-separator</span></p>
+<p class=rvps1><span class=rvts2>Specifies the separator character to use between keys and values.&nbsp; The default is =.</span></p>
+<p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts3>-value</span></p>
 <p class=rvps1><span class=rvts2>If the do action is set or unset, this property specifies the value to set for the given key.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
@@ -165,8 +168,8 @@ if (parent.location.href == self.location.href)
 <p class=rvps1><span class=rvts3>Example</span></p>
 <p class=rvps1><span class=rvts3><br></span></p>
 <p class=rvps1><span class=rvts2>The following example shows a sample properties file and how the API uses it.</span></p>
-<p class=rvps1><span class=rvts2></span>
-<br><span class=rvts2>## Sample .properties file.</span></p>
+<p class=rvps1><span class=rvts2><br></span></p>
+<p class=rvps1><span class=rvts2>## Sample .properties file.</span></p>
 <p class=rvps1><span class=rvts2><br></span></p>
 <p class=rvps1><span class=rvts2>## Set foo</span></p>
 <p class=rvps1><span class=rvts2>foo=bar</span></p>
