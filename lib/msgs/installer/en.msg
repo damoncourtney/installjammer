@@ -53,6 +53,9 @@ DirectoryNameErrorText
 "A directory name cannot contain any of the following characters:
         \ / : * ? \" < > |"
 
+DirectoryNotEmptyText
+"<%Dir%> is not empty."
+
 DirectoryPermissionText
 "You do not have permission to write to <%Dir%>."
 
