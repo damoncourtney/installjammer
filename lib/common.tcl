@@ -554,6 +554,7 @@ proc inject {cmd args} {
     switch -- $cmd {
         "before" - "after" {
             lassign $args id script
+            set id [::InstallJammer::ID $id]
             lappend tests($cmd,$id) $script
         }
 
@@ -733,6 +734,7 @@ proc ::InstallJammer::CommonInit {} {
             ConsoleWidth      80
             ConsoleHeight     24
             NativeMessageBox  0
+            panesToSkip       {}
         }
         set conf(NativeChooseDirectory) $conf(osx)
 
@@ -1381,7 +1383,9 @@ proc ::InstallJammer::ExecuteActions { id args } {
         if {$conf(moveToPane) ne ""} {
             set res  0
             set pane $conf(moveToPane)
-            if {$pane eq "next"} {
+            if {$pane eq "stop"} {
+                ## Do nothing.
+            } elseif {$pane eq "next"} {
                 ::InstallJammer::Wizard next 1
             } else {
                 if {$pane eq $info(CurrentPane)} {
@@ -1495,38 +1499,42 @@ proc ::InstallJammer::RaiseEventHandler { wizard } {
 
     set info(CurrentPane) $id
 
+    set conf(skipPane) 0
     set when "Before Pane is Displayed"
-    if {![$id active] || ![$id checkConditions $when]} {
-        ## This pane is inactive or doesn't meet its conditions.
-        ## Remove it from the order of the wizard and continue on
-        ## to the next pane.
-
-        if {![$id active]} {
-            debug "Skipping pane $id - [$id title] - pane is inactive" $id
-        } else {
-            debug "Skipping pane $id - [$id title] - conditions failed" $id
+    if {![$id active]} {
+        set conf(skipPane) 1
+        set msg "pane is inactive"
+    } elseif {![$id checkConditions $when]} {
+        set conf(skipPane) 1
+        set msg "conditions failed"
+    } elseif {[lsearch -exact $conf(panesToSkip) $id] > -1} {
+        set conf(skipPane) 1
+        set msg "skipped by action or API"
+    } else {
+        set component [$id component]
+        if {[info exists ::InstallJammer::tests(before,$id)]} {
+            inject run before,$id
+        } elseif {[info exists ::InstallJammer::tests(before,$component)]} {
+            inject run before,$component
         }
 
+        ::InstallJammer::ExecuteActions $id -when $when
+        set msg "skipped by actions"
+    }
+
+    if {$conf(skipPane) || [lsearch -exact $conf(panesToSkip) $id] > -1} {
+        debug "Skipping pane $id - [$id title] - $msg" $id
         $wizard order [lrange [$wizard order] 0 end-1]
         ::InstallAPI::WizardAPI -do next
         return
     }
 
-    debug "Displaying pane $id - [$id title]" $id
-
-    set component [$id component]
-    if {[info exists ::InstallJammer::tests(before,$id)]} {
-        inject run before,$id
-    } elseif {[info exists ::InstallJammer::tests(before,$component)]} {
-        inject run before,$component
-    }
-
-    ::InstallJammer::ExecuteActions $id -when $when
-
     ## If the wizard isn't currently displaying our object, then
     ## that means that the previous actions have moved us somewhere
     ## else in the wizard.  We want to just stop.
     if {$id ne [$wizard raise]} { return }
+
+    debug "Displaying pane $id - [$id title]" $id
 
     ## If the last step we displayed was a window and not part
     ## of the wizard, we need to withdraw the window as we move on.

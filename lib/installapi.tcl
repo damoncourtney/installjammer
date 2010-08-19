@@ -1793,6 +1793,31 @@ proc ::InstallAPI::SetVirtualText { args } {
     }
 }
 
+proc ::InstallAPI::SkipPane { args } {
+    ::InstallAPI::ParseArgs _args $args {
+        -pane { string 0 }
+    }
+
+    global conf
+
+    if {![info exists _args(-pane)] || $_args(-pane) eq ""} {
+        set conf(skipPane) 1
+        set conf(moveToPane) stop
+    } else {
+        set pane [::InstallJammer::ID $_args(-pane)]
+        if {![::InstallJammer::ObjExists $pane]} {
+            return -code error "pane \"$pane\" does not exist"
+        }
+
+        lappend conf(panesToSkip) $pane
+    }
+}
+
+proc ::InstallAPI::Stop { args } {
+    global conf
+    set conf(moveToPane) stop
+}
+
 proc ::InstallAPI::SubstVirtualText { args } {
     ::InstallAPI::ParseArgs _args $args {
         -virtualtext { string 1 }
