@@ -52,7 +52,11 @@ proc BuildLog { text args } {
     set string "$date - $text"
     if {$conf(logBuild) && $_args(-logtofile)} {
 	if {![info exists conf(logfp)]} {
-	    set conf(logfp) [open [::InstallJammer::GetBuildLogFile] a+]
+            set logfile [::InstallJammer::GetBuildLogFile]
+            if {![file exists [file dirname $logfile]]} {
+                file mkdir [file dirname $logfile]
+            }
+	    set conf(logfp) [open $logfile a+]
             fconfigure $conf(logfp) -translation lf
 	}
 	puts  $conf(logfp) $string
