@@ -22,6 +22,7 @@ namespace eval Text {
         {-bg                  Synonym -background}
     }
 
+    bind ReadonlyText <1>   {focus %W}
     bind ReadonlyText <Key> {Text::_handle_key_movement %W %K}
 }
 

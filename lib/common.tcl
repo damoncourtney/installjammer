@@ -928,11 +928,11 @@ proc ::InstallJammer::InitializeGui {} {
     ## we don't want to keep going with the rest of the init.
     if {!$info(GuiMode)} { return }
 
-    if {$conf(osx)} {
-        bind Text <Command-Tab> [bind Text <Tab>]
-    } else {
-        bind Text <Control-Tab> [bind Text <Tab>]
-    }
+    set key Control
+    if {$conf(osx)} { set key Command }
+
+    bind Text <$key-a>   "%W tag add sel 1.0 end"
+    bind Text <$key-Tab> [bind Text <Tab>]
     bind Text <Tab> "# nothing"
     bind Text <Shift-Tab> ""
 
