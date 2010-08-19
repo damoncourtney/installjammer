@@ -4699,16 +4699,15 @@ itcl::class File {
         if {$conf(windows)} {
             ::InstallJammer::SetPermissions $dest $attributes
         } else {
-            if {[type] eq "dir"} {
-		if {$permissions eq ""} {
-                    ::set permissions $::info(DefaultDirectoryPermission)
-                }
+            if {$permissions eq ""} {
+                ::set permissions $::info(DefaultDirectoryPermission)
+            }
 
-		if {[info commands output] eq "output"} {
-		    output [list :DIR $dest $permissions]
-		}
-
+            if {[type] eq "dir" && [info commands output] eq "output"} {
+                output [list :DIR $dest $permissions]
                 ::InstallJammer::SetPermissions $dest 00777
+            } else {
+                ::InstallJammer::SetPermissions $dest $permissions
             }
         }
 
