@@ -23,6 +23,10 @@
 
 Action CreateFileLink
 
+Property AddToUninstall boolean "Add to Uninstall" "Yes"
+Help AddToUninstall "If this property is true, the link that is created\
+    will be added to the list of files to be uninstalled."
+
 Property LinkName installedfile "Link Name"
 Help FileName "The name of the link to create on the target system"
 
@@ -48,4 +52,6 @@ proc ::InstallJammer::actions::CreateFileLink { obj } {
             exec ln -s $target $link
         }
     }
+
+    if {$props(AddToUninstall)} { ::InstallJammer::LogFile $link }
 }
