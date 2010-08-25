@@ -261,11 +261,12 @@ proc ::InstallJammer::CleanupTmpDir {} {
         }
 
         if {$conf(UninstallRemoved) && !$conf(UninstallRenamed)} {
-            ## If we attempted to rename the uninstall but failed,
-            ## we want to add it to our little script for deletion.
-            ## We want to make several safety checks before doing
-            ## this though.
+            ## We attempted to rename the uninstaller out of the
+            ## way, but it failed.  This usually happens with the
+            ## uninstaller and the temp directory are on different
+            ## filesystems.
 
+            ## Add the uninstaller to our cleanup script.
             puts $fp {
                 set i 0
                 while {[file exists $uninstall] && [incr i] < 300} {
@@ -288,17 +289,36 @@ proc ::InstallJammer::CleanupTmpDir {} {
                 ## if the uninstall was deleted properly, and we already
                 ## know that it failed to delete before, so we can be
                 ## reasonably safe that this directory needs to go.
-                puts $fp "set dir [list $dir]"
+
+                set dirs [list $dir]
+
+                if {[info exists conf(cleanupCompanyDir)]} {
+                    ## The uninstaller left behind a company directory.
+                    ## We need to try and clean that up as well.
+                    lappend dirs $conf(cleanupCompanyDir)
+                }
+                puts $fp "set dirs [list $dirs]"
                 puts $fp {
-                    set files [glob -nocomplain -dir $dir *]
-                    eval lappend files \
-                        [glob -nocomplain -dir $dir -type hidden *]
-                    if {![llength $files]} {
-                        set i 0
-                        while {[file exists $dir] && [incr i] < 300} {
-                            catch {file delete -force -- $dir}
-                            after 100
+                    set i 0
+                    while {[incr i] < 300} {
+                        set done 0
+                        foreach dir $dirs {
+                            if {![file exists $dir]} {
+                                incr done
+                                continue
+                            }
+
+                            ## Check to see if the directory is empty.
+                            set files [glob -nocomplain -dir $dir *]
+                            eval lappend files \
+                                [glob -nocomplain -dir $dir -type hidden *]
+                            if {![llength $files]} { catch {file delete $dir} }
                         }
+
+                        ## If we've deleted every directory in our list,
+                        ## break out so we can exit.
+                        if {$done == [llength $dirs]} { break }
+                        after 100
                     }
                 }
             }

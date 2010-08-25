@@ -158,7 +158,9 @@ proc ::InstallJammer::actions::UninstallSelectedFiles {obj {forceUninstall 0}} {
                 ## and we don't want to blow away the whole company
                 ## directory even if our program was the one who
                 ## installed it.
-                if {[lindex [file split $dir] end] ne $info(Company)} {
+                if {[lindex [file split $dir] end] eq $info(Company)} {
+                    set conf(cleanupCompanyDir) $dir
+                } else {
                     lappend ::leftovers(:DIR) $list
                     lappend info(ErrorDirs) [file normalize $dir]
                     lappend notEmptyDirs [file normalize $dir]
