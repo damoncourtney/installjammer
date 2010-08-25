@@ -419,10 +419,6 @@ proc ::InstallJammer::Tree::DoRename { tree item newtext } {
 proc ::InstallJammer::Tree::Delete { tree {prompt 1} } {
     global widg
 
-    set msg "Are you sure you want to delete the selected items?"
-
-    if {$prompt && ![::InstallJammer::AskYesNo -message $msg]} { return }
-
     if {$tree eq $widg(FileGroupTree)} {
         ::FileGroupTree::delete
     } elseif {$tree eq $widg(ComponentTree)} {
@@ -430,6 +426,9 @@ proc ::InstallJammer::Tree::Delete { tree {prompt 1} } {
     } elseif {$tree eq $widg(SetupTypeTree)} {
         ::SetupTypeTree::delete
     } else {
+        set msg "Are you sure you want to delete the selected items?"
+        if {$prompt && ![::InstallJammer::AskYesNo -message $msg]} { return }
+
         foreach node [$tree selection get] {
             if {[IsInstallType $tree $node]} { continue }
             set setup [$node setup]
