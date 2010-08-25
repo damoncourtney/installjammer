@@ -32,17 +32,14 @@ Property VirtualTextPrefix short "Virtual Text Prefix" "PreviousInstall"
 proc ::InstallJammer::actions::GetPreviousInstallInfo { obj } {
     global info
 
-    variable ::InstallJammer::PreviousInstallInfo
-
     $obj properties props -subst 1
 
     set ids [::InstallAPI::ReadInstallInfo -array a \
         -installid $props(InstallID) -applicationid $props(ApplicationID)]
 
-    foreach id $ids {
-        foreach var [array names a $id,*] {
-            set name [string range $var [string length $id,] end]
-            set info($props(VirtualTextPrefix)$name) $a($var)
-        }
+    set id [lindex $ids end]
+    foreach {var val} [array get a $id,*] {
+        set var [string range $var [string length $id,] end]
+        set info($props(VirtualTextPrefix)$var) $val
     }
 }

@@ -1467,47 +1467,84 @@ proc ::InstallAPI::PropertyFileAPI { args } {
 }
 
 proc ::InstallAPI::ReadInstallInfo { args } {
+    global conf
     global info
 
     ::InstallAPI::ParseArgs _args $args {
         -array          { string 1 }
+        -prefix         { string 0 "" }
         -installid      { string 0 "" }
-        -applicationid  { string 1 }
+        -applicationid  { string 0 "<%ApplicationID%>" }
     }
 
     upvar 1 $_args(-array) array
 
+    set pre $_args(-prefix)
     set pattern *.info
     if {$_args(-installid) ne ""} { set pattern $_args(-installid).info }
 
+    set array(${pre}IDs)       {}
+    set array(${pre}Count)     0
+    set array(${pre}Exists)    0
+    set array(${pre}DirExists) 0
+
+    ## Check for old installer registry versions and update them to
+    ## the current format before reading install info.
+    ::InstallJammer::CheckAndUpdateInstallRegistry
+
     ::InstallJammer::GetInstallInfoDir
-    set dir [file join $info(InstallJammerRegistryDir) $_args(-applicationid)]
+    set appid [sub $_args(-applicationid)]
+    set dir [file join $info(InstallJammerRegistryDir) $appid]
     foreach file [glob -nocomplain -dir $dir $pattern] {
         set id [file root [file tail $file]]
 
+        set array(${pre}Exists) 1
+
         set tmp(ID) $id
         ::InstallJammer::ReadPropertyFile $file tmp
-        if {$_args(-installid) ne ""} {
-            array set array [array get tmp]
-            return $_args(-installid)
-        }
 
         set mtime [file mtime $file]
         if {[info exists tmp(Date)]} { set mtime $tmp(Date) }
 
-        lappend sort [list $mtime $id]
+        lappend sort [list $mtime $id $tmp(Dir)]
 
-        foreach var [array names tmp] {
-            set array($id,$var) $tmp($var)
+        foreach {var val} [array get tmp] {
+            set array($id,$var) $val
         }
+
+        ## If we were passed an InstallID we can only match
+        ## one install, so just break out after the first loop.
+        if {$_args(-installid) ne ""} { break }
     }
 
     if {![info exists sort]} { return }
 
-    set installids {}
+    set installids  {}
+    set installdirs {}
     foreach list [lsort -integer -index 0 $sort] {
-        lappend installids [lindex $list 1]
+        set id  [lindex $list 1]
+        set dir [lindex $list 2]
+
+        if {$conf(windows)} {
+            set dir [string tolower [::InstallJammer::Normalize $dir]]
+        }
+
+        lappend installids  $id
+        lappend installdirs $dir
     }
+
+    ## Grab the last ID by date and set the array's common
+    ## values based on that ID.  This populates the array
+    ## with the value of the most recent installation.
+    foreach {var val} [array get array $id,*] {
+        set var [string range $var [string length $id,] end]
+        set array(${pre}$var) $val
+    }
+
+    set array(${pre}IDs)       $installids
+    set array(${pre}Count)     [llength [lsort -unique $installdirs]]
+    set array(${pre}DirExists) [file exists $array(${pre}Dir)]
+
     return $installids
 }
 

@@ -676,7 +676,11 @@ proc ::InstallJammer::LogRegistry { args } {
 }
 
 proc ::InstallJammer::CheckAndUpdateInstallRegistry {} {
+    global conf
     global info
+
+    if {[info exists conf(checkAndUpdateRegistry)]} { return }
+    set conf(checkAndUpdateRegistry) 1
 
     ## Setup the directories we need.
     set dir [::InstallJammer::GetInstallInfoDir]
@@ -722,100 +726,17 @@ proc ::InstallJammer::ReadPreviousInstall {} {
     global conf
     global info
 
-    ## A brief explanation of the InstallJammer Registry.
-    ##
-    ## Each install creates two directories.  One based on
-    ## ApplicationID, and the other on InstallID.
-    ##
-    ## The ApplicationID directory contains a bunch of <InstallID>.info
-    ## files that tell us how many installations of a particular application
-    ## there have been.
-    ##
-    ## The .info files are simple property files with information about
-    ## the installation as it was created.  This can be read in on
-    ## subsequent installations to learn about what came before us.
-    ##
-    ## Each InstallID directory contains two files:
-    ##     .installinfo and install.log
-    ##
-    ## .installinfo is a list of all the files that were installed and
-    ## the version of each file as it was installed.  This is used on
-    ## subsequent installs to compare versions if the developer has
-    ## opted to do that.
-    ##
-    ## The install.log is what the uninstaller reads to know how and what
-    ## to uninstall.
-
     variable ::InstallJammer::PreviousInstallInfo
-
-    ## We've already been here.  We don't need to
-    ## read the previous install again.
-    if {[info exists PreviousInstallInfo]} { return }
-
-    ## Check for a previous install of this application.
-    ## If we find one, we want to read in the previous log
-    ## so that we remember what all was installed for uninstallation.
-
-    ## Setup the directories we need.
-    set dir [::InstallJammer::GetInstallInfoDir]
 
     ::InstallJammer::CheckAndUpdateInstallRegistry
 
-    ## Look in the registry directory for our Application ID and
-    ## find any <ID>.info files that represent the individual
-    ## installations of our application.  We want to read through
-    ## all of them and get their properties.  We also want to sort
-    ## them by their timestamp to get the most recent install to set
-    ## our virtual text values.
+    ::InstallAPI::ReadInstallInfo -prefix PreviousInstall \
+        -array PreviousInstallInfo
 
-    ## Look in the InstallInfoDir and find any .info files that
-    ## represent individual installations of our application.  We want
-    ## to read through all of them and get their properties.
-    foreach file [glob -nocomplain -dir $info(InstallInfoDir) *.info] {
-        set info(PreviousInstallExists) 1
-
-        set id [file root [file tail $file]]
-        lappend PreviousInstallInfo(ids) $id
-
-        unset -nocomplain tmp
-
-        set tmp(ID) $id
-        ::InstallJammer::ReadPropertyFile $file tmp
-
-        set mtime [file mtime $file]
-        if {[info exists tmp(Date)]} { set mtime $tmp(Date) }
-
-        lappend sort [list $mtime $id]
-
-        foreach var [array names tmp] {
-            set PreviousInstallInfo($id,$var) $tmp($var)
-        }
+    foreach {var val} [array get PreviousInstallInfo PreviousInstall*] {
+        set info($var) $val
+        unset PreviousInstallInfo($var)
     }
-
-    if {!$info(PreviousInstallExists)} { return }
-
-    unset -nocomplain tmp
-    set installdirs [list]
-    foreach list [lsort -integer -index 0 $sort] {
-        set id  [lindex $list 1]
-        set dir $PreviousInstallInfo($id,Dir)
-
-        if {$conf(windows)} {
-            set dir [string tolower [::InstallJammer::Normalize $dir]]
-        }
-
-        lappend installids  $id
-        lappend installdirs $dir
-    }
-
-    foreach var [array names PreviousInstallInfo $id,*] {
-        set name [string range $var [string length $id,] end]
-        set info(PreviousInstall$name) $PreviousInstallInfo($var)
-    }
-
-    set info(PreviousInstallIDs)       $installids
-    set info(PreviousInstallCount)     [llength [lsort -unique $installdirs]]
-    set info(PreviousInstallDirExists) [file exists $info(PreviousInstallDir)]
 }
 
 proc ::InstallJammer::StoreVersionInfo { {dir ""} {file ""} } {
