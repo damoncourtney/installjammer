@@ -166,6 +166,7 @@ proc ::InstallJammer::FinishBuild { {errors 0} } {
     }
 
     if {!$errors && [info exists solid]} {
+        set tmp [::InstallJammer::BuildDir out.lzma]
         foreach methodName [lsort [array names solid]] {
             set method [lindex $methodName 0]
             BuildLog "Building $method solid archive..."
@@ -176,13 +177,13 @@ proc ::InstallJammer::FinishBuild { {errors 0} } {
             foreach fileid $solid($methodName) {
                 set src [::InstallJammer::GetFileSource $fileid]
                 BuildLog "Packing $src..." -logtofile 0
-                miniarc::addfile $fp $src -name $fileid
+                miniarc::addfile $fp $src -name $fileid -temp $tmp
             }
             miniarc::close $fp
 
             BuildLog "Storing $method solid archive..."
             set fp [miniarc::open crap $conf(tmpExecutable) a -method $method]
-            miniarc::addfile $fp $file -name solid.$method
+            miniarc::addfile $fp $file -name solid.$method -temp $tmp
             miniarc::close $fp
 
             file delete -force $file
