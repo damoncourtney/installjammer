@@ -68,7 +68,9 @@ proc ::InstallJammer::actions::InstallUninstaller { obj } {
         ::InstallJammer::languagecodes
     }
 
-    set uninstall [::InstallJammer::TmpDir uninstall.tcl]
+    cd [::InstallJammer::TmpDir]
+    set uninstall uninstall.tcl
+    set main uninstallMain.tcl
 
     set fp [open_text $uninstall w -translation lf -encoding utf-8]
     puts $fp "namespace eval ::InstallAPI {}"
@@ -112,8 +114,13 @@ proc ::InstallJammer::actions::InstallUninstaller { obj } {
 
     lappend opts -catalog [file join $conf(vfs) catalogs messages]
 
+    set fp [open $main w]
+    puts $fp {encoding system utf-8}
+    puts $fp {source [file join $::installkit::root uninstall.tcl]}
+    close $fp
+
     ## Create the uninstall binary.
-    eval ::InstallJammer::Wrap $opts [list $uninstall]
+    eval ::InstallJammer::Wrap $opts [list $main $uninstall]
 
     ::InstallJammer::SetPermissions $uninstallBin 00755
 
