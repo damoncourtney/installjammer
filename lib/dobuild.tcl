@@ -165,7 +165,7 @@ catch {
 
         set i 0
         file mkdir $output
-        set manifest [read_file $_argv(--archive-manifest)]
+        set manifest [read_textfile $_argv(--archive-manifest)]
         foreach {id file group size mtime method} $manifest {
             set sizes($file) $size
             iincr totalSize $size
@@ -177,16 +177,17 @@ catch {
         }
 
         foreach {id file group size mtime method} $manifest {
-            if {![info exists fp($group)]} {
+            if {![info exists fps($group)]} {
                 set archive [file join $output setup[incr i].ijc]
-                set fp($group) [eval miniarc::open crap [list $archive] w $opts]
+                set fps($group) \
+                    [eval miniarc::open crap [list $archive] w $opts]
             }
             Progress $file
-            miniarc::addfile $fp($group) $file -name $id -method $method
+            miniarc::addfile $fps($group) $file -name $id -method $method
         }
 
-        foreach f [array names fp] {
-            miniarc::close $fp($f)
+        foreach f [array names fps] {
+            miniarc::close $fps($f)
         }
     }
 
