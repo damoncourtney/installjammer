@@ -4054,6 +4054,7 @@ proc ::InstallJammer::ParseCommandLineArguments { argv } {
         ::InstallJammer::InitializeGui
         if {!$conf(windows)} { SourceCachedFile console.tcl }
         console show
+        debugging on
     }
 
     if {!$info(GuiMode) && !$conf(windows)} {
