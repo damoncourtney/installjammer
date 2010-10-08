@@ -760,6 +760,7 @@ proc ::InstallJammer::StoreVersionInfo { {dir ""} {file ""} } {
         catch { file delete -force $file }
     }
 
+    debug "Storing version file $file"
     if {[catch {open_text $file w -translation lf -encoding utf-8} fp]} {
         return
     }
@@ -770,7 +771,13 @@ proc ::InstallJammer::StoreVersionInfo { {dir ""} {file ""} } {
 	puts $fp "Ver [list $filename] $versions($filename)"
     }
 
-    close $fp
+    catch {close $fp}
+
+    if {![file exists $file] || [file size $file] == 0} {
+        debug "Version file failed to create."
+    } else {
+        debug "Version file created successfully."
+    }
 
     if {$conf(windows)} {
         file attributes $file -hidden 1
