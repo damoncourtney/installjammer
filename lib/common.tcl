@@ -1043,8 +1043,8 @@ proc ::InstallJammer::LoadTwapi {} {
         && [info exists ::installkit::root]
         && [llength [package versions twapi]]} {
         ## Set a variable to trick TWAPI.
-        namespace eval ::starkit {
-            variable topdir $::installkit::root
+        namespace eval ::twapi {
+            set temp_dll_dir [::InstallJammer::TmpDir]
         }
 
         package require twapi
