@@ -420,8 +420,8 @@ proc init {} {
     }
 
     array set conf {
-        Version                 1.2.15b1
-	InstallJammerVersion	1.2.15.1
+        Version                 1.2.15
+	InstallJammerVersion	1.2.15.2
 	projectLoaded		0
 	silent			0
         verbose                 0
