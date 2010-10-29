@@ -713,6 +713,10 @@ proc ::InstallJammer::CommonInit {} {
     if {!$conf(windows)} {
         append ::env(PATH) ":/bin:/sbin:/usr/bin:/usr/sbin"
         append ::env(PATH) ":/usr/local/bin:/usr/local/sbin"
+
+        ## Include KDE4 paths to get kdesu.
+        append ::env(PATH) ":/usr/lib/kde4/libexec"
+        append ::env(PATH) ":/usr/lib64/kde4/libexec"
     }
 
     ::InstallJammer::InitializeMessageCatalogs
