@@ -320,9 +320,7 @@ proc ::InstallJammer::actions::ExecuteExternalProgram { obj } {
                 }
                 set cmd $tmpfile
 
-                if {$konsole} {
-                    set cmd [concat [list $term -T $title] -e $cmd]
-                } elseif {$gnometerm} {
+                if {$gnometerm} {
                     set cmd [list $term -t $title -e $cmd]
                 } else {
                     set cmd [list $term -e $cmd]
