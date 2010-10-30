@@ -814,8 +814,7 @@ proc init {} {
     file mkdir $conf(installs)
 
     if {$conf(unix)} {
-        global env
-        append env(PATH) ":[file join $conf(pwd) Binaries Linux-x86 xdg-utils]"
+        append ::env(PATH) ":[file join $conf(pwd) lib packages xdg-utils]"
     }
 
     ::InstallJammer::GuiInit
