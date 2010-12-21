@@ -4703,7 +4703,9 @@ itcl::class File {
 
 	if {![::InstallJammer::PauseCheck]} { return 0 }
 
-        if {$conf(windows)} {
+        if {[type] eq "link"} {
+            ## Do nothing
+        } elseif {$conf(windows)} {
             ::InstallJammer::SetPermissions $dest $attributes
         } else {
             if {$permissions eq ""} {
