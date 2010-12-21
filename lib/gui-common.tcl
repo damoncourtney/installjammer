@@ -994,8 +994,10 @@ proc Frame.platformInformation {} {
                     files on a UNIX platform (in octal format)"
         }
 
+        set modes [list Default Silent Standard]
+        if {$platform ne "Windows"} { lappend modes "Console" }
 	$p insert end $node #auto -text "Default Install Mode" \
-            -values [list Default Silent Standard] \
+            -values $modes \
             -editable 0 -data InstallMode -editfinishcommand $cmd \
             -value [$platform get InstallMode] -helptext "The default install\
                 mode when installing this application"
