@@ -36,7 +36,7 @@ Property LineFeed choice "Line Feed" "Auto" {Auto Unix Windows}
 Help LineFeed "The end-of-line character to use when outputting lines"
 
 proc ::InstallJammer::actions::ReplaceTextInFile { obj } {
-    $obj properties props
+    $obj properties props -subst {Encoding LineFeed}
 
     set translation auto
     if {$props(LineFeed) eq "Unix"} {
