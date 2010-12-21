@@ -1469,7 +1469,9 @@ proc ::InstallJammer::CancelEventHandler { wizard } {
     #set when "After Pane is Cancelled"
     #::InstallJammer::ExecuteActions $id -when $when
 
-    if {[$wizard itemcget cancel -state] eq "normal"} {
+    set button [$wizard widget get cancel]
+    if {[$wizard itemcget cancel -state] eq "normal"
+        && (![winfo exists $button] || [winfo manager $button] ne "")} {
         ::InstallJammer::exit 1
     }
 }
