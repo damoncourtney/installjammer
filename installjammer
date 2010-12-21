@@ -28,7 +28,7 @@
 ## cannot find a suitable InstallKit binary.  A list of supported platforms
 ## can be found in the Binaries/ subdirectory.
 ##
-PLATFORM=""
+PLATFORM=$IJ_PLATFORM
 
 ##
 ## This script attempts to find an installkit to start InstallJammer.
@@ -39,7 +39,10 @@ platform() {
     MACHINE=`uname -m`
 
     case $MACHINE in
-        *86)
+        *86_64*)
+            MACHINE=x86_64
+            ;;
+        *86*)
             MACHINE=x86
             ;;
         *sun*)
@@ -90,7 +93,9 @@ INSTALLKIT="$INSTALLJAMMER_HOME/Binaries/$PLATFORM/installkit"
 if test ! -f "$INSTALLKIT"; then
     echo
     echo "Could not find an installkit for your platform '$PLATFORM'."
-    echo "You must modify this script and define a platform at the top."
+    echo "You must set IJ_PLATFORM to a valid platform in the Binaries/"
+    echo "directory or download the appropriate platform from"
+    echo "http://downloads.installjammer.com/installkit/1.2/"
     echo
     exit 1
 fi

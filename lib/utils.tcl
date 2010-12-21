@@ -2807,7 +2807,11 @@ proc ::InstallJammer::Platform {} {
     set version $tcl_platform(osVersion)
 
     switch -glob -- $machine {
-	"intel" - "*86" {
+        "*86_64*" {
+            set machine "x86_64"
+        }
+
+	"intel" - "*86*" {
             set machine "x86"
         }
 
