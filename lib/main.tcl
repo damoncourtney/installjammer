@@ -663,12 +663,22 @@ proc init {} {
 
     if {$conf(osx)} { set conf(gui) "osx" }
 
-    ::ParseCommandLineArgs
-
     ::InstallJammer::Debug "Initializing InstallJammer..."
 
     uplevel #0 source [list [file join $conf(lib) common.tcl]]
     uplevel #0 source [list [file join $conf(lib) utils.tcl]]
+
+    set verfile [file join $conf(pwd) .buildversion]
+    set gitfile [file join $conf(pwd) .git refs heads v1.2]
+    if {[file exists $verfile]} {
+        set conf(BuildVersion) [string trim [read_file $verfile]]
+    } elseif {[file exists $gitfile]} {
+        set conf(BuildVersion) [string range [read_file $gitfile] 0 6]
+    } else {
+        set conf(BuildVersion) "unknown"
+    }
+
+    ::ParseCommandLineArgs
 
     if {[info exists conf(commandPort)]} {
         set conf(commandSock) [socket -server \
@@ -684,16 +694,6 @@ proc init {} {
     set bindir [file dirname [info nameofexecutable]]
     if {!$conf(windows) && [lsearch -exact $::auto_path $bindir] < 0} {
         lappend ::auto_path $bindir
-    }
-
-    set verfile [file join $conf(pwd) .buildversion]
-    set gitfile [file join $conf(pwd) .git refs heads v1.2]
-    if {[file exists $verfile]} {
-        set conf(BuildVersion) [string trim [read_file $verfile]]
-    } elseif {[file exists $gitfile]} {
-        set conf(BuildVersion) [string range [read_file $gitfile] 0 6]
-    } else {
-        set conf(BuildVersion) "unknown"
     }
 
     if {!$conf(cmdline)} {
