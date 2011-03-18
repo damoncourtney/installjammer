@@ -436,6 +436,10 @@ proc ::InstallAPI::FetchURL { args } {
         }
 
         http::cleanup $token
+
+        if {[file exists $file] && !$conf(windows)} {
+            file attributes $file -permissions 00755
+        }
     }
 
     return 1
