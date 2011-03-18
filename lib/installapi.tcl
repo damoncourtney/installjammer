@@ -366,7 +366,7 @@ proc ::InstallAPI::FetchURL { args } {
         if {$file ne ""} {
             set fp [open $file w]
             fconfigure $fp -translation binary
-            lappend opts -channel $fp
+            lappend opts -channel $fp -binary 1
         }
 
         if {$total > 0} {
@@ -406,14 +406,16 @@ proc ::InstallAPI::FetchURL { args } {
             file delete -force $file
         }
 
-        if {$state(status) eq "ok" && [http::ncode $token] == 302} {
+        set ncode [http::ncode $token]
+        if {[string match {30[1237]} $ncode]} {
             ## This URL is a redirect.  We need to fetch the redirect URL.
+            if {$file ne ""} { file delete -force $file }
 
             array set meta $state(meta)
             http::cleanup $token
 
             if {![info exists meta(Location)]} {
-                return -code error "302 Redirect without new Location"
+                return -code error "$ncode Redirect without new Location"
             }
 
             set _args(-url) $meta(Location)
