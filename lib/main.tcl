@@ -28,8 +28,6 @@ namespace eval ::InstallJammer {}
 proc ::InstallJammer::DisplayUsageInformation { {message ""} } {
     global conf
 
-    uplevel #0 source [list [file join $conf(lib) common.tcl]]
-
     append message {
 Usage: installjammer ?options? ?--? ?projectFile?
 
@@ -67,6 +65,7 @@ proc ParseCommandLineArgs {} {
         --build
         --build-for-release
         --debug-log
+        --include-all-apis
         --quick-build
         --test
         --test-without-installing
@@ -162,6 +161,10 @@ proc ParseCommandLineArgs {} {
 
             "--help" - "-help" {
                 ::InstallJammer::DisplayUsageInformation
+            }
+
+            "--include-all-apis" {
+                set conf(buildAllAPIs) 1
             }
 
 	    "--output-dir" {
@@ -448,6 +451,7 @@ proc init {} {
         testInTestMode          0
 	backgroundBuild 	1
 	rebuildOnly		0
+        buildAllAPIs            0
 	SaveTempDir		0
 	TestWithoutFiles	0
 	TestAllDefaults		0

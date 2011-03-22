@@ -27,15 +27,15 @@ test test-1.1 {Test a basic installer} -body {
     }
 
     if {![file exists $info(InstallInfoDir)]} {
-        return -code error "Registry directory not created"
+        error "Registry directory not created"
     }
 
     cd $info(InstallInfoDir)
-    if {![file exists $info(ApplicationID).info]} {
-        return -code error ".info file not created"
+    if {![file exists $info(InstallID).info]} {
+        error ".info file not created"
     }
 
-    if {![file exists $info(ApplicationID).log]} {
-        return -code error ".log file not created"
+    if {![file exists $info(InstallID).log]} {
+        error ".log file not created"
     }
 }

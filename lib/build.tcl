@@ -549,7 +549,15 @@ proc BuildBWidgetData {} {
 }
 
 proc ::InstallJammer::BuildAPIData { varName } {
+    global conf
+
     upvar 1 $varName fullcode
+
+    if {$conf(buildAllAPIs)} {
+        set data [read_file [file join $conf(lib) installapi.tcl]]
+        append fullcode $data
+        return $data
+    }
 
     set data ""
     set code $fullcode
