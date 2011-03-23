@@ -314,6 +314,8 @@ proc ::InstallAPI::FetchURL { args } {
         -virtualtext         { string 0 "" }
     }
 
+    global conf
+
     package require http
 
     set urls  [split $_args(-url) \;]
@@ -1899,12 +1901,12 @@ proc ::InstallAPI::URLIsValid { args } {
 
     if {$code == 200} {
         set return 1
-    } elseif {$code == 302} {
+    } elseif {[string match {30[1237]} $code]} {
         ## This URL is a redirect.  We need to fetch the redirect URL.
         array set meta $state(meta)
 
         if {![info exists meta(Location)]} {
-            return -code error "302 Redirect without new Location"
+            return -code error "$code Redirect without new Location"
         }
 
         set _args(-url) $meta(Location)

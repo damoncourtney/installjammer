@@ -46,93 +46,21 @@ Help ProgressVirtualText "The name of a virtual text variable to track the\
                         progress of the download"
 
 proc ::InstallJammer::actions::FetchURL { obj } {
-    global conf
-    global info
-
-    package require http
-
     $obj properties props -subst 1
 
-    ::http::config -proxyhost $props(ProxyHost) -proxyport $props(ProxyPort)
-
-    set list  [split $props(URL) \;]
-    set len   [llength $list]
-    set total 0
-
+    lappend args -url $props(URL)
+    if {$props(Timeout) ne ""} { lappend args -timeout $props(Timeout) }
+    if {$props(ProxyHost) ne ""} { lappend args -proxyhost $props(ProxyHost) }
+    if {$props(ProxyPort) ne ""} { lappend args -proxyport $props(ProxyPort) }
     if {$props(ProgressVirtualText) ne ""} {
-        ::InstallAPI::SetVirtualText \
-            -virtualtext $props(ProgressVirtualText) -value 0 -autoupdate 1
-
-        foreach url $list {
-            set tok [::http::geturl $url -validate 1]
-            upvar #0 $tok state
-            incr total $state(totalsize)
-            ::http::cleanup $tok
-        }
-
-        ::InstallJammer::StartProgress \
-            ::info($props(ProgressVirtualText)) $total
+        lappend args -progressvirtualtext $props(ProgressVirtualText)
     }
 
-    set i 0
-    foreach url $list {
-        incr i
-        set url  [string trim $url]
-        set opts [list -blocksize 8192]
-
-        if {[string length $props(Timeout)]} {
-            #lappend opts -timeout $props(Timeout)
-        }
-
-        if {$props(SaveTo) eq "file" && $props(Target) ne ""} {
-            set filename [string trim $props(Target)]
-
-            if {[file isdirectory $filename]} {
-                set dirname  $filename
-                set filename [file join $dirname [::InstallJammer::uuid].part]
-            }
-
-            set fp [open $filename w]
-            fconfigure $fp -translation binary
-
-            lappend opts -channel $fp
-        }
-
-        if {$total > 0} {
-            ::InstallJammer::ResetProgress
-            lappend opts -progress ::InstallJammer::UpdateProgress
-        }
-
-        if {$len == 1} {
-            set info(Status) "<%DownloadingFilesText%>"
-        } else {
-            set info(Status) "<%DownloadingFilesText%> ($i/$len)"
-        }
-
-        if {[catch { eval ::http::geturl [list $url] $opts } token]} {
-            if {[info exists fp]} { close $fp }
-            if {[info exists filename]} { file delete -force $filename }
-            return -code error $token
-        }
-
-        upvar #0 $token state
-
-        if {$props(SaveTo) eq "file"} {
-            close $fp
-
-            if {[info exists dirname]} {
-                set name [file join $dirname [file tail $state(url)]]
-                file rename -force $filename $name
-                unset dirname filename
-            }
-        }
-
-        if {$props(SaveTo) eq "virtualtext" && $props(Target) ne ""} {
-            set ::info($props(Target)) $state(body)
-        }
-
-        ::http::cleanup $token
+    if {$props(SaveTo) eq "file"} {
+        lappend args -file $props(Target)
+    } else {
+        lappend args -virtualtext $props(Target)
     }
 
-    if {[info exists var]} { set $var 100 }
+    eval ::InstallAPI::FetchURL $args
 }
