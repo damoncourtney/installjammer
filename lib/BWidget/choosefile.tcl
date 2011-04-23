@@ -121,7 +121,10 @@ proc ChooseFile::create { path args } {
         set shell [$popdown $data(FolderCombo)]
         set listbox $shell.l
         destroy $listbox
-        grid remove $shell.sb
+        # Uncommenting this line causes the grid remove call to hang
+        # and therefore not return. The user never sees the file chooser
+        # dialog. This happens on Debian Squeeze 64 bit
+        ## grid remove $shell.sb
 
         bind $shell <Unmap> [list after idle [list focus $frame.listbox]]
 
